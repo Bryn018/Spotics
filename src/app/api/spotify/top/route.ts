@@ -20,6 +20,11 @@ const RANGE_MAP: Record<string, TimeRange> = {
   long: "long_term",
 };
 
+function errMsg(reason: unknown) {
+  if (reason instanceof Error) return reason.message;
+  return "unknown_error";
+}
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) {
@@ -30,33 +35,49 @@ export async function GET(req: NextRequest) {
   const rangeKey = (searchParams.get("range") || "7d").toLowerCase();
   const mapped = RANGE_MAP[rangeKey] || "short_term";
 
-  try {
-    const [tracks, artists, nowPlaying, recent] = await Promise.all([
-      getTopTracks(session.accessToken, mapped, 20),
-      getTopArtists(session.accessToken, mapped, 20),
-      getCurrentlyPlaying(session.accessToken),
-      getRecentlyPlayed(session.accessToken, 50),
-    ]);
+  const [tracksRes, artistsRes, nowPlayingRes, recentRes] = await Promise.allSettled([
+    getTopTracks(session.accessToken, mapped, 20),
+    getTopArtists(session.accessToken, mapped, 20),
+    getCurrentlyPlaying(session.accessToken),
+    getRecentlyPlayed(session.accessToken, 50),
+  ]);
 
-    const albums = deriveTopAlbums(tracks.items).slice(0, 20);
-    const windowStats = aggregateByWindow(recent.items);
+  const tracks = tracksRes.status === "fulfilled" ? tracksRes.value.items : [];
+  const artists = artistsRes.status === "fulfilled" ? artistsRes.value.items : [];
+  const albums = tracks.length ? deriveTopAlbums(tracks).slice(0, 20) : [];
+  const windowStats =
+    recentRes.status === "fulfilled"
+      ? aggregateByWindow(recentRes.value.items)
+      : {
+          "24h": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+          "7d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+          "30d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+        };
 
-    return NextResponse.json({
-      ok: true,
+  const errors: Record<string, string> = {};
+  if (tracksRes.status === "rejected") errors.topTracks = errMsg(tracksRes.reason);
+  if (artistsRes.status === "rejected") errors.topArtists = errMsg(artistsRes.reason);
+  if (nowPlayingRes.status === "rejected") errors.nowPlaying = errMsg(nowPlayingRes.reason);
+  if (recentRes.status === "rejected") errors.recentlyPlayed = errMsg(recentRes.reason);
+
+  const limitedMode = Object.keys(errors).length > 0;
+  const fullyUnavailable = !tracks.length && !artists.length && recentRes.status === "rejected";
+
+  return NextResponse.json(
+    {
+      ok: !fullyUnavailable,
       range: rangeKey,
       sourceRange: mapped,
-      nowPlaying,
+      limitedMode,
+      errors,
+      nowPlaying: nowPlayingRes.status === "fulfilled" ? nowPlayingRes.value : null,
       spotifyTop: {
-        tracks: tracks.items,
-        artists: artists.items,
+        tracks,
+        artists,
         albums,
       },
       windowStats,
-    });
-  } catch (e) {
-    return NextResponse.json(
-      { ok: false, message: e instanceof Error ? e.message : "Spotify fetch failed" },
-      { status: 500 },
-    );
-  }
+    },
+    { status: fullyUnavailable ? 503 : 200 },
+  );
 }

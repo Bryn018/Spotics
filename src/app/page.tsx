@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { aggregateByWindow, getRecentlyPlayed } from "@/lib/spotify";
+import { aggregateByWindow, getRecentlyPlayed, getTopTracks } from "@/lib/spotify";
 
 function getAuthErrorHint(error?: string) {
   switch (error) {
@@ -11,11 +11,11 @@ function getAuthErrorHint(error?: string) {
     case "OAuthAccountNotLinked":
     case "Callback":
     case "spotify":
-      return "Spotify OAuth failed. Double-check SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET and redirect URI in Spotify dashboard.";
+      return "Spotify OAuth failed. Double-check app credentials, redirect URI, and account/app eligibility.";
     case "Configuration":
       return "Auth configuration issue. Verify NEXTAUTH_URL and NEXTAUTH_SECRET in Railway.";
     case "AccessDenied":
-      return "Access denied by provider. Make sure your Spotify app is active and you approved permissions.";
+      return "Access denied by provider. Check your Spotify app settings and test-user access.";
     default:
       return "Authentication failed. Check Railway runtime logs for next-auth details.";
   }
@@ -32,8 +32,9 @@ export default async function Home({
   const authError = sp.error;
 
   let snapshot: {
-    totalPlays: number;
-    uniqueArtists: number;
+    mode: "window" | "top";
+    totalPlays?: number;
+    uniqueArtists?: number;
     topTracks: string[];
   } | null = null;
 
@@ -44,12 +45,21 @@ export default async function Home({
       const w = windows["7d"];
 
       snapshot = {
+        mode: "window",
         totalPlays: w.totalPlays,
         uniqueArtists: w.artists.length,
         topTracks: w.tracks.slice(0, 3).map((t) => `${t.name} — ${(t.artists || []).join(", ")} (${t.plays})`),
       };
     } catch {
-      snapshot = null;
+      try {
+        const top = await getTopTracks(session.accessToken, "short_term", 3);
+        snapshot = {
+          mode: "top",
+          topTracks: top.items.map((t) => `${t.name} — ${t.artists.map((a) => a.name).join(", ")}`),
+        };
+      } catch {
+        snapshot = null;
+      }
     }
   }
 
@@ -60,7 +70,7 @@ export default async function Home({
           <p className="text-sm uppercase tracking-[0.3em] text-fuchsia-200">Spotics</p>
           <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Your Spotify listening intelligence</h1>
           <p className="mt-4 max-w-2xl text-white/80">
-            Track your music taste with real 24H, 7D, and 30D activity windows plus Spotify affinity insights.
+            Spotics now supports fallback mode so restricted accounts still get useful insights.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             {isAuthed ? (
@@ -94,7 +104,7 @@ export default async function Home({
             <p className="font-semibold">Login failed: {authError}</p>
             <p className="mt-1 text-red-100/90">{getAuthErrorHint(authError)}</p>
             <p className="mt-1 text-red-100/80">
-              After updating vars, redeploy then try
+              After updating vars/settings, redeploy then try
               <Link href="/api/auth/signin/spotify" className="mx-1 underline">
                 sign in again
               </Link>
@@ -103,37 +113,41 @@ export default async function Home({
           </div>
         )}
 
-        {session?.error === "RefreshAccessTokenError" && (
-          <div className="mb-6 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-amber-100">
-            Your Spotify session expired. Please
-            <Link href="/api/auth/signin/spotify" className="mx-1 underline">
-              sign in again
-            </Link>
-            to continue.
-          </div>
-        )}
-
         {snapshot ? (
-          <section className="grid gap-5 md:grid-cols-3">
-            <StatsCard title="Recent Plays" value={String(snapshot.totalPlays)} hint="last 7 days" color="from-cyan-400/40" />
-            <StatsCard
-              title="Unique Artists"
-              value={String(snapshot.uniqueArtists)}
-              hint="last 7 days"
-              color="from-fuchsia-400/40"
-            />
-            <StatsCard
-              title="Top Song"
-              value={snapshot.topTracks[0]?.split(" — ")[0] || "-"}
-              hint="last 7 days"
-              color="from-emerald-400/40"
-            />
-          </section>
+          snapshot.mode === "window" ? (
+            <section className="grid gap-5 md:grid-cols-3">
+              <StatsCard title="Recent Plays" value={String(snapshot.totalPlays ?? 0)} hint="last 7 days" color="from-cyan-400/40" />
+              <StatsCard
+                title="Unique Artists"
+                value={String(snapshot.uniqueArtists ?? 0)}
+                hint="last 7 days"
+                color="from-fuchsia-400/40"
+              />
+              <StatsCard
+                title="Top Song"
+                value={snapshot.topTracks[0]?.split(" — ")[0] || "-"}
+                hint="last 7 days"
+                color="from-emerald-400/40"
+              />
+            </section>
+          ) : (
+            <section className="rounded-2xl border border-white/10 bg-white/5 p-5 text-white/80">
+              <p className="mb-2 font-semibold text-white">Fallback mode active</p>
+              <p className="mb-3 text-sm text-white/70">Recent-play windows are unavailable, so we’re showing top tracks instead.</p>
+              <ul className="space-y-2 text-sm">
+                {snapshot.topTracks.map((track) => (
+                  <li key={track} className="rounded-lg border border-white/10 p-2">
+                    {track}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
         ) : (
           <section className="rounded-2xl border border-white/10 bg-white/5 p-5 text-white/75">
             {isAuthed
-              ? "Couldn’t load your snapshot right now. Open the dashboard to retry."
-              : "Sign in with Spotify to see your live listening snapshot."}
+              ? "Couldn’t load snapshot data right now. Open dashboard to retry."
+              : "Sign in with Spotify to see your listening snapshot."}
           </section>
         )}
       </div>
