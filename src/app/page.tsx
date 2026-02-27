@@ -3,9 +3,33 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { aggregateByWindow, getRecentlyPlayed } from "@/lib/spotify";
 
-export default async function Home() {
+function getAuthErrorHint(error?: string) {
+  switch (error) {
+    case "OAuthSignin":
+    case "OAuthCallback":
+    case "OAuthCreateAccount":
+    case "OAuthAccountNotLinked":
+    case "Callback":
+    case "spotify":
+      return "Spotify OAuth failed. Double-check SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET and redirect URI in Spotify dashboard.";
+    case "Configuration":
+      return "Auth configuration issue. Verify NEXTAUTH_URL and NEXTAUTH_SECRET in Railway.";
+    case "AccessDenied":
+      return "Access denied by provider. Make sure your Spotify app is active and you approved permissions.";
+    default:
+      return "Authentication failed. Check Railway runtime logs for next-auth details.";
+  }
+}
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string; callbackUrl?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   const isAuthed = Boolean(session?.accessToken);
+  const sp = (await searchParams) || {};
+  const authError = sp.error;
 
   let snapshot: {
     totalPlays: number;
@@ -64,6 +88,20 @@ export default async function Home() {
             )}
           </div>
         </header>
+
+        {authError && (
+          <div className="mb-6 rounded-2xl border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-100">
+            <p className="font-semibold">Login failed: {authError}</p>
+            <p className="mt-1 text-red-100/90">{getAuthErrorHint(authError)}</p>
+            <p className="mt-1 text-red-100/80">
+              After updating vars, redeploy then try
+              <Link href="/api/auth/signin/spotify" className="mx-1 underline">
+                sign in again
+              </Link>
+              .
+            </p>
+          </div>
+        )}
 
         {session?.error === "RefreshAccessTokenError" && (
           <div className="mb-6 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-amber-100">

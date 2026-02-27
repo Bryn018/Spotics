@@ -9,6 +9,7 @@ const scopes = [
 ].join(" ");
 
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NEXTAUTH_DEBUG === "true",
   providers: [
     SpotifyProvider({
       clientId: process.env.SPOTIFY_CLIENT_ID || "",
@@ -72,6 +73,20 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/",
+    error: "/",
+  },
+  logger: {
+    error(code, metadata) {
+      console.error("[next-auth][error]", code, metadata);
+    },
+    warn(code) {
+      console.warn("[next-auth][warn]", code);
+    },
+    debug(code, metadata) {
+      if (process.env.NEXTAUTH_DEBUG === "true") {
+        console.log("[next-auth][debug]", code, metadata);
+      }
+    },
   },
   session: {
     strategy: "jwt",
