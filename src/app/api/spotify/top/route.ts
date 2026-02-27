@@ -1,7 +1,15 @@
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { deriveTopAlbums, getCurrentlyPlaying, getTopArtists, getTopTracks, TimeRange } from "@/lib/spotify";
+import {
+  aggregateByWindow,
+  deriveTopAlbums,
+  getCurrentlyPlaying,
+  getRecentlyPlayed,
+  getTopArtists,
+  getTopTracks,
+  TimeRange,
+} from "@/lib/spotify";
 
 const RANGE_MAP: Record<string, TimeRange> = {
   "24h": "short_term",
@@ -23,22 +31,27 @@ export async function GET(req: NextRequest) {
   const mapped = RANGE_MAP[rangeKey] || "short_term";
 
   try {
-    const [tracks, artists, nowPlaying] = await Promise.all([
+    const [tracks, artists, nowPlaying, recent] = await Promise.all([
       getTopTracks(session.accessToken, mapped, 20),
       getTopArtists(session.accessToken, mapped, 20),
       getCurrentlyPlaying(session.accessToken),
+      getRecentlyPlayed(session.accessToken, 50),
     ]);
 
     const albums = deriveTopAlbums(tracks.items).slice(0, 20);
+    const windowStats = aggregateByWindow(recent.items);
 
     return NextResponse.json({
       ok: true,
       range: rangeKey,
       sourceRange: mapped,
       nowPlaying,
-      topTracks: tracks.items,
-      topArtists: artists.items,
-      topAlbums: albums,
+      spotifyTop: {
+        tracks: tracks.items,
+        artists: artists.items,
+        albums,
+      },
+      windowStats,
     });
   } catch (e) {
     return NextResponse.json(
