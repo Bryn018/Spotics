@@ -70,7 +70,7 @@ export default async function Home({
           <p className="text-sm uppercase tracking-[0.3em] text-fuchsia-200">Spotics</p>
           <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Your Spotify listening intelligence</h1>
           <p className="mt-4 max-w-2xl text-white/80">
-            Spotics now supports fallback mode so restricted accounts still get useful insights.
+            Spotics now supports fallback mode, but some insights require eligible Spotify account features.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             {isAuthed ? (
