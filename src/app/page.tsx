@@ -11,13 +11,36 @@ function getAuthErrorHint(error?: string) {
     case "OAuthAccountNotLinked":
     case "Callback":
     case "spotify":
-      return "Spotify OAuth failed. Double-check app credentials, redirect URI, and account/app eligibility.";
+      return {
+        summary: "Spotify OAuth failed.",
+        checks: [
+          "Verify SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in Railway.",
+          "Confirm redirect URI exactly matches /api/auth/callback/spotify in Spotify dashboard.",
+          "Ensure your Spotify account is allowed as a test user (if app is restricted).",
+        ],
+      };
     case "Configuration":
-      return "Auth configuration issue. Verify NEXTAUTH_URL and NEXTAUTH_SECRET in Railway.";
+      return {
+        summary: "Auth configuration issue.",
+        checks: [
+          "Verify NEXTAUTH_URL equals your deployed Railway URL.",
+          "Set NEXTAUTH_SECRET to a long random value.",
+          "Set AUTH_TRUST_HOST=true and redeploy.",
+        ],
+      };
     case "AccessDenied":
-      return "Access denied by provider. Check your Spotify app settings and test-user access.";
+      return {
+        summary: "Access denied by provider.",
+        checks: [
+          "Check Spotify app mode and user access.",
+          "Confirm you are logging in with an allowed Spotify account.",
+        ],
+      };
     default:
-      return "Authentication failed. Check Railway runtime logs for next-auth details.";
+      return {
+        summary: "Authentication failed.",
+        checks: ["Check Railway logs for [next-auth][error] around login time."],
+      };
   }
 }
 
@@ -30,6 +53,7 @@ export default async function Home({
   const isAuthed = Boolean(session?.accessToken);
   const sp = (await searchParams) || {};
   const authError = sp.error;
+  const authHint = getAuthErrorHint(authError);
 
   let snapshot: {
     mode: "window" | "top";
@@ -101,9 +125,17 @@ export default async function Home({
 
         {authError && (
           <div className="mb-6 rounded-2xl border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-100">
-            <p className="font-semibold">Login failed: {authError}</p>
-            <p className="mt-1 text-red-100/90">{getAuthErrorHint(authError)}</p>
-            <p className="mt-1 text-red-100/80">
+            <p className="font-semibold">Login failed</p>
+            <p className="mt-1 text-red-100/90">{authHint.summary}</p>
+            <p className="mt-2 text-xs text-red-200/90">
+              Error code: <span className="rounded bg-black/30 px-1 py-0.5 font-mono">{authError}</span>
+            </p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-red-100/90">
+              {authHint.checks.map((check) => (
+                <li key={check}>{check}</li>
+              ))}
+            </ul>
+            <p className="mt-2 text-red-100/80">
               After updating vars/settings, redeploy then try
               <Link href="/api/auth/signin/spotify" className="mx-1 underline">
                 sign in again
