@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { aggregateByWindow, getRecentlyPlayed, getTopTracks } from "@/lib/spotify";
 import { aggregateLastFmByWindow, getLastFmRecentTracks, getLastFmTopTracks } from "@/lib/lastfm";
+import LastFmSignIn from "@/components/lastfm-signin";
 
 function getAuthErrorHint(error?: string) {
   switch (error) {
@@ -18,6 +19,15 @@ function getAuthErrorHint(error?: string) {
           "Verify SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in Railway.",
           "Confirm redirect URI exactly matches /api/auth/callback/spotify in Spotify dashboard.",
           "Ensure your Spotify account is allowed as a test user (if app is restricted).",
+        ],
+      };
+    case "lastfm":
+      return {
+        summary: "Last.fm sign-in failed.",
+        checks: [
+          "Use your Last.fm username in the input field (not email).",
+          "Verify LASTFM_API_KEY is set correctly in Railway.",
+          "Confirm the username exists publicly on Last.fm.",
         ],
       };
     case "Configuration":
@@ -139,12 +149,7 @@ export default async function Home({
               </>
             ) : (
               <>
-                <Link
-                  href="/api/auth/signin/lastfm?callbackUrl=/dashboard"
-                  className="rounded-xl bg-red-500 px-5 py-3 font-semibold text-white transition hover:bg-red-400"
-                >
-                  Continue with Last.fm (Recommended)
-                </Link>
+                <LastFmSignIn />
                 <Link
                   href="/api/auth/signin/spotify"
                   className="rounded-xl bg-green-500 px-5 py-3 font-semibold text-black transition hover:bg-green-400"
