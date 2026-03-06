@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 function mask(value?: string) {
   if (!value) return null;
@@ -6,7 +7,20 @@ function mask(value?: string) {
   return `${value.slice(0, 4)}...${value.slice(-4)}`;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ ok: false, message: "Debug endpoint disabled in production." }, { status: 404 });
+  }
+
+  const clientIp = getClientIp(req.headers);
+  const limiter = consumeRateLimit(`debug:${clientIp}`, 20, 60_000);
+  if (!limiter.allowed) {
+    return NextResponse.json(
+      { ok: false, message: "Too many requests." },
+      { status: 429, headers: { "retry-after": String(limiter.retryAfterSeconds) } },
+    );
+  }
+
   if (process.env.NEXTAUTH_DEBUG !== "true") {
     return NextResponse.json(
       { ok: false, message: "Enable NEXTAUTH_DEBUG=true to use this debug endpoint." },

@@ -10,6 +10,7 @@ import {
   getTopTracks,
   TimeRange,
 } from "@/lib/spotify";
+import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const RANGE_MAP: Record<string, TimeRange> = {
   "24h": "short_term",
@@ -26,6 +27,15 @@ function errMsg(reason: unknown) {
 }
 
 export async function GET(req: NextRequest) {
+  const clientIp = getClientIp(req.headers);
+  const limiter = consumeRateLimit(`spotify-top:${clientIp}`, 60, 60_000);
+  if (!limiter.allowed) {
+    return NextResponse.json(
+      { ok: false, message: "Too many requests." },
+      { status: 429, headers: { "retry-after": String(limiter.retryAfterSeconds) } },
+    );
+  }
+
   const session = await getServerSession(authOptions);
   if (!session?.accessToken) {
     return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
