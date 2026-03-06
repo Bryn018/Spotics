@@ -11,6 +11,13 @@ import {
   TimeRange,
   WindowKey,
 } from "@/lib/spotify";
+import {
+  aggregateLastFmByWindow,
+  getLastFmNowPlaying,
+  getLastFmRecentTracks,
+  getLastFmTopArtists,
+  getLastFmTopTracks,
+} from "@/lib/lastfm";
 
 const RANGE_MAP: Record<string, TimeRange> = {
   "24h": "short_term",
@@ -30,49 +37,84 @@ export default async function DashboardPage({
   searchParams?: Promise<{ range?: string }>;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken) redirect("/");
+  if (!session?.accessToken && !session?.lastfmUsername) redirect("/");
 
   const sp = (await searchParams) || {};
   const selectedRange = (sp.range || "7d").toLowerCase() as WindowKey;
   const activeRange: WindowKey = RANGES.some((r) => r.key === selectedRange) ? selectedRange : "7d";
   const mappedRange = RANGE_MAP[activeRange] || "short_term";
 
-  const [tracksRes, artistsRes, nowPlayingRes, recentRes] = await Promise.allSettled([
-    getTopTracks(session.accessToken, mappedRange, 8),
-    getTopArtists(session.accessToken, mappedRange, 8),
-    getCurrentlyPlaying(session.accessToken),
-    getRecentlyPlayed(session.accessToken, 50),
-  ]);
+  let tracks: Array<{ name: string; artists: { name: string }[] }> = [];
+  let artists: Array<{ name: string }> = [];
+  let nowPlaying: {
+    isPlaying: boolean;
+    progressMs: number | null;
+    track: { name: string; artists: string[]; album: string; image?: string; url?: string };
+  } | null = null;
 
-  const tracks = tracksRes.status === "fulfilled" ? tracksRes.value.items : [];
-  const artists = artistsRes.status === "fulfilled" ? artistsRes.value.items : [];
-  const nowPlaying = nowPlayingRes.status === "fulfilled" ? nowPlayingRes.value : null;
+  let windows: Record<WindowKey, { tracks: Array<{ name: string; artists?: string[]; plays: number }>; artists: Array<{ name: string; plays: number }>; albums: Array<{ name: string; artists?: string[]; plays: number }>; totalPlays: number }> = {
+    "24h": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+    "7d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+    "30d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+  };
 
-  const windows =
-    recentRes.status === "fulfilled"
-      ? aggregateByWindow(recentRes.value.items)
-      : {
-          "24h": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-          "7d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-          "30d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-        };
+  let limitedMode = false;
+  const sourceLabel = session.provider === "lastfm" ? "Last.fm" : "Spotify";
+
+  if (session.provider === "lastfm" && session.lastfmUsername) {
+    try {
+      const [topTracks, topArtists, recent] = await Promise.all([
+        getLastFmTopTracks(session.lastfmUsername, activeRange, 8),
+        getLastFmTopArtists(session.lastfmUsername, activeRange, 8),
+        getLastFmRecentTracks(session.lastfmUsername, 200),
+      ]);
+
+      tracks = topTracks;
+      artists = topArtists;
+      windows = aggregateLastFmByWindow(recent);
+      nowPlaying = getLastFmNowPlaying(recent);
+    } catch {
+      limitedMode = true;
+    }
+  } else if (session.accessToken) {
+    const [tracksRes, artistsRes, nowPlayingRes, recentRes] = await Promise.allSettled([
+      getTopTracks(session.accessToken, mappedRange, 8),
+      getTopArtists(session.accessToken, mappedRange, 8),
+      getCurrentlyPlaying(session.accessToken),
+      getRecentlyPlayed(session.accessToken, 50),
+    ]);
+
+    tracks = tracksRes.status === "fulfilled" ? tracksRes.value.items : [];
+    artists = artistsRes.status === "fulfilled" ? artistsRes.value.items : [];
+    nowPlaying = nowPlayingRes.status === "fulfilled" ? nowPlayingRes.value : null;
+
+    windows =
+      recentRes.status === "fulfilled"
+        ? aggregateByWindow(recentRes.value.items)
+        : {
+            "24h": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+            "7d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+            "30d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
+          };
+
+    limitedMode = recentRes.status === "rejected";
+  }
 
   const realWindow = windows[activeRange];
-  const limitedMode = recentRes.status === "rejected";
 
   return (
     <main className="min-h-screen bg-[#070611] px-6 py-10 text-white">
       <div className="mx-auto max-w-6xl">
         {limitedMode && (
           <div className="mb-6 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-amber-100">
-            Real-time window analytics are limited on this account/app. Showing available Spotify data for now.
+            Some analytics are temporarily limited for this account/source. Showing available data.
           </div>
         )}
 
         <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-fuchsia-200">Spotics Dashboard</p>
           <h1 className="mt-2 text-3xl font-bold">Your listening insights</h1>
-          <p className="mt-2 text-white/70">Built with graceful fallback so the dashboard still works when some endpoints are restricted.</p>
+          <p className="mt-2 text-white/70">Source: {sourceLabel}</p>
         </div>
 
         <div className="mb-6 rounded-2xl border border-green-400/30 bg-green-500/10 p-5">
@@ -83,7 +125,7 @@ export default async function DashboardPage({
               <p className="text-sm text-white/75">
                 {nowPlaying.track.artists.join(", ")} • {nowPlaying.track.album}
               </p>
-              <p className="mt-1 text-xs text-green-200">{nowPlaying.isPlaying ? "Playing right now" : "Paused"}</p>
+              <p className="mt-1 text-xs text-green-200">{nowPlaying.isPlaying ? "Playing right now" : "Last known playback"}</p>
             </div>
           ) : (
             <p className="mt-2 text-sm text-white/70">Unavailable or nothing currently playing.</p>
@@ -128,10 +170,10 @@ export default async function DashboardPage({
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Column
-            title={`Spotify Affinity Top Tracks (${activeRange.toUpperCase()})`}
+            title={`${sourceLabel} Affinity Top Tracks (${activeRange.toUpperCase()})`}
             items={tracks.map((t) => `${t.name} — ${t.artists.map((a) => a.name).join(", ")}`)}
           />
-          <Column title={`Spotify Affinity Top Artists (${activeRange.toUpperCase()})`} items={artists.map((a) => a.name)} />
+          <Column title={`${sourceLabel} Affinity Top Artists (${activeRange.toUpperCase()})`} items={artists.map((a) => a.name)} />
         </div>
       </div>
     </main>

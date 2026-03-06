@@ -1,18 +1,19 @@
 # Spotics 🎵
 
-Spotics is a Spotify insights dashboard that combines:
-- **Real activity windows** from recently played tracks (24H / 7D / 30D)
-- **Spotify affinity data** from top tracks/artists (`short_term` / `medium_term`)
-- **Now Playing status** with graceful fallbacks when endpoints are restricted
+Spotics is a music insights dashboard that supports **Last.fm (recommended)** and **Spotify (beta)**:
+- **Real activity windows** from listening history (24H / 7D / 30D)
+- **Top tracks/artists** by source
+- **Now Playing** with graceful fallbacks when endpoints are restricted
 
-Built with **Next.js App Router + NextAuth + Spotify Web API**.
+Built with **Next.js App Router + NextAuth + Last.fm API + Spotify Web API**.
 
 ---
 
 ## Features
 
-- Spotify OAuth sign-in (NextAuth)
-- Secure token refresh flow
+- Last.fm sign-in (username verification)
+- Spotify OAuth sign-in (beta)
+- Secure token refresh flow for Spotify
 - Dashboard with:
   - Now Playing panel
   - Window-based top tracks, artists, and albums (derived from recent plays)
@@ -63,8 +64,10 @@ Create `.env.local`:
 ```env
 SPOTIFY_CLIENT_ID=your_spotify_client_id
 SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+LASTFM_API_KEY=your_lastfm_api_key
 NEXTAUTH_SECRET=your_random_secret
 NEXTAUTH_URL=http://localhost:3000
+AUTH_TRUST_HOST=true
 ```
 
 Generate `NEXTAUTH_SECRET`:
@@ -73,7 +76,14 @@ Generate `NEXTAUTH_SECRET`:
 openssl rand -base64 32
 ```
 
-### 3) Spotify app setup
+### 3) Last.fm setup (recommended)
+
+- Create API account/app at Last.fm and get an API key
+- Set `LASTFM_API_KEY` in your env
+- Users sign in using their Last.fm username
+- If users scrobble from Spotify to Last.fm, they still get Spotify-based listening insights
+
+### 4) Spotify app setup (optional beta)
 
 In Spotify Developer Dashboard:
 
@@ -83,7 +93,7 @@ In Spotify Developer Dashboard:
 - For production, also add:
   - `https://your-domain.com/api/auth/callback/spotify`
 
-### 4) Run
+### 5) Run
 
 ```bash
 npm run dev
@@ -122,14 +132,16 @@ npm run start
 
 ## Troubleshooting
 
-- **`invalid_client`**
+- **Last.fm sign-in fails**
+  - Verify `LASTFM_API_KEY` and that the username exists
+- **`invalid_client` (Spotify)**
   - Wrong Spotify client id/secret
-- **`redirect_uri_mismatch`**
+- **`redirect_uri_mismatch` (Spotify)**
   - Callback URI in Spotify dashboard does not exactly match app callback
 - **Auth callback loops / session issues**
   - `NEXTAUTH_URL` incorrect for current environment
-- **Limited dashboard sections**
-  - Some Spotify endpoints can be restricted per account/app scope; Spotics shows fallback data where possible
+- **Spotify login blocked by policy**
+  - Use Last.fm as primary sign-in path (recommended)
 
 ---
 

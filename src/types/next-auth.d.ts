@@ -5,6 +5,8 @@ declare module "next-auth" {
   interface Session {
     accessToken?: string;
     error?: string;
+    provider?: "spotify" | "lastfm";
+    lastfmUsername?: string;
   }
 }
 
@@ -14,5 +16,7 @@ declare module "next-auth/jwt" {
     refreshToken?: string;
     expiresAt?: number;
     error?: string;
+    provider?: "spotify" | "lastfm";
+    lastfmUsername?: string;
   }
 }

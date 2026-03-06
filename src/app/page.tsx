@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { aggregateByWindow, getRecentlyPlayed, getTopTracks } from "@/lib/spotify";
+import { aggregateLastFmByWindow, getLastFmRecentTracks, getLastFmTopTracks } from "@/lib/lastfm";
 
 function getAuthErrorHint(error?: string) {
   switch (error) {
@@ -50,7 +51,7 @@ export default async function Home({
   searchParams?: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
   const session = await getServerSession(authOptions);
-  const isAuthed = Boolean(session?.accessToken);
+  const isAuthed = Boolean(session?.accessToken || session?.lastfmUsername);
   const sp = (await searchParams) || {};
   const authError = sp.error;
   const authHint = getAuthErrorHint(authError);
@@ -62,7 +63,31 @@ export default async function Home({
     topTracks: string[];
   } | null = null;
 
-  if (session?.accessToken) {
+  if (session?.provider === "lastfm" && session.lastfmUsername) {
+    try {
+      const recent = await getLastFmRecentTracks(session.lastfmUsername, 200);
+      const windows = aggregateLastFmByWindow(recent);
+      const w = windows["7d"];
+      snapshot = {
+        mode: "window",
+        totalPlays: w.totalPlays,
+        uniqueArtists: w.artists.length,
+        topTracks: w.tracks
+          .slice(0, 3)
+          .map((t: { name: string; artists?: string[]; plays: number }) => `${t.name} — ${(t.artists || []).join(", ")} (${t.plays})`),
+      };
+    } catch {
+      try {
+        const top = await getLastFmTopTracks(session.lastfmUsername, "7d", 3);
+        snapshot = {
+          mode: "top",
+          topTracks: top.map((t) => `${t.name} — ${t.artists.map((a) => a.name).join(", ")}`),
+        };
+      } catch {
+        snapshot = null;
+      }
+    }
+  } else if (session?.accessToken) {
     try {
       const recent = await getRecentlyPlayed(session.accessToken, 50);
       const windows = aggregateByWindow(recent.items);
@@ -92,9 +117,9 @@ export default async function Home({
       <div className="mx-auto max-w-6xl px-6 py-10">
         <header className="mb-8 rounded-3xl border border-white/10 bg-gradient-to-r from-fuchsia-600/30 via-violet-500/20 to-cyan-400/30 p-8">
           <p className="text-sm uppercase tracking-[0.3em] text-fuchsia-200">Spotics</p>
-          <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Your Spotify listening intelligence</h1>
+          <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Your music listening intelligence</h1>
           <p className="mt-4 max-w-2xl text-white/80">
-            Spotics now supports fallback mode, but some insights require eligible Spotify account features.
+            Spotics supports Last.fm and Spotify. Use Last.fm for the most reliable access under current Spotify developer limits.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             {isAuthed ? (
@@ -113,12 +138,20 @@ export default async function Home({
                 </Link>
               </>
             ) : (
-              <Link
-                href="/api/auth/signin/spotify"
-                className="rounded-xl bg-green-500 px-5 py-3 font-semibold text-black transition hover:bg-green-400"
-              >
-                Continue with Spotify
-              </Link>
+              <>
+                <Link
+                  href="/api/auth/signin/lastfm?callbackUrl=/dashboard"
+                  className="rounded-xl bg-red-500 px-5 py-3 font-semibold text-white transition hover:bg-red-400"
+                >
+                  Continue with Last.fm (Recommended)
+                </Link>
+                <Link
+                  href="/api/auth/signin/spotify"
+                  className="rounded-xl bg-green-500 px-5 py-3 font-semibold text-black transition hover:bg-green-400"
+                >
+                  Continue with Spotify (Beta)
+                </Link>
+              </>
             )}
           </div>
         </header>
@@ -179,7 +212,7 @@ export default async function Home({
           <section className="rounded-2xl border border-white/10 bg-white/5 p-5 text-white/75">
             {isAuthed
               ? "Couldn’t load snapshot data right now. Open dashboard to retry."
-              : "Sign in with Spotify to see your listening snapshot."}
+              : "Sign in with Last.fm (recommended) or Spotify to see your listening snapshot."}
           </section>
         )}
       </div>

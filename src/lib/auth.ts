@@ -1,5 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import SpotifyProvider from "next-auth/providers/spotify";
+import { validateLastFmUser } from "@/lib/lastfm";
 
 const scopes = [
   "user-read-email",
@@ -20,9 +22,45 @@ export const authOptions: NextAuthOptions = {
         },
       },
     }),
+    CredentialsProvider({
+      id: "lastfm",
+      name: "Last.fm",
+      credentials: {
+        username: { label: "Last.fm username", type: "text", placeholder: "your_lastfm_username" },
+      },
+      async authorize(credentials) {
+        const username = credentials?.username?.trim();
+        if (!username) return null;
+
+        try {
+          const resolved = await validateLastFmUser(username);
+          if (!resolved) return null;
+          return {
+            id: `lastfm:${resolved}`,
+            name: resolved,
+            email: null,
+          };
+        } catch {
+          return null;
+        }
+      },
+    }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
+      if (account?.provider === "lastfm") {
+        token.provider = "lastfm";
+        token.lastfmUsername = user?.name || undefined;
+        token.accessToken = undefined;
+        token.refreshToken = undefined;
+        token.expiresAt = undefined;
+        return token;
+      }
+
+      if (account?.provider === "spotify") {
+        token.provider = "spotify";
+      }
+
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
@@ -68,6 +106,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.accessToken = token.accessToken as string | undefined;
       session.error = token.error as string | undefined;
+      session.provider = token.provider as "spotify" | "lastfm" | undefined;
+      session.lastfmUsername = token.lastfmUsername as string | undefined;
       return session;
     },
   },
