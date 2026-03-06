@@ -4,31 +4,35 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import {
   aggregateByWindow,
+  deriveTopAlbums,
   getCurrentlyPlaying,
   getRecentlyPlayed,
   getTopArtists,
   getTopTracks,
   TimeRange,
-  WindowKey,
 } from "@/lib/spotify";
 import {
   aggregateLastFmByWindow,
   getLastFmNowPlaying,
   getLastFmRecentTracks,
+  getLastFmTopAlbums,
   getLastFmTopArtists,
   getLastFmTopTracks,
+  LastFmRange,
 } from "@/lib/lastfm";
 
-const RANGE_MAP: Record<string, TimeRange> = {
-  "24h": "short_term",
+type RangeKey = "7d" | "30d" | "all";
+
+const SPOTIFY_RANGE_MAP: Record<RangeKey, TimeRange> = {
   "7d": "short_term",
   "30d": "medium_term",
+  all: "long_term",
 };
 
-const RANGES: { key: WindowKey; label: string }[] = [
-  { key: "24h", label: "24H" },
+const RANGES: { key: RangeKey; label: string }[] = [
   { key: "7d", label: "7D" },
   { key: "30d", label: "30D" },
+  { key: "all", label: "ALL TIME" },
 ];
 
 export default async function DashboardPage({
@@ -40,80 +44,71 @@ export default async function DashboardPage({
   if (!session?.accessToken && !session?.lastfmUsername) redirect("/");
 
   const sp = (await searchParams) || {};
-  const selectedRange = (sp.range || "7d").toLowerCase() as WindowKey;
-  const activeRange: WindowKey = RANGES.some((r) => r.key === selectedRange) ? selectedRange : "7d";
-  const mappedRange = RANGE_MAP[activeRange] || "short_term";
+  const selectedRange = (sp.range || "7d").toLowerCase() as RangeKey;
+  const activeRange: RangeKey = RANGES.some((r) => r.key === selectedRange) ? selectedRange : "7d";
 
-  let tracks: Array<{ name: string; artists: { name: string }[] }> = [];
-  let artists: Array<{ name: string }> = [];
-  let nowPlaying: {
-    isPlaying: boolean;
-    progressMs: number | null;
-    track: { name: string; artists: string[]; album: string; image?: string; url?: string };
-  } | null = null;
-
-  let windows: Record<WindowKey, { tracks: Array<{ name: string; artists?: string[]; plays: number }>; artists: Array<{ name: string; plays: number }>; albums: Array<{ name: string; artists?: string[]; plays: number }>; totalPlays: number }> = {
-    "24h": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-    "7d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-    "30d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-  };
-
-  let limitedMode = false;
-  const sourceLabel = session.provider === "lastfm" ? "Last.fm" : "Spotify";
+  let topTracks: string[] = [];
+  let topArtists: string[] = [];
+  let topAlbums: string[] = [];
+  let nowPlaying: { track: { name: string; artists: string[]; album: string }; isPlaying: boolean } | null = null;
+  let totalPlays = 0;
+  let sourceLabel = session.provider === "lastfm" ? "Last.fm" : "Spotify";
 
   if (session.provider === "lastfm" && session.lastfmUsername) {
-    try {
-      const [topTracks, topArtists, recent] = await Promise.all([
-        getLastFmTopTracks(session.lastfmUsername, activeRange, 8),
-        getLastFmTopArtists(session.lastfmUsername, activeRange, 8),
-        getLastFmRecentTracks(session.lastfmUsername, 200),
-      ]);
+    const range = activeRange as LastFmRange;
 
-      tracks = topTracks;
-      artists = topArtists;
-      windows = aggregateLastFmByWindow(recent);
-      nowPlaying = getLastFmNowPlaying(recent);
-    } catch {
-      limitedMode = true;
+    const [tracks, artists, albums, recent] = await Promise.all([
+      getLastFmTopTracks(session.lastfmUsername, range, 10),
+      getLastFmTopArtists(session.lastfmUsername, range, 10),
+      getLastFmTopAlbums(session.lastfmUsername, range, 10),
+      getLastFmRecentTracks(session.lastfmUsername, 200),
+    ]);
+
+    topTracks = tracks.slice(0, 10).map((t, i) => `#${i + 1} ${t.name} — ${t.artists.map((a) => a.name).join(", ")}`);
+    topArtists = artists.slice(0, 10).map((a, i) => `#${i + 1} ${a.name}`);
+    topAlbums = albums.slice(0, 10).map((a, i) => `#${i + 1} ${a.name} — ${(a.artists || []).join(", ")}`);
+
+    nowPlaying = getLastFmNowPlaying(recent);
+
+    if (activeRange === "all") {
+      totalPlays = recent.filter((r) => Boolean(r.playedAt)).length;
+    } else {
+      const windows = aggregateLastFmByWindow(recent);
+      totalPlays = windows[activeRange].totalPlays;
     }
   } else if (session.accessToken) {
+    const mappedRange = SPOTIFY_RANGE_MAP[activeRange];
     const [tracksRes, artistsRes, nowPlayingRes, recentRes] = await Promise.allSettled([
-      getTopTracks(session.accessToken, mappedRange, 8),
-      getTopArtists(session.accessToken, mappedRange, 8),
+      getTopTracks(session.accessToken, mappedRange, 50),
+      getTopArtists(session.accessToken, mappedRange, 50),
       getCurrentlyPlaying(session.accessToken),
       getRecentlyPlayed(session.accessToken, 50),
     ]);
 
-    tracks = tracksRes.status === "fulfilled" ? tracksRes.value.items : [];
-    artists = artistsRes.status === "fulfilled" ? artistsRes.value.items : [];
+    const tracks = tracksRes.status === "fulfilled" ? tracksRes.value.items : [];
+    const artists = artistsRes.status === "fulfilled" ? artistsRes.value.items : [];
+    const albums = deriveTopAlbums(tracks).slice(0, 10);
+
+    topTracks = tracks.slice(0, 10).map((t, i) => `#${i + 1} ${t.name} — ${t.artists.map((a) => a.name).join(", ")}`);
+    topArtists = artists.slice(0, 10).map((a, i) => `#${i + 1} ${a.name}`);
+    topAlbums = albums.map((a, i) => `#${i + 1} ${a.name} — ${(a.artists || []).join(", ")}`);
+
     nowPlaying = nowPlayingRes.status === "fulfilled" ? nowPlayingRes.value : null;
 
-    windows =
-      recentRes.status === "fulfilled"
-        ? aggregateByWindow(recentRes.value.items)
-        : {
-            "24h": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-            "7d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-            "30d": { tracks: [], artists: [], albums: [], totalPlays: 0 },
-          };
+    if (recentRes.status === "fulfilled") {
+      const windows = aggregateByWindow(recentRes.value.items);
+      totalPlays = activeRange === "all" ? recentRes.value.items.length : windows[activeRange].totalPlays;
+    }
 
-    limitedMode = recentRes.status === "rejected";
+    sourceLabel = "Spotify";
   }
-
-  const realWindow = windows[activeRange];
 
   return (
     <main className="min-h-screen bg-[#070611] px-6 py-10 text-white">
       <div className="mx-auto max-w-6xl">
-        {limitedMode && (
-          <div className="mb-6 rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-amber-100">
-            Some analytics are temporarily limited for this account/source. Showing available data.
-          </div>
-        )}
-
         <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-6">
           <p className="text-xs uppercase tracking-[0.2em] text-fuchsia-200">Spotics Dashboard</p>
-          <h1 className="mt-2 text-3xl font-bold">Your listening insights</h1>
+          <h1 className="mt-2 text-3xl font-bold">Top 10 Music Insights</h1>
           <p className="mt-2 text-white/70">Source: {sourceLabel}</p>
         </div>
 
@@ -125,7 +120,6 @@ export default async function DashboardPage({
               <p className="text-sm text-white/75">
                 {nowPlaying.track.artists.join(", ")} • {nowPlaying.track.album}
               </p>
-              <p className="mt-1 text-xs text-green-200">{nowPlaying.isPlaying ? "Playing right now" : "Last known playback"}</p>
             </div>
           ) : (
             <p className="mt-2 text-sm text-white/70">Unavailable or nothing currently playing.</p>
@@ -150,30 +144,13 @@ export default async function DashboardPage({
         </section>
 
         <p className="mb-6 text-xs text-white/60">
-          Real window plays: <span className="font-semibold text-white">{realWindow.totalPlays}</span>
+          Plays counted for selected range: <span className="font-semibold text-white">{totalPlays}</span>
         </p>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <Column
-            title={`Window Top Tracks (${activeRange.toUpperCase()})`}
-            items={realWindow.tracks.slice(0, 8).map((t) => `${t.name} — ${(t.artists || []).join(", ")} (${t.plays})`)}
-          />
-          <Column
-            title={`Window Top Artists (${activeRange.toUpperCase()})`}
-            items={realWindow.artists.slice(0, 8).map((a) => `${a.name} (${a.plays})`)}
-          />
-          <Column
-            title={`Window Top Albums (${activeRange.toUpperCase()})`}
-            items={realWindow.albums.slice(0, 8).map((a) => `${a.name} — ${(a.artists || []).join(", ")} (${a.plays})`)}
-          />
-        </div>
-
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
-          <Column
-            title={`${sourceLabel} Affinity Top Tracks (${activeRange.toUpperCase()})`}
-            items={tracks.map((t) => `${t.name} — ${t.artists.map((a) => a.name).join(", ")}`)}
-          />
-          <Column title={`${sourceLabel} Affinity Top Artists (${activeRange.toUpperCase()})`} items={artists.map((a) => a.name)} />
+          <Column title={`Top 10 Songs (${activeRange.toUpperCase()})`} items={topTracks} />
+          <Column title={`Top 10 Artists (${activeRange.toUpperCase()})`} items={topArtists} />
+          <Column title={`Top 10 Albums (${activeRange.toUpperCase()})`} items={topAlbums} />
         </div>
       </div>
     </main>
@@ -186,9 +163,8 @@ function Column({ title, items }: { title: string; items: string[] }) {
       <h2 className="mb-4 text-lg font-semibold text-cyan-200">{title}</h2>
       <ol className="space-y-2 text-sm text-white/90">
         {items.length ? (
-          items.map((item, idx) => (
-            <li key={item + idx} className="rounded-lg border border-white/10 p-2">
-              <span className="mr-2 text-white/60">#{idx + 1}</span>
+          items.map((item) => (
+            <li key={item} className="rounded-lg border border-white/10 p-2">
               {item}
             </li>
           ))

@@ -16,9 +16,9 @@ Built with **Next.js App Router + NextAuth + Last.fm API + Spotify Web API**.
 - Secure token refresh flow for Spotify
 - Dashboard with:
   - Now Playing panel
-  - Window-based top tracks, artists, and albums (derived from recent plays)
-  - Spotify affinity top tracks/artists
-- Range switcher: `24h`, `7d`, `30d`
+  - Top 10 tracks, artists, and albums
+  - Source-aware insights (Last.fm recommended, Spotify fallback)
+- Range switcher: `7d`, `30d`, `all`
 - Graceful fallback mode when some Spotify endpoints are unavailable
 
 ---

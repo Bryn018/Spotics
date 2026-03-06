@@ -183,6 +183,16 @@ export default async function Home({
           </div>
         )}
 
+        <section className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">
+          <p className="font-semibold text-white">Quick setup (free)</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5">
+            <li>Create a Last.fm account (free).</li>
+            <li>Connect Spotify scrobbling in Last.fm settings.</li>
+            <li>Play music on Spotify for a while.</li>
+            <li>Sign in here with your Last.fm username.</li>
+          </ol>
+        </section>
+
         {snapshot ? (
           snapshot.mode === "window" ? (
             <section className="grid gap-5 md:grid-cols-3">

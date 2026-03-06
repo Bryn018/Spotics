@@ -1,4 +1,4 @@
-export type LastFmRange = "24h" | "7d" | "30d";
+export type LastFmRange = "24h" | "7d" | "30d" | "all";
 
 type LastFmImage = { '#text': string; size: string };
 
@@ -101,8 +101,14 @@ export async function getLastFmRecentTracks(username: string, limit = 200) {
   return list.map(normalizeRecentTrack);
 }
 
+function toLastFmPeriod(range: LastFmRange) {
+  if (range === "all") return "overall";
+  if (range === "30d") return "1month";
+  return "7day";
+}
+
 export async function getLastFmTopTracks(username: string, range: LastFmRange, limit = 20) {
-  const period = range === "30d" ? "1month" : "7day";
+  const period = toLastFmPeriod(range);
   const json = await callLastFm<{ toptracks: { track: Array<{ name: string; playcount: string; url?: string; artist: { name: string } }> } }>({
     method: "user.gettoptracks",
     user: username,
@@ -121,7 +127,7 @@ export async function getLastFmTopTracks(username: string, range: LastFmRange, l
 }
 
 export async function getLastFmTopArtists(username: string, range: LastFmRange, limit = 20) {
-  const period = range === "30d" ? "1month" : "7day";
+  const period = toLastFmPeriod(range);
   const json = await callLastFm<{ topartists: { artist: Array<{ name: string; playcount: string; url?: string }> } }>({
     method: "user.gettopartists",
     user: username,
@@ -136,6 +142,29 @@ export async function getLastFmTopArtists(username: string, range: LastFmRange, 
     images: [] as Array<{ url: string }>,
     popularity: Number(a.playcount) || 0,
     external_urls: { spotify: a.url },
+  }));
+}
+
+export async function getLastFmTopAlbums(username: string, range: LastFmRange, limit = 20) {
+  const period = toLastFmPeriod(range);
+  const json = await callLastFm<{
+    topalbums: {
+      album: Array<{ name: string; playcount: string; url?: string; artist: { name: string } }>;
+    };
+  }>({
+    method: "user.gettopalbums",
+    user: username,
+    period,
+    limit: Math.min(limit, 50),
+  });
+
+  return (json.topalbums?.album || []).map((a, idx) => ({
+    id: `${a.name}:${a.artist?.name || "Unknown Artist"}:${idx}`,
+    name: a.name,
+    plays: Number(a.playcount) || 0,
+    artists: [a.artist?.name || "Unknown Artist"],
+    image: undefined as string | undefined,
+    url: a.url,
   }));
 }
 
