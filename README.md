@@ -38,13 +38,18 @@ Built with **Next.js App Router + NextAuth + Last.fm API + Spotify Web API**.
 ```text
 src/
   app/
-    page.tsx                 # Landing/sign-in page
-    dashboard/page.tsx       # Main insights dashboard
+    page.tsx                         # Landing/sign-in page
+    dashboard/page.tsx               # Main dashboard
+    dashboard/analytics/page.tsx     # Dedicated analytics view
   lib/
-    auth.ts                  # NextAuth configuration
-    spotify.ts               # Spotify API calls + window aggregation
+    auth.ts                          # NextAuth configuration
+    spotify.ts                       # Spotify API calls + window aggregation
+    lastfm.ts                        # Last.fm helpers
+    supabase.ts                      # Supabase client helpers
   types/
-    next-auth.d.ts           # Session/token type extensions
+    next-auth.d.ts                   # Session/token type extensions
+supabase/
+  migrations/001_init.sql            # Database schema bootstrap
 ```
 
 ---
@@ -115,18 +120,24 @@ npm run start
 
 ## Deployment
 
-### Vercel (recommended)
+### Railway + Supabase (recommended)
 
-- Import repo
-- Add env vars (`SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`)
-- Deploy
-
-### Railway
-
-- Create service from repo
-- Set same env vars
+- Create the Supabase project and run `supabase/migrations/001_init.sql`
+- Create Railway service from repo
+- Add env vars:
+  - `SPOTIFY_CLIENT_ID`
+  - `SPOTIFY_CLIENT_SECRET`
+  - `LASTFM_API_KEY`
+  - `NEXTAUTH_SECRET`
+  - `NEXTAUTH_URL`
+  - `AUTH_TRUST_HOST=true`
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
 - Ensure Spotify callback includes Railway URL:
   - `https://<your-domain>/api/auth/callback/spotify`
+
+See `RAILWAY_SUPABASE_SETUP.md` for the exact handoff checklist.
 
 ---
 
