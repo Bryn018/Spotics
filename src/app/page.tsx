@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { aggregateByWindow, getRecentlyPlayed, getTopTracks } from "@/lib/spotify";
-import { aggregateLastFmByWindow, getLastFmRecentTracks, getLastFmTopTracks } from "@/lib/lastfm";
 import LastFmSignIn from "@/components/lastfm-signin";
 
 function getAuthErrorHint(error?: string) {
@@ -13,234 +11,187 @@ function getAuthErrorHint(error?: string) {
     case "OAuthAccountNotLinked":
     case "Callback":
     case "spotify":
-      return {
-        summary: "Spotify OAuth failed.",
-        checks: [
-          "Verify SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in Railway.",
-          "Confirm redirect URI exactly matches /api/auth/callback/spotify in Spotify dashboard.",
-          "Ensure your Spotify account is allowed as a test user (if app is restricted).",
-        ],
-      };
+      return "Spotify sign-in failed. Verify the client ID, client secret, redirect URI, and allowed test users in Railway and the Spotify dashboard.";
     case "lastfm":
-      return {
-        summary: "Last.fm sign-in failed.",
-        checks: [
-          "Use your Last.fm username in the input field (not email).",
-          "Verify LASTFM_API_KEY is set correctly in Railway.",
-          "Confirm the username exists publicly on Last.fm.",
-        ],
-      };
+      return "Last.fm sign-in failed. Use the public Last.fm username, not the email, and verify LASTFM_API_KEY in Railway.";
     case "Configuration":
-      return {
-        summary: "Auth configuration issue.",
-        checks: [
-          "Verify NEXTAUTH_URL equals your deployed Railway URL.",
-          "Set NEXTAUTH_SECRET to a long random value.",
-          "Set AUTH_TRUST_HOST=true and redeploy.",
-        ],
-      };
+      return "Authentication configuration is incomplete. Check NEXTAUTH_URL, NEXTAUTH_SECRET, and AUTH_TRUST_HOST in Railway.";
     case "AccessDenied":
-      return {
-        summary: "Access denied by provider.",
-        checks: [
-          "Check Spotify app mode and user access.",
-          "Confirm you are logging in with an allowed Spotify account.",
-        ],
-      };
+      return "Provider access was denied. Confirm the selected account is allowed to use the app.";
     default:
-      return {
-        summary: "Authentication failed.",
-        checks: ["Check Railway logs for [next-auth][error] around login time."],
-      };
+      return "Authentication failed. Check Railway logs for next-auth errors around the login attempt.";
   }
 }
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: Promise<{ error?: string; callbackUrl?: string }>;
+  searchParams?: Promise<{ error?: string }>;
 }) {
   const session = await getServerSession(authOptions);
   const isAuthed = Boolean(session?.accessToken || session?.lastfmUsername);
   const sp = (await searchParams) || {};
   const authError = sp.error;
-  const authHint = getAuthErrorHint(authError);
-
-  let snapshot: {
-    mode: "window" | "top";
-    totalPlays?: number;
-    uniqueArtists?: number;
-    topTracks: string[];
-  } | null = null;
-
-  if (session?.provider === "lastfm" && session.lastfmUsername) {
-    try {
-      const recent = await getLastFmRecentTracks(session.lastfmUsername, 200);
-      const windows = aggregateLastFmByWindow(recent);
-      const w = windows["7d"];
-      snapshot = {
-        mode: "window",
-        totalPlays: w.totalPlays,
-        uniqueArtists: w.artists.length,
-        topTracks: w.tracks
-          .slice(0, 3)
-          .map((t: { name: string; artists?: string[]; plays: number }) => `${t.name} — ${(t.artists || []).join(", ")} (${t.plays})`),
-      };
-    } catch {
-      try {
-        const top = await getLastFmTopTracks(session.lastfmUsername, "7d", 3);
-        snapshot = {
-          mode: "top",
-          topTracks: top.map((t) => `${t.name} — ${t.artists.map((a) => a.name).join(", ")}`),
-        };
-      } catch {
-        snapshot = null;
-      }
-    }
-  } else if (session?.accessToken) {
-    try {
-      const recent = await getRecentlyPlayed(session.accessToken, 50);
-      const windows = aggregateByWindow(recent.items);
-      const w = windows["7d"];
-
-      snapshot = {
-        mode: "window",
-        totalPlays: w.totalPlays,
-        uniqueArtists: w.artists.length,
-        topTracks: w.tracks.slice(0, 3).map((t) => `${t.name} — ${(t.artists || []).join(", ")} (${t.plays})`),
-      };
-    } catch {
-      try {
-        const top = await getTopTracks(session.accessToken, "short_term", 3);
-        snapshot = {
-          mode: "top",
-          topTracks: top.items.map((t) => `${t.name} — ${t.artists.map((a) => a.name).join(", ")}`),
-        };
-      } catch {
-        snapshot = null;
-      }
-    }
-  }
 
   return (
-    <main className="min-h-screen bg-[#070611] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <header className="mb-8 rounded-3xl border border-white/10 bg-gradient-to-r from-fuchsia-600/30 via-violet-500/20 to-cyan-400/30 p-8">
-          <p className="text-sm uppercase tracking-[0.3em] text-fuchsia-200">Spotics</p>
-          <h1 className="mt-3 text-4xl font-bold sm:text-5xl">Your music listening intelligence</h1>
-          <p className="mt-4 max-w-2xl text-white/80">
-            Spotics supports Last.fm and Spotify. Use Last.fm for the most reliable access under current Spotify developer limits.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+    <main className="relative min-h-screen overflow-hidden px-4 py-6 text-white sm:px-6 lg:px-10 lg:py-10">
+      <div className="noise pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute left-[-8rem] top-[-6rem] h-72 w-72 rounded-full bg-fuchsia-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-10rem] right-[-6rem] h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
+
+      <div className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-7xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="panel relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_28%),linear-gradient(135deg,rgba(143,69,255,0.22),rgba(255,79,216,0.12)_42%,rgba(68,214,255,0.08)_100%)]" />
+          <div className="relative z-10 flex h-full flex-col">
+            <div className="mb-10 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-white/45">Design Spotics</p>
+                <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl lg:text-6xl">Welcome to Spotics</h1>
+              </div>
+              <div className="hidden rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-lime-200 sm:block">
+                Music intelligence
+              </div>
+            </div>
+
+            <p className="max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
+              Track your music listening habits, discover standout patterns, and turn your Spotify or Last.fm history into a polished wrapped-style dashboard.
+            </p>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <FeaturePill label="Wrapped-ready" value="Year stories" />
+              <FeaturePill label="Cross-source" value="Spotify + Last.fm" />
+              <FeaturePill label="Deployable" value="Railway-friendly" />
+            </div>
+
+            <div className="mt-12 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="panel-soft rounded-[1.75rem] p-5 sm:p-6">
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.32em] text-fuchsia-200/85">Live snapshot</p>
+                    <h2 className="mt-2 text-2xl font-semibold text-white">Your music, visualized</h2>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">Dark editorial UI</div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <StatCard label="Tracks Played" value="2,847" delta="+23%" />
+                  <StatCard label="Unique Artists" value="312" delta="+8%" />
+                  <StatCard label="Listening Time" value="187h 42m" delta="+12%" />
+                  <StatCard label="Avg. Daily Mins" value="156" delta="+5%" />
+                </div>
+              </div>
+
+              <div className="panel-soft rounded-[1.75rem] p-5 sm:p-6">
+                <p className="text-xs uppercase tracking-[0.32em] text-cyan-200/85">Preview card</p>
+                <div className="mt-5 rounded-[1.5rem] border border-white/12 bg-black/25 p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[0.7rem] uppercase tracking-[0.32em] text-lime-200">Your Wrapped 2026</p>
+                      <h3 className="mt-3 text-2xl font-semibold text-white">Your Year in Music</h3>
+                    </div>
+                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-cyan-400" />
+                  </div>
+                  <p className="mt-4 text-sm leading-7 text-white/65">
+                    You’ve listened to thousands of tracks across hundreds of artists. Sign in to generate the full dashboard and recent activity story.
+                  </p>
+                  <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-white/40">
+                    <span className="h-2 w-2 rounded-full bg-lime-300" />
+                    Ready for deploy preview
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto pt-10 text-sm text-white/42">Use Last.fm for the most reliable history coverage, or Spotify directly if your developer app permissions are active.</div>
+          </div>
+        </section>
+
+        <section className="panel relative rounded-[2rem] p-6 sm:p-8 lg:p-10">
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))]" />
+          <div className="relative z-10 flex h-full flex-col">
+            <div className="mb-8 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-white/45">Sign in</p>
+                <h2 className="display-font mt-2 text-3xl font-bold text-white">Continue your setup</h2>
+              </div>
+              {isAuthed ? (
+                <span className="rounded-full border border-lime-300/25 bg-lime-300/10 px-3 py-2 text-xs uppercase tracking-[0.24em] text-lime-200">
+                  Connected
+                </span>
+              ) : null}
+            </div>
+
+            {authError ? (
+              <div className="mb-6 rounded-[1.5rem] border border-red-400/20 bg-red-500/10 p-4 text-sm leading-7 text-red-100/90">
+                {getAuthErrorHint(authError)}
+              </div>
+            ) : null}
+
             {isAuthed ? (
-              <>
+              <div className="space-y-4">
                 <Link
                   href="/dashboard"
-                  className="rounded-xl bg-white px-5 py-3 font-semibold text-black transition hover:bg-white/90"
+                  className="flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-6 text-sm font-semibold text-black transition hover:scale-[1.01]"
                 >
                   Open Dashboard
                 </Link>
                 <Link
                   href="/api/auth/signout"
-                  className="rounded-xl border border-white/20 px-5 py-3 font-semibold hover:bg-white/10"
+                  className="flex h-14 items-center justify-center rounded-2xl border border-white/12 bg-white/5 px-6 text-sm font-semibold text-white/80 transition hover:bg-white/8"
                 >
                   Sign out
                 </Link>
-              </>
+              </div>
             ) : (
               <>
-                <LastFmSignIn />
-                <Link
-                  href="/api/auth/signin/spotify"
-                  className="rounded-xl bg-green-500 px-5 py-3 font-semibold text-black transition hover:bg-green-400"
-                >
-                  Continue with Spotify (Beta)
-                </Link>
+                <div className="space-y-4">
+                  <Link
+                    href="/api/auth/signin/spotify"
+                    className="flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-green-400 to-green-600 px-6 text-sm font-semibold text-black transition hover:scale-[1.01]"
+                  >
+                    Continue with Spotify
+                  </Link>
+
+                  <div className="relative py-2 text-center text-[0.7rem] uppercase tracking-[0.36em] text-white/35">
+                    <span className="relative z-10 bg-transparent px-3">Or continue with Last.fm</span>
+                    <div className="absolute left-0 right-0 top-1/2 -z-0 h-px bg-white/8" />
+                  </div>
+
+                  <LastFmSignIn />
+                </div>
+
+                <div className="mt-8 rounded-[1.5rem] border border-white/8 bg-black/15 p-5">
+                  <p className="text-[0.7rem] uppercase tracking-[0.32em] text-white/45">Quick note</p>
+                  <p className="mt-3 text-sm leading-7 text-white/62">
+                    By continuing, you agree to Spotics&apos; Terms of Service and Privacy Policy. Railway deployment only needs the auth and API variables configured correctly.
+                  </p>
+                </div>
               </>
             )}
           </div>
-        </header>
-
-        {authError && (
-          <div className="mb-6 rounded-2xl border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-100">
-            <p className="font-semibold">Login failed</p>
-            <p className="mt-1 text-red-100/90">{authHint.summary}</p>
-            <p className="mt-2 text-xs text-red-200/90">
-              Error code: <span className="rounded bg-black/30 px-1 py-0.5 font-mono">{authError}</span>
-            </p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-red-100/90">
-              {authHint.checks.map((check) => (
-                <li key={check}>{check}</li>
-              ))}
-            </ul>
-            <p className="mt-2 text-red-100/80">
-              After updating vars/settings, redeploy then try
-              <Link href="/api/auth/signin/spotify" className="mx-1 underline">
-                sign in again
-              </Link>
-              .
-            </p>
-          </div>
-        )}
-
-        <section className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">
-          <p className="font-semibold text-white">Quick setup (free)</p>
-          <ol className="mt-2 list-decimal space-y-1 pl-5">
-            <li>Create a Last.fm account (free).</li>
-            <li>Connect Spotify scrobbling in Last.fm settings.</li>
-            <li>Play music on Spotify for a while.</li>
-            <li>Sign in here with your Last.fm username.</li>
-          </ol>
         </section>
-
-        {snapshot ? (
-          snapshot.mode === "window" ? (
-            <section className="grid gap-5 md:grid-cols-3">
-              <StatsCard title="Recent Plays" value={String(snapshot.totalPlays ?? 0)} hint="last 7 days" color="from-cyan-400/40" />
-              <StatsCard
-                title="Unique Artists"
-                value={String(snapshot.uniqueArtists ?? 0)}
-                hint="last 7 days"
-                color="from-fuchsia-400/40"
-              />
-              <StatsCard
-                title="Top Song"
-                value={snapshot.topTracks[0]?.split(" — ")[0] || "-"}
-                hint="last 7 days"
-                color="from-emerald-400/40"
-              />
-            </section>
-          ) : (
-            <section className="rounded-2xl border border-white/10 bg-white/5 p-5 text-white/80">
-              <p className="mb-2 font-semibold text-white">Fallback mode active</p>
-              <p className="mb-3 text-sm text-white/70">Recent-play windows are unavailable, so we’re showing top tracks instead.</p>
-              <ul className="space-y-2 text-sm">
-                {snapshot.topTracks.map((track) => (
-                  <li key={track} className="rounded-lg border border-white/10 p-2">
-                    {track}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )
-        ) : (
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-5 text-white/75">
-            {isAuthed
-              ? "Couldn’t load snapshot data right now. Open dashboard to retry."
-              : "Sign in with Last.fm (recommended) or Spotify to see your listening snapshot."}
-          </section>
-        )}
       </div>
     </main>
   );
 }
 
-function StatsCard({ title, value, hint, color }: { title: string; value: string; hint: string; color: string }) {
+function FeaturePill({ label, value }: { label: string; value: string }) {
   return (
-    <article className={`rounded-2xl border border-white/10 bg-gradient-to-br ${color} to-transparent p-5`}>
-      <p className="text-sm text-white/70">{title}</p>
-      <p className="mt-2 text-3xl font-bold">{value}</p>
-      <p className="mt-2 text-sm text-white/70">{hint}</p>
+    <div className="panel-soft rounded-[1.4rem] p-4">
+      <p className="text-[0.65rem] uppercase tracking-[0.28em] text-white/40">{label}</p>
+      <p className="mt-3 text-lg font-semibold text-white">{value}</p>
+    </div>
+  );
+}
+
+function StatCard({ label, value, delta }: { label: string; value: string; delta: string }) {
+  return (
+    <article className="rounded-[1.35rem] border border-white/8 bg-white/[0.04] p-4">
+      <p className="text-sm text-white/52">{label}</p>
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <p className="text-2xl font-semibold text-white">{value}</p>
+        <span className="text-xs font-semibold uppercase tracking-[0.22em] text-lime-200">{delta}</span>
+      </div>
     </article>
   );
 }

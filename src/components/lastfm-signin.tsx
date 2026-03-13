@@ -20,22 +20,25 @@ export default function LastFmSignIn() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap items-center gap-2">
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Last.fm username"
-        className="min-w-[220px] rounded-xl border border-white/20 bg-black/20 px-3 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-red-300"
-        required
-      />
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-xl bg-red-500 px-5 py-3 font-semibold text-white transition hover:bg-red-400 disabled:opacity-70"
-      >
-        {submitting ? "Signing in..." : "Continue with Last.fm"}
-      </button>
+    <form onSubmit={onSubmit} className="space-y-3">
+      <label className="block text-[0.7rem] uppercase tracking-[0.32em] text-white/45">Last.fm username</label>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter your Last.fm username"
+          className="h-14 flex-1 rounded-2xl border border-white/12 bg-white/5 px-4 text-sm text-white outline-none transition focus:border-fuchsia-300/60 focus:bg-white/8"
+          required
+        />
+        <button
+          type="submit"
+          disabled={submitting}
+          className="h-14 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 px-6 font-semibold text-black transition hover:scale-[1.01] disabled:opacity-70"
+        >
+          {submitting ? "Connecting..." : "Continue with Last.fm"}
+        </button>
+      </div>
     </form>
   );
 }
