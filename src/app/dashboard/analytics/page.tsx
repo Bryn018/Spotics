@@ -2,100 +2,59 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
-import { aggregateByWindow, getRecentlyPlayed, getTopArtists } from "@/lib/spotify";
 import { aggregateLastFmByWindow, getLastFmRecentTracks, getLastFmTopArtists } from "@/lib/lastfm";
 
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken && !session?.lastfmUsername) redirect("/");
+  if (!session?.lastfmUsername) redirect("/");
 
   let totalMinutes = 1364;
   let averageMinutes = 195;
   let peakDay = "Sat";
-  let topGenre = "Pop";
+  let topGenre = "Indie";
   let totalPlays = 8891;
-  let sourceLabel = session.provider === "lastfm" ? "Last.fm" : "Spotify";
+  const sourceLabel = "Last.fm";
   let weeklyBars = [42, 68, 61, 73, 82, 100, 76];
   let genreItems = [
-    { name: "Pop", plays: 2847, percent: 32 },
-    { name: "Hip Hop", plays: 2134, percent: 24 },
+    { name: "Indie", plays: 2847, percent: 32 },
+    { name: "Alternative", plays: 2134, percent: 24 },
     { name: "Rock", plays: 1598, percent: 18 },
     { name: "Electronic", plays: 1245, percent: 14 },
-    { name: "Indie", plays: 1067, percent: 12 },
+    { name: "Folk", plays: 1067, percent: 12 },
   ];
 
-  if (session.provider === "lastfm" && session.lastfmUsername) {
-    try {
-      const [recent, artists] = await Promise.all([
-        getLastFmRecentTracks(session.lastfmUsername, 200),
-        getLastFmTopArtists(session.lastfmUsername, "7d", 20),
-      ]);
-      const weekly = aggregateLastFmByWindow(recent)["7d"];
-      totalPlays = Math.max(weekly.totalPlays, totalPlays);
-      averageMinutes = Math.max(45, Math.round((weekly.totalPlays * 3.5) / 7));
-      totalMinutes = averageMinutes * 7;
-      topGenre = artists[0]?.name || topGenre;
+  try {
+    const [recent, artists] = await Promise.all([
+      getLastFmRecentTracks(session.lastfmUsername, 200),
+      getLastFmTopArtists(session.lastfmUsername, "7d", 20),
+    ]);
+    const weekly = aggregateLastFmByWindow(recent)["7d"];
+    totalPlays = Math.max(weekly.totalPlays, totalPlays);
+    averageMinutes = Math.max(45, Math.round((weekly.totalPlays * 3.5) / 7));
+    totalMinutes = averageMinutes * 7;
+    topGenre = artists[0]?.name || topGenre;
 
-      const weekdayBuckets = [0, 0, 0, 0, 0, 0, 0];
-      for (const item of recent) {
-        if (!item.playedAt) continue;
-        const day = new Date(item.playedAt).getDay();
-        const mondayIndex = (day + 6) % 7;
-        weekdayBuckets[mondayIndex] += 1;
-      }
-      const max = Math.max(...weekdayBuckets, 1);
-      weeklyBars = weekdayBuckets.map((v) => Math.max(18, Math.round((v / max) * 100)));
-      peakDay = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][weekdayBuckets.indexOf(max)] || peakDay;
+    const weekdayBuckets = [0, 0, 0, 0, 0, 0, 0];
+    for (const item of recent) {
+      if (!item.playedAt) continue;
+      const day = new Date(item.playedAt).getDay();
+      const mondayIndex = (day + 6) % 7;
+      weekdayBuckets[mondayIndex] += 1;
+    }
+    const max = Math.max(...weekdayBuckets, 1);
+    weeklyBars = weekdayBuckets.map((v) => Math.max(18, Math.round((v / max) * 100)));
+    peakDay = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][weekdayBuckets.indexOf(max)] || peakDay;
 
-      genreItems = [artists[0]?.name || "Top Artist", artists[1]?.name || "Alt Signal", artists[2]?.name || "Core Repeat", artists[3]?.name || "Discovery", artists[4]?.name || "Archive"].map((name, index) => {
-        const weights = [32, 24, 18, 14, 12];
-        const percent = weights[index];
-        return {
-          name,
-          percent,
-          plays: Math.max(20, Math.round((percent / 100) * totalPlays)),
-        };
-      });
-    } catch {}
-  } else if (session.accessToken) {
-    try {
-      const [recent, artists] = await Promise.all([
-        getRecentlyPlayed(session.accessToken, 50),
-        getTopArtists(session.accessToken, "short_term", 20),
-      ]);
-      const weekly = aggregateByWindow(recent.items)["7d"];
-      totalPlays = Math.max(weekly.totalPlays, recent.items.length, totalPlays);
-      averageMinutes = Math.max(45, Math.round((weekly.totalPlays * 3.5) / 7));
-      totalMinutes = averageMinutes * 7;
-      topGenre = toTitleCase(artists.items[0]?.genres?.[0] || topGenre);
-
-      const weekdayBuckets = [0, 0, 0, 0, 0, 0, 0];
-      for (const item of recent.items) {
-        const day = new Date(item.played_at).getDay();
-        const mondayIndex = (day + 6) % 7;
-        weekdayBuckets[mondayIndex] += 1;
-      }
-      const max = Math.max(...weekdayBuckets, 1);
-      weeklyBars = weekdayBuckets.map((v) => Math.max(18, Math.round((v / max) * 100)));
-      peakDay = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][weekdayBuckets.indexOf(max)] || peakDay;
-
-      const buckets = new Map<string, number>();
-      for (const artist of artists.items) {
-        for (const genre of artist.genres.slice(0, 2)) {
-          buckets.set(genre, (buckets.get(genre) || 0) + Math.max(artist.popularity, 1));
-        }
-      }
-      const top = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      const sum = top.reduce((acc, [, count]) => acc + count, 0) || 1;
-      if (top.length) {
-        genreItems = top.map(([name, count]) => ({
-          name: toTitleCase(name),
-          plays: count,
-          percent: Math.max(8, Math.round((count / sum) * 100)),
-        }));
-      }
-    } catch {}
-  }
+    genreItems = [artists[0]?.name || "Top Artist", artists[1]?.name || "Alt Signal", artists[2]?.name || "Core Repeat", artists[3]?.name || "Discovery", artists[4]?.name || "Archive"].map((name, index) => {
+      const weights = [32, 24, 18, 14, 12];
+      const percent = weights[index];
+      return {
+        name,
+        percent,
+        plays: Math.max(20, Math.round((percent / 100) * totalPlays)),
+      };
+    });
+  } catch {}
 
   return (
     <main className="min-h-screen px-4 py-6 text-white sm:px-6 lg:px-10 lg:py-8">
@@ -105,7 +64,7 @@ export default async function AnalyticsPage() {
             <p className="text-sm uppercase tracking-[0.35em] text-white/40">Spotics</p>
             <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl">Analytics</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60 sm:text-base">
-              Deep listening analytics with weekly activity, streak signals, and genre distribution shaped around your actual data.
+              Deep listening analytics with weekly activity, streak signals, and genre distribution shaped around your Last.fm data.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -125,7 +84,7 @@ export default async function AnalyticsPage() {
               <h2 className="mt-2 text-2xl font-semibold text-white">Your listening time this week</h2>
             </div>
             <div className="rounded-full border border-lime-300/20 bg-lime-300/10 px-4 py-2 text-xs uppercase tracking-[0.22em] text-lime-200">
-              +12% vs last week
+              Last.fm powered
             </div>
           </div>
 
@@ -232,12 +191,4 @@ function StatCard({ label, value, sublabel }: { label: string; value: string; su
       <p className="mt-2 text-xs uppercase tracking-[0.22em] text-lime-200">{sublabel}</p>
     </article>
   );
-}
-
-function toTitleCase(value: string) {
-  return value
-    .split(/[-\s]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 }

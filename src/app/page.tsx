@@ -5,21 +5,12 @@ import LastFmSignIn from "@/components/lastfm-signin";
 
 function getAuthErrorHint(error?: string) {
   switch (error) {
-    case "OAuthSignin":
-    case "OAuthCallback":
-    case "OAuthCreateAccount":
-    case "OAuthAccountNotLinked":
-    case "Callback":
-    case "spotify":
-      return "Spotify sign-in failed. Verify the client ID, client secret, redirect URI, and allowed test users in Railway and the Spotify dashboard.";
     case "lastfm":
-      return "Last.fm sign-in failed. Use the public Last.fm username, not the email, and verify LASTFM_API_KEY in Railway.";
+      return "Last.fm sign-in failed. Use your public Last.fm username and verify LASTFM_API_KEY in Railway.";
     case "Configuration":
-      return "Authentication configuration is incomplete. Check NEXTAUTH_URL, NEXTAUTH_SECRET, and AUTH_TRUST_HOST in Railway.";
-    case "AccessDenied":
-      return "Provider access was denied. Confirm the selected account is allowed to use the app.";
+      return "Authentication configuration is incomplete. Check NEXTAUTH_URL, NEXTAUTH_SECRET, AUTH_TRUST_HOST, and LASTFM_API_KEY in Railway.";
     default:
-      return "Authentication failed. Check Railway logs for next-auth errors around the login attempt.";
+      return "Authentication failed. Check Railway logs for the Last.fm sign-in attempt and try again.";
   }
 }
 
@@ -29,7 +20,7 @@ export default async function Home({
   searchParams?: Promise<{ error?: string }>;
 }) {
   const session = await getServerSession(authOptions);
-  const isAuthed = Boolean(session?.accessToken || session?.lastfmUsername);
+  const isAuthed = Boolean(session?.lastfmUsername);
   const sp = (await searchParams) || {};
   const authError = sp.error;
 
@@ -49,17 +40,17 @@ export default async function Home({
                 <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl lg:text-6xl">Welcome to Spotics</h1>
               </div>
               <div className="hidden rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-lime-200 sm:block">
-                Music intelligence
+                Last.fm intelligence
               </div>
             </div>
 
             <p className="max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
-              Track your music listening habits, discover standout patterns, and turn your Spotify or Last.fm history into a polished wrapped-style dashboard.
+              Track your music listening habits, discover standout patterns, and turn your Last.fm history into a polished wrapped-style dashboard.
             </p>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               <FeaturePill label="Wrapped-ready" value="Year stories" />
-              <FeaturePill label="Cross-source" value="Spotify + Last.fm" />
+              <FeaturePill label="Source" value="Last.fm only" />
               <FeaturePill label="Deployable" value="Railway-friendly" />
             </div>
 
@@ -74,10 +65,10 @@ export default async function Home({
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <StatCard label="Tracks Played" value="2,847" delta="+23%" />
-                  <StatCard label="Unique Artists" value="312" delta="+8%" />
-                  <StatCard label="Listening Time" value="187h 42m" delta="+12%" />
-                  <StatCard label="Avg. Daily Mins" value="156" delta="+5%" />
+                  <StatCard label="Tracks Played" value="2,847" delta="Scrobbles" />
+                  <StatCard label="Unique Artists" value="312" delta="Catalog depth" />
+                  <StatCard label="Listening Time" value="187h 42m" delta="Estimated" />
+                  <StatCard label="Avg. Daily Mins" value="156" delta="Habit view" />
                 </div>
               </div>
 
@@ -92,17 +83,17 @@ export default async function Home({
                     <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-cyan-400" />
                   </div>
                   <p className="mt-4 text-sm leading-7 text-white/65">
-                    You’ve listened to thousands of tracks across hundreds of artists. Sign in to generate the full dashboard and recent activity story.
+                    Sign in with Last.fm to generate the full dashboard, recent activity view, and analytics page without extra infrastructure.
                   </p>
                   <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-white/40">
                     <span className="h-2 w-2 rounded-full bg-lime-300" />
-                    Ready for deploy preview
+                    Lean v1 stack
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-auto pt-10 text-sm text-white/42">Use Last.fm for the most reliable history coverage, or Spotify directly if your developer app permissions are active.</div>
+            <div className="mt-auto pt-10 text-sm text-white/42">Last.fm is the only source in v1, which keeps deployment simpler and the insights stable.</div>
           </div>
         </section>
 
@@ -112,7 +103,7 @@ export default async function Home({
             <div className="mb-8 flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-white/45">Sign in</p>
-                <h2 className="display-font mt-2 text-3xl font-bold text-white">Continue your setup</h2>
+                <h2 className="display-font mt-2 text-3xl font-bold text-white">Continue with Last.fm</h2>
               </div>
               {isAuthed ? (
                 <span className="rounded-full border border-lime-300/25 bg-lime-300/10 px-3 py-2 text-xs uppercase tracking-[0.24em] text-lime-200">
@@ -145,25 +136,13 @@ export default async function Home({
             ) : (
               <>
                 <div className="space-y-4">
-                  <Link
-                    href="/api/auth/signin/spotify"
-                    className="flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-green-400 to-green-600 px-6 text-sm font-semibold text-black transition hover:scale-[1.01]"
-                  >
-                    Continue with Spotify
-                  </Link>
-
-                  <div className="relative py-2 text-center text-[0.7rem] uppercase tracking-[0.36em] text-white/35">
-                    <span className="relative z-10 bg-transparent px-3">Or continue with Last.fm</span>
-                    <div className="absolute left-0 right-0 top-1/2 -z-0 h-px bg-white/8" />
-                  </div>
-
                   <LastFmSignIn />
                 </div>
 
                 <div className="mt-8 rounded-[1.5rem] border border-white/8 bg-black/15 p-5">
                   <p className="text-[0.7rem] uppercase tracking-[0.32em] text-white/45">Quick note</p>
                   <p className="mt-3 text-sm leading-7 text-white/62">
-                    By continuing, you agree to Spotics&apos; Terms of Service and Privacy Policy. Railway deployment only needs the auth and API variables configured correctly.
+                    By continuing, you agree to Spotics&apos; Terms of Service and Privacy Policy. Railway deployment for v1 only needs Last.fm and auth variables configured correctly.
                   </p>
                 </div>
               </>

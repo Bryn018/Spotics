@@ -3,15 +3,6 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import {
-  aggregateByWindow,
-  deriveTopAlbums,
-  getCurrentlyPlaying,
-  getRecentlyPlayed,
-  getTopArtists,
-  getTopTracks,
-  TimeRange,
-} from "@/lib/spotify";
-import {
   aggregateLastFmByWindow,
   getLastFmNowPlaying,
   getLastFmRecentTracks,
@@ -46,12 +37,6 @@ type ActivityItem = {
   time: string;
 };
 
-const SPOTIFY_RANGE_MAP: Record<RangeKey, TimeRange> = {
-  "7d": "short_term",
-  "30d": "medium_term",
-  all: "long_term",
-};
-
 const RANGES: { key: RangeKey; label: string }[] = [
   { key: "7d", label: "Last 4 Weeks" },
   { key: "30d", label: "Last 6 Months" },
@@ -64,154 +49,83 @@ export default async function DashboardPage({
   searchParams?: Promise<{ range?: string }>;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.accessToken && !session?.lastfmUsername) redirect("/");
+  if (!session?.lastfmUsername) redirect("/");
 
   const sp = (await searchParams) || {};
   const selectedRange = (sp.range || "7d").toLowerCase() as RangeKey;
   const activeRange: RangeKey = RANGES.some((r) => r.key === selectedRange) ? selectedRange : "7d";
 
-  let sourceLabel = session.provider === "lastfm" ? "Last.fm" : "Spotify";
-  let tracksPlayed = 0;
-  let totalListeningMinutes = 0;
-  let uniqueArtists = 0;
-  let avgDailyMinutes = 0;
-  let topTracks: RankedItem[] = [];
-  let topAlbums: RankedItem[] = [];
-  let topArtists: ArtistItem[] = [];
-  let activity: ActivityItem[] = [];
-  let currentTrack: { name: string; artists: string[]; album: string } | null = null;
+  const username = session.lastfmUsername;
+  const range = activeRange as LastFmRange;
+  const [tracks, artists, albums, recent] = await Promise.all([
+    getLastFmTopTracks(username, range, 10),
+    getLastFmTopArtists(username, range, 10),
+    getLastFmTopAlbums(username, range, 10),
+    getLastFmRecentTracks(username, 200),
+  ]);
 
-  if (session.provider === "lastfm" && session.lastfmUsername) {
-    const range = activeRange as LastFmRange;
-    const [tracks, artists, albums, recent] = await Promise.all([
-      getLastFmTopTracks(session.lastfmUsername, range, 10),
-      getLastFmTopArtists(session.lastfmUsername, range, 10),
-      getLastFmTopAlbums(session.lastfmUsername, range, 10),
-      getLastFmRecentTracks(session.lastfmUsername, 200),
-    ]);
-
-    const windows = aggregateLastFmByWindow(recent);
-    const scoped = activeRange === "all" ? null : windows[activeRange];
-    const filteredRecent = activeRange === "all"
+  const windows = aggregateLastFmByWindow(recent);
+  const scoped = activeRange === "all" ? null : windows[activeRange];
+  const filteredRecent =
+    activeRange === "all"
       ? recent.filter((t) => Boolean(t.playedAt))
       : recent.filter((t) => t.playedAt && t.playedAt >= Date.now() - (activeRange === "7d" ? 7 : 30) * 24 * 60 * 60 * 1000);
 
-    tracksPlayed = activeRange === "all" ? filteredRecent.length : scoped?.totalPlays || 0;
-    uniqueArtists = activeRange === "all"
-      ? new Set(filteredRecent.map((t) => t.artist)).size
-      : scoped?.artists.length || 0;
-    totalListeningMinutes = tracksPlayed * 3.5;
-    avgDailyMinutes = Math.round(totalListeningMinutes / (activeRange === "7d" ? 28 : activeRange === "30d" ? 180 : 365));
-
-    topTracks = tracks.slice(0, 5).map((track, index) => ({
-      id: track.id,
-      title: track.name,
-      subtitle: track.artists.map((a) => a.name).join(", "),
-      metric: `${Number(track.popularity || 0).toLocaleString()} plays`,
-      extra: `#${index + 1}`,
-    }));
-
-    topAlbums = albums.slice(0, 5).map((album, index) => ({
-      id: album.id,
-      title: album.name,
-      subtitle: (album.artists || []).join(", ") || "Unknown Artist",
-      metric: `${album.plays.toLocaleString()} plays`,
-      extra: `#${index + 1}`,
-    }));
-
-    topArtists = artists.slice(0, 6).map((artist) => ({
-      id: artist.id,
-      name: artist.name,
-      plays: Number(artist.popularity || 0),
-      genres: ["Scrobbled", "Last.fm"],
-    }));
-
-    currentTrack = getLastFmNowPlaying(recent)?.track
-      ? {
-          name: getLastFmNowPlaying(recent)!.track.name,
-          artists: getLastFmNowPlaying(recent)!.track.artists,
-          album: getLastFmNowPlaying(recent)!.track.album,
-        }
-      : null;
-
-    activity = recent
-      .slice(0, 5)
-      .filter((item) => item.name)
-      .map((item, index) => ({
-        id: item.id,
-        action: index === 0 && item.nowPlaying ? "Now playing" : "Listened to",
-        title: item.name,
-        subtitle: item.artist,
-        time: item.nowPlaying ? "Live now" : formatAgo(item.playedAt),
-      }));
-  } else if (session.accessToken) {
-    const mappedRange = SPOTIFY_RANGE_MAP[activeRange];
-    const [tracksRes, artistsRes, nowPlayingRes, recentRes] = await Promise.allSettled([
-      getTopTracks(session.accessToken, mappedRange, 10),
-      getTopArtists(session.accessToken, mappedRange, 10),
-      getCurrentlyPlaying(session.accessToken),
-      getRecentlyPlayed(session.accessToken, 50),
-    ]);
-
-    const tracks = tracksRes.status === "fulfilled" ? tracksRes.value.items : [];
-    const artists = artistsRes.status === "fulfilled" ? artistsRes.value.items : [];
-    const recentItems = recentRes.status === "fulfilled" ? recentRes.value.items : [];
-    const windows = recentItems.length ? aggregateByWindow(recentItems) : null;
-    const activeWindow = windows ? windows[activeRange === "all" ? "30d" : activeRange] : null;
-    const albums = deriveTopAlbums(tracks).slice(0, 5);
-
-    tracksPlayed = activeRange === "all" ? recentItems.length : activeWindow?.totalPlays || tracks.length;
-    uniqueArtists = activeRange === "all" ? new Set(tracks.flatMap((track) => track.artists.map((artist) => artist.name))).size : activeWindow?.artists.length || artists.length;
-    totalListeningMinutes = tracksPlayed * 3.5;
-    avgDailyMinutes = Math.round(totalListeningMinutes / (activeRange === "7d" ? 28 : activeRange === "30d" ? 180 : 365));
-
-    topTracks = tracks.slice(0, 5).map((track, index) => ({
-      id: track.id,
-      title: track.name,
-      subtitle: track.artists.map((artist) => artist.name).join(", "),
-      metric: `${Math.max(track.popularity, 1).toLocaleString()} popularity`,
-      extra: `${index + 1}`,
-    }));
-
-    topAlbums = albums.map((album, index) => ({
-      id: album.id,
-      title: album.name,
-      subtitle: (album.artists || []).join(", "),
-      metric: `${album.plays.toLocaleString()} score`,
-      extra: `#${index + 1}`,
-    }));
-
-    topArtists = artists.slice(0, 6).map((artist) => ({
-      id: artist.id,
-      name: artist.name,
-      plays: artist.popularity,
-      genres: artist.genres.slice(0, 2),
-    }));
-
-    currentTrack = nowPlayingRes.status === "fulfilled" && nowPlayingRes.value?.track
-      ? {
-          name: nowPlayingRes.value.track.name,
-          artists: nowPlayingRes.value.track.artists,
-          album: nowPlayingRes.value.track.album,
-        }
-      : null;
-
-    activity = recentItems.slice(0, 5).map((item, index) => ({
-      id: `${item.track.id}-${index}`,
-      action: index === 0 ? "Recently played" : "Listened to",
-      title: item.track.name,
-      subtitle: item.track.artists.map((artist) => artist.name).join(", "),
-      time: formatAgo(new Date(item.played_at).getTime()),
-    }));
-  }
-
+  const tracksPlayed = activeRange === "all" ? filteredRecent.length : scoped?.totalPlays || 0;
+  const uniqueArtists = activeRange === "all" ? new Set(filteredRecent.map((t) => t.artist)).size : scoped?.artists.length || 0;
+  const totalListeningMinutes = tracksPlayed * 3.5;
+  const avgDailyMinutes = Math.round(totalListeningMinutes / (activeRange === "7d" ? 28 : activeRange === "30d" ? 180 : 365));
   const listeningHours = `${Math.floor(totalListeningMinutes / 60)}h ${Math.round(totalListeningMinutes % 60)}m`;
   const score = Math.min(9.8, Math.max(6.4, Number((6.5 + uniqueArtists / 180 + tracksPlayed / 700).toFixed(1))));
+
+  const topTracks: RankedItem[] = tracks.slice(0, 5).map((track, index) => ({
+    id: track.id,
+    title: track.name,
+    subtitle: track.artists.map((a) => a.name).join(", "),
+    metric: `${Number(track.popularity || 0).toLocaleString()} plays`,
+    extra: `#${index + 1}`,
+  }));
+
+  const topAlbums: RankedItem[] = albums.slice(0, 5).map((album, index) => ({
+    id: album.id,
+    title: album.name,
+    subtitle: (album.artists || []).join(", ") || "Unknown Artist",
+    metric: `${album.plays.toLocaleString()} plays`,
+    extra: `#${index + 1}`,
+  }));
+
+  const topArtists: ArtistItem[] = artists.slice(0, 6).map((artist) => ({
+    id: artist.id,
+    name: artist.name,
+    plays: Number(artist.popularity || 0),
+    genres: ["Scrobbled", "Last.fm"],
+  }));
+
+  const nowPlayingTrack = getLastFmNowPlaying(recent)?.track;
+  const currentTrack = nowPlayingTrack
+    ? {
+        name: nowPlayingTrack.name,
+        artists: nowPlayingTrack.artists,
+        album: nowPlayingTrack.album,
+      }
+    : null;
+
+  const activity: ActivityItem[] = recent
+    .slice(0, 5)
+    .filter((item) => item.name)
+    .map((item, index) => ({
+      id: item.id,
+      action: index === 0 && item.nowPlaying ? "Now playing" : "Listened to",
+      title: item.name,
+      subtitle: item.artist,
+      time: item.nowPlaying ? "Live now" : formatAgo(item.playedAt),
+    }));
+
   const analyticsStats = [
-    { label: "Total Listening Time", value: listeningHours, delta: "+12% from last month" },
-    { label: "Tracks Played", value: tracksPlayed.toLocaleString(), delta: "+23% from last month" },
-    { label: "Unique Artists", value: uniqueArtists.toLocaleString(), delta: "+8% from last month" },
-    { label: "Avg. Daily Mins", value: String(avgDailyMinutes || 0), delta: "+5% from last month" },
+    { label: "Total Listening Time", value: listeningHours, delta: "Last.fm estimate" },
+    { label: "Tracks Played", value: tracksPlayed.toLocaleString(), delta: "Scrobbles in range" },
+    { label: "Unique Artists", value: uniqueArtists.toLocaleString(), delta: "Distinct artists" },
+    { label: "Avg. Daily Mins", value: String(avgDailyMinutes || 0), delta: "Habit intensity" },
   ];
 
   const monthlyTrend = buildMonthlyTrend(tracksPlayed, totalListeningMinutes);
@@ -226,12 +140,12 @@ export default async function DashboardPage({
             <p className="text-sm uppercase tracking-[0.35em] text-white/40">Spotics</p>
             <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl">Your Music Stats</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60 sm:text-base">
-              Track your listening habits, revisit your wrapped-style highlights, and inspect the analytics section embedded inside the dashboard experience.
+              Track your Last.fm listening habits, revisit wrapped-style highlights, and inspect analytics without a database or Spotify dependency.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.28em] text-white/55">
-              Source: {sourceLabel}
+              Source: Last.fm
             </span>
             <Link href="/api/auth/signout" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75 transition hover:bg-white/8">
               Sign out
@@ -334,7 +248,7 @@ export default async function DashboardPage({
                     <p className="text-sm text-white/45">{currentTrack.album}</p>
                   </div>
                 ) : (
-                  <p className="mt-4 text-sm leading-7 text-white/60">Nothing is currently playing, or live playback data is unavailable from the provider.</p>
+                  <p className="mt-4 text-sm leading-7 text-white/60">Nothing is currently playing or Last.fm has not exposed a live now-playing signal.</p>
                 )}
               </div>
 
@@ -350,7 +264,7 @@ export default async function DashboardPage({
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-white/55">Recent activity could not be loaded for this provider right now.</p>
+                    <p className="text-sm text-white/55">Recent activity could not be loaded from Last.fm right now.</p>
                   )}
                 </div>
               </div>
@@ -359,7 +273,7 @@ export default async function DashboardPage({
                 <p className="text-sm text-white/50">Your Listening Score</p>
                 <div className="mt-3 flex items-end justify-between gap-3">
                   <p className="text-4xl font-semibold text-white">{score}/10</p>
-                  <span className="rounded-full border border-lime-300/20 bg-lime-300/10 px-3 py-1 text-xs uppercase tracking-[0.22em] text-lime-200">+0.5 this week</span>
+                  <span className="rounded-full border border-lime-300/20 bg-lime-300/10 px-3 py-1 text-xs uppercase tracking-[0.22em] text-lime-200">Last.fm based</span>
                 </div>
                 <p className="mt-4 text-sm leading-7 text-white/58">Based on listening time, variety, consistency, and replay intensity across your selected time range.</p>
               </div>
@@ -379,10 +293,7 @@ export default async function DashboardPage({
                       <span>{point.minutes} mins · {point.tracks} tracks</span>
                     </div>
                     <div className="h-3 overflow-hidden rounded-full bg-white/6">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400"
-                        style={{ width: `${point.width}%` }}
-                      />
+                      <div className="h-full rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-cyan-400" style={{ width: `${point.width}%` }} />
                     </div>
                   </div>
                 ))}
@@ -480,9 +391,7 @@ function RankedCard({ item, accent }: { item: RankedItem; accent: string }) {
 function TrackRow({ index, item }: { index: number; item: RankedItem }) {
   return (
     <article className="panel-soft flex items-center gap-4 rounded-[1.5rem] p-4 sm:p-5">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-bold text-white">
-        {index}
-      </div>
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 text-lg font-bold text-white">{index}</div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-lg font-semibold text-white">{item.title}</p>
         <p className="truncate text-sm text-white/55">{item.subtitle}</p>
@@ -502,15 +411,11 @@ function ArtistCard({ artist, index }: { artist: ArtistItem; index: number }) {
           <p className="text-xs uppercase tracking-[0.22em] text-white/40">#{index}</p>
           <h3 className="mt-2 text-xl font-semibold text-white">{artist.name}</h3>
         </div>
-        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-lime-200">
-          {artist.plays.toLocaleString()} plays
-        </span>
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-lime-200">{artist.plays.toLocaleString()} plays</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {(artist.genres?.length ? artist.genres : ["Music", "Listening"]).slice(0, 2).map((genre) => (
-          <span key={genre} className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/52">
-            {genre}
-          </span>
+          <span key={genre} className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/52">{genre}</span>
         ))}
       </div>
     </article>
@@ -544,11 +449,11 @@ function buildMonthlyTrend(tracksPlayed: number, totalListeningMinutes: number) 
 
 function buildGenreMix(artists: ArtistItem[]) {
   const fallback = [
-    { label: "Pop", value: 32, color: "linear-gradient(90deg,#a855f7,#ec4899)" },
-    { label: "Hip Hop", value: 24, color: "linear-gradient(90deg,#ec4899,#d946ef)" },
+    { label: "Indie", value: 32, color: "linear-gradient(90deg,#a855f7,#ec4899)" },
+    { label: "Alternative", value: 24, color: "linear-gradient(90deg,#ec4899,#d946ef)" },
     { label: "Rock", value: 18, color: "linear-gradient(90deg,#7c3aed,#8b5cf6)" },
     { label: "Electronic", value: 14, color: "linear-gradient(90deg,#06b6d4,#22d3ee)" },
-    { label: "Indie", value: 12, color: "linear-gradient(90deg,#84cc16,#bef264)" },
+    { label: "Folk", value: 12, color: "linear-gradient(90deg,#84cc16,#bef264)" },
   ];
   const names = artists.flatMap((artist) => artist.genres || []).filter(Boolean);
   if (!names.length) return fallback;
