@@ -1,3 +1,5 @@
+import { env } from "@/lib/env";
+
 export type LastFmRange = "24h" | "7d" | "30d" | "all";
 
 type LastFmImage = { '#text': string; size: string };
@@ -23,22 +25,13 @@ export type LastFmTrack = {
   nowPlaying?: boolean;
 };
 
-export type LastFmArtist = {
-  id: string;
-  name: string;
-  plays: number;
-  url?: string;
-};
-
-import { env } from "@/lib/env";
-
 const API_BASE = "https://ws.audioscrobbler.com/2.0/";
 
 function requireApiKey() {
   return env.LASTFM_API_KEY;
 }
 
-async function callLastFm<T>(params: Record<string, string | number>): Promise<T> {
+async function callLastFm<T>(params: Record<string, string | number>, retries = 2): Promise<T> {
   const apiKey = requireApiKey();
   const qs = new URLSearchParams({
     api_key: apiKey,
@@ -46,38 +39,50 @@ async function callLastFm<T>(params: Record<string, string | number>): Promise<T
     ...Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])),
   });
 
-  const res = await fetch(`${API_BASE}?${qs.toString()}`, { cache: "no-store" });
-  const json = await res.json();
+  let lastError: Error | null = null;
 
-  if (!res.ok || json?.error) {
-    throw new Error(json?.message || `Last.fm API ${res.status}`);
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      const res = await fetch(`${API_BASE}?${qs.toString()}`, { cache: "no-store" });
+      const json = await res.json();
+
+      if (!res.ok || json?.error) {
+        throw new Error(json?.message || `Last.fm API ${res.status}`);
+      }
+
+      return json as T;
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error("Unknown Last.fm request error");
+      if (attempt === retries) break;
+      await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+    }
   }
 
-  return json as T;
+  throw lastError || new Error("Last.fm request failed");
 }
 
 function artistText(value: LastFmRecentTrackRaw["artist"]) {
-  return typeof value === "string" ? value : value?.['#text'] || "Unknown Artist";
+  return typeof value === "string" ? value : value?.["#text"] || "Unknown Artist";
 }
 
 function bestImage(images?: LastFmImage[]) {
   if (!images?.length) return undefined;
-  return images[images.length - 1]?.['#text'] || undefined;
+  return images[images.length - 1]?.["#text"] || undefined;
 }
 
 function normalizeRecentTrack(t: LastFmRecentTrackRaw): LastFmTrack {
   const artist = artistText(t.artist);
-  const album = t.album?.['#text'] || "Unknown Album";
+  const album = t.album?.["#text"] || "Unknown Album";
   const playedAt = t.date?.uts ? Number(t.date.uts) * 1000 : undefined;
   return {
     id: `${t.name}:${artist}:${playedAt || "now"}`,
-    name: t.name,
+    name: t.name || "Unknown Track",
     artist,
     album,
     image: bestImage(t.image),
     url: t.url,
     playedAt,
-    nowPlaying: t['@attr']?.nowplaying === "true",
+    nowPlaying: t["@attr"]?.nowplaying === "true",
   };
 }
 
@@ -98,91 +103,7 @@ export async function getLastFmRecentTracks(username: string, limit = 200) {
 
   const raw = json.recenttracks?.track || [];
   const list = Array.isArray(raw) ? raw : [raw];
-  return list.map(normalizeRecentTrack);
-}
-
-function toLastFmPeriod(range: LastFmRange) {
-  if (range === "all") return "overall";
-  if (range === "30d") return "1month";
-  return "7day";
-}
-
-export async function getLastFmTopTracks(username: string, range: LastFmRange, limit = 20) {
-  const period = toLastFmPeriod(range);
-  const json = await callLastFm<{ toptracks: { track: Array<{ name: string; playcount: string; url?: string; artist: { name: string } }> } }>({
-    method: "user.gettoptracks",
-    user: username,
-    period,
-    limit: Math.min(limit, 50),
-  });
-
-  return (json.toptracks?.track || []).map((t, idx) => ({
-    id: `${t.name}:${t.artist?.name}:${idx}`,
-    name: t.name,
-    artists: [{ name: t.artist?.name || "Unknown Artist" }],
-    album: { id: `na-${idx}`, name: "N/A", images: [] as Array<{ url: string }> },
-    popularity: Number(t.playcount) || 0,
-    external_urls: { spotify: t.url },
-  }));
-}
-
-export async function getLastFmTopArtists(username: string, range: LastFmRange, limit = 20) {
-  const period = toLastFmPeriod(range);
-  const json = await callLastFm<{ topartists: { artist: Array<{ name: string; playcount: string; url?: string }> } }>({
-    method: "user.gettopartists",
-    user: username,
-    period,
-    limit: Math.min(limit, 50),
-  });
-
-  return (json.topartists?.artist || []).map((a, idx) => ({
-    id: `${a.name}:${idx}`,
-    name: a.name,
-    genres: [] as string[],
-    images: [] as Array<{ url: string }>,
-    popularity: Number(a.playcount) || 0,
-    external_urls: { spotify: a.url },
-  }));
-}
-
-export async function getLastFmTopAlbums(username: string, range: LastFmRange, limit = 20) {
-  const period = toLastFmPeriod(range);
-  const json = await callLastFm<{
-    topalbums: {
-      album: Array<{ name: string; playcount: string; url?: string; artist: { name: string } }>;
-    };
-  }>({
-    method: "user.gettopalbums",
-    user: username,
-    period,
-    limit: Math.min(limit, 50),
-  });
-
-  return (json.topalbums?.album || []).map((a, idx) => ({
-    id: `${a.name}:${a.artist?.name || "Unknown Artist"}:${idx}`,
-    name: a.name,
-    plays: Number(a.playcount) || 0,
-    artists: [a.artist?.name || "Unknown Artist"],
-    image: undefined as string | undefined,
-    url: a.url,
-  }));
-}
-
-export function getLastFmNowPlaying(recentTracks: LastFmTrack[]) {
-  const now = recentTracks.find((t) => t.nowPlaying);
-  if (!now) return null;
-
-  return {
-    isPlaying: true,
-    progressMs: null,
-    track: {
-      name: now.name,
-      artists: [now.artist],
-      album: now.album,
-      image: now.image,
-      url: now.url,
-    },
-  };
+  return list.filter(Boolean).map(normalizeRecentTrack);
 }
 
 export function aggregateLastFmByWindow(recentTracks: LastFmTrack[]) {

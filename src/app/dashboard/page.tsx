@@ -39,6 +39,7 @@ export default async function DashboardPage({
   const sp = (await searchParams) || {};
   const selectedRange = (sp.range || "7d").toLowerCase() as DashboardRange;
   const activeRange: DashboardRange = RANGES.some((r) => r.key === selectedRange) ? selectedRange : "7d";
+  const syncError = sp.syncError;
 
   const syncState = await ensureFreshSync(session.lastfmUsername, 15 * 60 * 1000);
   const data = await getPersistedDashboardData(session.lastfmUsername, activeRange);
@@ -323,6 +324,12 @@ an>
       <div className="mt-4 flex flex-wrap gap-2">
         {(artist.genres?.length ? artist.genres : ["Persisted", "Last.fm"]).slice(0, 2).map((genre) => (
           <span key={genre} className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/52">{genre}</span>
+        ))}
+      </div>
+    </article>
+  );
+}
+re} className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/52">{genre}</span>
         ))}
       </div>
     </article>

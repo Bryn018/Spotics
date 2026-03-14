@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { ensureUserAndProfile } from "@/lib/identity";
+import { getSnapshotComparison } from "@/lib/snapshots";
 
 export type DashboardRange = "7d" | "30d" | "all";
 
@@ -20,17 +21,12 @@ export async function getPersistedDashboardData(lastfmUsername: string, range: D
       scrobbledAt: { gte: since },
     },
     orderBy: { scrobbledAt: "desc" },
-    include: {
-      artist: true,
-      album: true,
-      track: true,
-    },
     take: range === "all" ? 500 : 300,
   });
 
   const totalPlays = scrobbles.length;
   const uniqueArtists = new Set(scrobbles.map((item) => item.artistNameRaw)).size;
-  const uniqueTracks = new Set(scrobbles.map((item) => item.trackNameRaw + "::" + item.artistNameRaw)).size;
+  const uniqueTracks = new Set(scrobbles.map((item) => `${item.trackNameRaw}::${item.artistNameRaw}`)).size;
   const totalMinutes = Math.round(totalPlays * 3.5);
 
   const trackMap = new Map<string, { id: string; title: string; subtitle: string; plays: number }>();
@@ -85,6 +81,15 @@ export async function getPersistedDashboardData(lastfmUsername: string, range: D
   const weeklyBars = byDay.map((value) => Math.max(12, Math.round((value / maxDay) * 100)));
   const peakDay = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][byDay.indexOf(maxDay)] || "Mon";
 
+  const comparison = await getSnapshotComparison(profile.id, range === "all" ? "30d" : range);
+  const latestInsights = await db.insightSnapshot.findMany({
+    where: { connectedProfileId: profile.id },
+    orderBy: { createdAt: "desc" },
+    take: 4,
+  });
+
+  const nowPlaying = scrobbles.find((item) => item.nowPlaying);
+
   return {
     profile,
     totalPlays,
@@ -101,11 +106,11 @@ export async function getPersistedDashboardData(lastfmUsername: string, range: D
     totalListeningHours: `${Math.floor(totalMinutes / 60)}h ${Math.round(totalMinutes % 60)}m`,
     comparison,
     latestInsights,
-    currentTrack: scrobbles.find((item) => item.nowPlaying)
+    currentTrack: nowPlaying
       ? {
-          name: scrobbles.find((item) => item.nowPlaying)?.trackNameRaw || "Unknown Track",
-          artists: [scrobbles.find((item) => item.nowPlaying)?.artistNameRaw || "Unknown Artist"],
-          album: scrobbles.find((item) => item.nowPlaying)?.albumNameRaw || "Unknown Album",
+          name: nowPlaying.trackNameRaw || "Unknown Track",
+          artists: [nowPlaying.artistNameRaw || "Unknown Artist"],
+          album: nowPlaying.albumNameRaw || "Unknown Album",
         }
       : null,
   };
@@ -115,11 +120,6 @@ function formatAgo(date: Date) {
   const diffMinutes = Math.max(1, Math.round((Date.now() - date.getTime()) / 60000));
   if (diffMinutes < 60) return `${diffMinutes} minutes ago`;
   const diffHours = Math.round(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
-  const diffDays = Math.round(diffHours / 24);
-  return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
-}
- Math.round(diffMinutes / 60);
   if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
   const diffDays = Math.round(diffHours / 24);
   return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;

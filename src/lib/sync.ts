@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { ensureUserAndProfile } from "@/lib/identity";
 import { aggregateLastFmByWindow, getLastFmRecentTracks } from "@/lib/lastfm";
+import { buildPeriodSnapshot, generateInsights } from "@/lib/snapshots";
 
 function slugify(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -10,8 +11,81 @@ function scrobbleKey(track: { name: string; artist: string; album: string; playe
   return [slugify(track.name), slugify(track.artist), slugify(track.album || "unknown"), track.playedAt || "now", track.nowPlaying ? "live" : "scrobble"].join("::");
 }
 
+async function createOrUpdateTrackGraph(item: { name: string; artist: string; album: string; image?: string }) {
+  const artistName = item.artist || "Unknown Artist";
+  const albumName = item.album || "Unknown Album";
+  const trackName = item.name || "Unknown Track";
+
+  const artist = await db.artist.upsert({
+    where: { providerArtistKey: `lastfm:${slugify(artistName)}` },
+    update: {
+      name: artistName,
+      normalizedName: slugify(artistName),
+    },
+    create: {
+      provider: "lastfm",
+      providerArtistKey: `lastfm:${slugify(artistName)}`,
+      name: artistName,
+      normalizedName: slugify(artistName),
+    },
+  });
+
+  const album = await db.album.upsert({
+    where: { providerAlbumKey: `lastfm:${slugify(artistName)}:${slugify(albumName)}` },
+    update: {
+      name: albumName,
+      normalizedName: slugify(albumName),
+      artistId: artist.id,
+      imageUrl: item.image || undefined,
+    },
+    create: {
+      provider: "lastfm",
+      providerAlbumKey: `lastfm:${slugify(artistName)}:${slugify(albumName)}`,
+      name: albumName,
+      normalizedName: slugify(albumName),
+      artistId: artist.id,
+      imageUrl: item.image || undefined,
+    },
+  });
+
+  const track = await db.track.upsert({
+    where: { providerTrackKey: `lastfm:${slugify(artistName)}:${slugify(trackName)}` },
+    update: {
+      name: trackName,
+      normalizedName: slugify(trackName),
+      artistId: artist.id,
+      albumId: album.id,
+    },
+    create: {
+      provider: "lastfm",
+      providerTrackKey: `lastfm:${slugify(artistName)}:${slugify(trackName)}`,
+      name: trackName,
+      normalizedName: slugify(trackName),
+      artistId: artist.id,
+      albumId: album.id,
+    },
+  });
+
+  return { artist, album, track, artistName, albumName, trackName };
+}
+
 export async function syncLastFmProfile(lastfmUsername: string, limit = 200) {
   const profile = await ensureUserAndProfile(lastfmUsername);
+
+  const running = await db.syncRun.findFirst({
+    where: {
+      connectedProfileId: profile.id,
+      status: "RUNNING",
+    },
+    orderBy: { startedAt: "desc" },
+  });
+
+  if (running) {
+    const ageMs = Date.now() - running.startedAt.getTime();
+    if (ageMs < 2 * 60 * 1000) {
+      return { profileId: profile.id, itemsFetched: 0, inserted: 0, updated: 0, skipped: true, reason: "sync-already-running" };
+    }
+  }
 
   const syncRun = await db.syncRun.create({
     data: {
@@ -24,64 +98,35 @@ export async function syncLastFmProfile(lastfmUsername: string, limit = 200) {
 
   try {
     const recent = await getLastFmRecentTracks(lastfmUsername, limit);
+    if (!recent.length) {
+      await db.connectedProfile.update({
+        where: { id: profile.id },
+        data: {
+          lastSuccessfulSyncAt: new Date(),
+          lastSyncStatus: "SUCCESS",
+        },
+      });
+
+      await db.syncRun.update({
+        where: { id: syncRun.id },
+        data: {
+          status: "SUCCESS",
+          finishedAt: new Date(),
+          itemsFetched: 0,
+          itemsInserted: 0,
+          itemsUpdated: 0,
+          metadataJson: { source: "dashboard-load", requestedLimit: limit, empty: true },
+        },
+      });
+
+      return { profileId: profile.id, itemsFetched: 0, inserted: 0, updated: 0, empty: true };
+    }
+
     let inserted = 0;
     let updated = 0;
 
     for (const item of recent) {
-      const artistName = item.artist || "Unknown Artist";
-      const albumName = item.album || "Unknown Album";
-      const trackName = item.name || "Unknown Track";
-
-      const artist = await db.artist.upsert({
-        where: { providerArtistKey: `lastfm:${slugify(artistName)}` },
-        update: {
-          name: artistName,
-          normalizedName: slugify(artistName),
-        },
-        create: {
-          provider: "lastfm",
-          providerArtistKey: `lastfm:${slugify(artistName)}`,
-          name: artistName,
-          normalizedName: slugify(artistName),
-        },
-      });
-
-      const album = await db.album.upsert({
-        where: { providerAlbumKey: `lastfm:${slugify(artistName)}:${slugify(albumName)}` },
-        update: {
-          name: albumName,
-          normalizedName: slugify(albumName),
-          artistId: artist.id,
-          imageUrl: item.image || undefined,
-        },
-        create: {
-          provider: "lastfm",
-          providerAlbumKey: `lastfm:${slugify(artistName)}:${slugify(albumName)}`,
-          name: albumName,
-          normalizedName: slugify(albumName),
-          artistId: artist.id,
-          imageUrl: item.image || undefined,
-        },
-      });
-
-      const track = await db.track.upsert({
-        where: { providerTrackKey: `lastfm:${slugify(artistName)}:${slugify(trackName)}` },
-        update: {
-          name: trackName,
-          normalizedName: slugify(trackName),
-          artistId: artist.id,
-          albumId: album.id,
-        },
-        create: {
-          provider: "lastfm",
-          providerTrackKey: `lastfm:${slugify(artistName)}:${slugify(trackName)}`,
-          name: trackName,
-          normalizedName: slugify(trackName),
-          artistId: artist.id,
-          albumId: album.id,
-        },
-      });
-
+      const graph = await createOrUpdateTrackGraph(item);
       const key = scrobbleKey(item);
       const existing = await db.scrobble.findUnique({
         where: {
@@ -96,12 +141,12 @@ export async function syncLastFmProfile(lastfmUsername: string, limit = 200) {
         await db.scrobble.update({
           where: { id: existing.id },
           data: {
-            trackId: track.id,
-            artistId: artist.id,
-            albumId: album.id,
-            trackNameRaw: trackName,
-            artistNameRaw: artistName,
-            albumNameRaw: albumName,
+            trackId: graph.track.id,
+            artistId: graph.artist.id,
+            albumId: graph.album.id,
+            trackNameRaw: graph.trackName,
+            artistNameRaw: graph.artistName,
+            albumNameRaw: graph.albumName,
             nowPlaying: Boolean(item.nowPlaying),
             sourcePayloadJson: item,
           },
@@ -113,12 +158,12 @@ export async function syncLastFmProfile(lastfmUsername: string, limit = 200) {
             connectedProfileId: profile.id,
             provider: "lastfm",
             providerScrobbleKey: key,
-            trackId: track.id,
-            artistId: artist.id,
-            albumId: album.id,
-            trackNameRaw: trackName,
-            artistNameRaw: artistName,
-            albumNameRaw: albumName,
+            trackId: graph.track.id,
+            artistId: graph.artist.id,
+            albumId: graph.album.id,
+            trackNameRaw: graph.trackName,
+            artistNameRaw: graph.artistName,
+            albumNameRaw: graph.albumName,
             scrobbledAt: item.playedAt ? new Date(item.playedAt) : new Date(),
             nowPlaying: Boolean(item.nowPlaying),
             sourcePayloadJson: item,
@@ -197,6 +242,8 @@ export async function syncLastFmProfile(lastfmUsername: string, limit = 200) {
 
     return { profileId: profile.id, itemsFetched: recent.length, inserted, updated };
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown sync error";
+
     await db.connectedProfile.update({
       where: { id: profile.id },
       data: { lastSyncStatus: "FAILED" },
@@ -207,10 +254,10 @@ export async function syncLastFmProfile(lastfmUsername: string, limit = 200) {
       data: {
         status: "FAILED",
         finishedAt: new Date(),
-        errorMessage: error instanceof Error ? error.message : "Unknown sync error",
+        errorMessage: message,
       },
     });
 
-    throw error;
+    throw new Error(`Last.fm sync failed: ${message}`);
   }
 }

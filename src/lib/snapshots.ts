@@ -37,6 +37,17 @@ function toPercentDelta(current: number, previous: number) {
 export async function buildPeriodSnapshot(connectedProfileId: string, range: SnapshotRange) {
   const { start, end, periodType } = rangeWindow(range);
 
+  const existing = await db.periodSnapshot.findFirst({
+    where: {
+      connectedProfileId,
+      periodType,
+      periodStart: start,
+      periodEnd: end,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  if (existing) return existing;
+
   const scrobbles = await db.scrobble.findMany({
     where: {
       connectedProfileId,
@@ -99,9 +110,7 @@ export async function getSnapshotComparison(connectedProfileId: string, range: S
   });
 
   const current = snapshots[0] || (await buildPeriodSnapshot(connectedProfileId, range));
-  const previous = snapshots.find(
-    (snapshot) => snapshot.periodStart >= previousStart && snapshot.periodEnd <= previousEnd,
-  );
+  const previous = snapshots.find((snapshot) => snapshot.periodStart >= previousStart && snapshot.periodEnd <= previousEnd);
 
   return {
     current,
@@ -117,17 +126,17 @@ export async function getSnapshotComparison(connectedProfileId: string, range: S
 
 export async function generateInsights(connectedProfileId: string, range: SnapshotRange) {
   const comparison = await getSnapshotComparison(connectedProfileId, range);
-  const insights: Array<{ title: string; body: string; insightType: string; confidenceScore: number }> = [];
+  const candidateInsights: Array<{ title: string; body: string; insightType: string; confidenceScore: number }> = [];
 
   if (comparison.deltas.scrobbles > 15) {
-    insights.push({
+    candidateInsights.push({
       title: "Listening volume is up",
       body: `Your scrobbles increased by ${comparison.deltas.scrobbles}% compared with the previous comparable period.`,
       insightType: "trend-up",
       confidenceScore: 0.82,
     });
   } else if (comparison.deltas.scrobbles < -15) {
-    insights.push({
+    candidateInsights.push({
       title: "Listening volume cooled down",
       body: `Your scrobble volume dropped by ${Math.abs(comparison.deltas.scrobbles)}% compared with the previous comparable period.`,
       insightType: "trend-down",
@@ -136,7 +145,7 @@ export async function generateInsights(connectedProfileId: string, range: Snapsh
   }
 
   if (comparison.current.discoveryRatio > 0.45) {
-    insights.push({
+    candidateInsights.push({
       title: "High discovery period",
       body: "This period shows a relatively high artist-diversity ratio, suggesting broader exploration than usual.",
       insightType: "discovery",
@@ -145,7 +154,7 @@ export async function generateInsights(connectedProfileId: string, range: Snapsh
   }
 
   if (comparison.current.repeatRatio > 0.45) {
-    insights.push({
+    candidateInsights.push({
       title: "Heavy replay behaviour",
       body: "A large share of this period's scrobbles came from repeated track listens rather than one-off plays.",
       insightType: "loyalty",
@@ -153,7 +162,18 @@ export async function generateInsights(connectedProfileId: string, range: Snapsh
     });
   }
 
-  for (const insight of insights) {
+  const created: typeof candidateInsights = [];
+  for (const insight of candidateInsights) {
+    const duplicate = await db.insightSnapshot.findFirst({
+      where: {
+        connectedProfileId,
+        periodSnapshotId: comparison.current.id,
+        insightType: insight.insightType,
+        title: insight.title,
+      },
+    });
+    if (duplicate) continue;
+
     await db.insightSnapshot.create({
       data: {
         connectedProfileId,
@@ -164,7 +184,8 @@ export async function generateInsights(connectedProfileId: string, range: Snapsh
         confidenceScore: insight.confidenceScore,
       },
     });
+    created.push(insight);
   }
 
-  return insights;
+  return created;
 }
