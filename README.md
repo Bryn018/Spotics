@@ -125,6 +125,8 @@ npm run db:migrate
 - incremental sync pipeline
 - scrobble persistence
 - sync logging
+- DB-backed dashboard reads
+- authenticated Last.fm sync endpoint
 
 ### Phase 3: honest dashboard
 - persisted metrics

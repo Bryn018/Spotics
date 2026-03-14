@@ -25,6 +25,14 @@ This document defines the intent of the first rebuild branch.
 - Public recap generation
 - Full account-system redesign
 
+## Phase 2 direction
+
+The next step after this document is implemented as code is:
+- persist Last.fm scrobbles
+- record sync runs
+- use database-backed reads for dashboard/analytics surfaces
+- expose a sync entrypoint the product can call safely while the richer background job system is still being built
+
 ## Engineering principles
 
 - Prefer honest metrics over decorative placeholders.
