@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import TopNav from "@/components/top-nav";
 import { ensureFreshSync, formatSyncTime } from "@/lib/sync-status";
 import { ensureMonthlyRecap, getRecapArchive, getSnapshotHistory } from "@/lib/recaps";
 
@@ -23,7 +24,7 @@ export default async function HistoryPage() {
             <p className="text-sm uppercase tracking-[0.35em] text-white/40">Spotics</p>
             <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl">History & Recaps</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60 sm:text-base">
-              This is the archive layer: previous period snapshots, monthly recap records, and the start of a revisitable listening timeline.
+              This archive focuses on continuity: previous period snapshots, monthly recap records, and a revisitable timeline of listening behavior.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -39,10 +40,13 @@ export default async function HistoryPage() {
         <section className="panel rounded-[2rem] p-6 sm:p-8 lg:p-10">
           <p className="text-xs uppercase tracking-[0.3em] text-lime-200">Current monthly recap</p>
           <h2 className="mt-3 text-3xl font-semibold text-white">{recap.title}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-white/58">
+            This recap is generated from persisted listening data. It is an archive artifact, not a one-off visual gimmick.
+          </p>
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {Object.entries((recap.payloadJson || {}) as Record<string, string | number | null>).map(([key, value]) => (
               <article key={key} className="panel-soft rounded-[1.5rem] p-5">
-                <p className="text-xs uppercase tracking-[0.22em] text-white/40">{key}</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-white/40">{humanizeKey(key)}</p>
                 <p className="mt-3 text-xl font-semibold text-white">{String(value ?? "—")}</p>
               </article>
             ))}
@@ -56,14 +60,18 @@ export default async function HistoryPage() {
               <h2 className="text-2xl font-bold text-white">Recap archive</h2>
             </div>
             <div className="space-y-4">
-              {archive.map((item) => (
-                <div key={item.id} className="panel-soft rounded-[1.5rem] p-5">
-                  <p className="text-xs uppercase tracking-[0.22em] text-lime-200">{item.recapType}</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{item.title}</p>
-                  <p className="mt-2 text-sm text-white/58">Created {formatSyncTime(item.createdAt)}</p>
-                  <p className="mt-3 text-xs uppercase tracking-[0.18em] text-white/40">Slug: {item.slug}</p>
-                </div>
-              ))}
+              {archive.length ? (
+                archive.map((item) => (
+                  <div key={item.id} className="panel-soft rounded-[1.5rem] p-5">
+                    <p className="text-xs uppercase tracking-[0.22em] text-lime-200">{item.recapType}</p>
+                    <p className="mt-2 text-xl font-semibold text-white">{item.title}</p>
+                    <p className="mt-2 text-sm text-white/58">Created {formatSyncTime(item.createdAt)}</p>
+                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-white/40">Slug: {item.slug}</p>
+                  </div>
+                ))
+              ) : (
+                <EmptyCard text="Monthly recaps will accumulate here as listening history grows over time." />
+              )}
             </div>
           </article>
 
@@ -73,23 +81,27 @@ export default async function HistoryPage() {
               <h2 className="text-2xl font-bold text-white">Snapshot history</h2>
             </div>
             <div className="space-y-4">
-              {history.map((snapshot) => (
-                <div key={snapshot.id} className="panel-soft rounded-[1.5rem] p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-lime-200">{snapshot.periodType}</p>
-                      <p className="mt-2 text-xl font-semibold text-white">{snapshot.totalScrobbles.toLocaleString()} scrobbles</p>
+              {history.length ? (
+                history.map((snapshot) => (
+                  <div key={snapshot.id} className="panel-soft rounded-[1.5rem] p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.22em] text-lime-200">{snapshot.periodType}</p>
+                        <p className="mt-2 text-xl font-semibold text-white">{snapshot.totalScrobbles.toLocaleString()} scrobbles</p>
+                      </div>
+                      <p className="text-sm text-white/50">{snapshot.periodStart.toISOString().slice(0, 10)} → {snapshot.periodEnd.toISOString().slice(0, 10)}</p>
                     </div>
-                    <p className="text-sm text-white/50">{snapshot.periodStart.toISOString().slice(0, 10)} → {snapshot.periodEnd.toISOString().slice(0, 10)}</p>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <Metric label="Artists" value={snapshot.uniqueArtists} />
+                      <Metric label="Tracks" value={snapshot.uniqueTracks} />
+                      <Metric label="Albums" value={snapshot.uniqueAlbums} />
+                      <Metric label="Minutes" value={snapshot.estimatedMinutes} />
+                    </div>
                   </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <Metric label="Artists" value={snapshot.uniqueArtists} />
-                    <Metric label="Tracks" value={snapshot.uniqueTracks} />
-                    <Metric label="Albums" value={snapshot.uniqueAlbums} />
-                    <Metric label="Minutes" value={snapshot.estimatedMinutes} />
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <EmptyCard text="Snapshot history will appear after more sync periods are recorded." />
+              )}
             </div>
           </article>
         </section>
@@ -106,7 +118,11 @@ function Metric({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
-}</p>
-    </div>
-  );
+
+function EmptyCard({ text }: { text: string }) {
+  return <div className="panel-soft rounded-[1.5rem] p-5 text-sm leading-7 text-white/58">{text}</div>;
+}
+
+function humanizeKey(key: string) {
+  return key.replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
 }

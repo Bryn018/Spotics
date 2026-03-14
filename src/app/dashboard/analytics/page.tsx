@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import MetricNote from "@/components/metric-note";
 import TopNav from "@/components/top-nav";
 import SyncStatusCard from "@/components/sync-status-card";
 import { getPersistedDashboardData } from "@/lib/dashboard-data";
@@ -30,7 +31,7 @@ export default async function AnalyticsPage() {
             <p className="text-sm uppercase tracking-[0.35em] text-white/40">Spotics</p>
             <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl">Analytics</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60 sm:text-base">
-              This analytics view now reads from persisted scrobbles, snapshot comparisons, and generated insights. Where estimates are shown, they are labeled as estimates instead of being disguised as exact values.
+              This analytics view uses persisted scrobbles, snapshot comparisons, and generated insights. Estimates are labeled, and trend percentages should be interpreted in the context of how much history has been synced so far.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -44,6 +45,13 @@ export default async function AnalyticsPage() {
         </header>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="lg:col-span-2">
+            <MetricNote
+              title="Analytics note"
+              body="Comparison percentages are based on the most recent comparable snapshot currently available. If history is still shallow, the deltas may look more volatile than they will after more sync periods accumulate."
+              tone="caution"
+            />
+          </div>
           <SyncStatusCard
             status={syncState.lastSyncStatus}
             lastSuccessfulSyncLabel={formatSyncTime(syncState.lastSuccessfulSyncAt)}
@@ -130,7 +138,7 @@ export default async function AnalyticsPage() {
                     </div>
                   ))
                 ) : (
-                  <p>Snapshot-based insights will appear here after more sync history accumulates.</p>
+                  <p>Snapshot-based insights will appear here after more sync history accumulates and comparison windows become more representative.</p>
                 )}
               </div>
             </div>
@@ -156,20 +164,26 @@ export default async function AnalyticsPage() {
               <div className="mt-4 text-sm text-white/58">Total persisted plays: {data.totalPlays.toLocaleString()}</div>
             </div>
             <div className="mt-5 space-y-3">
-              {artistMix.map((item, index) => (
-                <div key={item.name} className="rounded-[1.3rem] border border-white/8 bg-white/[0.04] p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-xs font-semibold text-white">{index + 1}</div>
-                      <div>
-                        <p className="font-medium text-white">{item.name}</p>
-                        <p className="text-sm text-white/55">{item.plays.toLocaleString()} plays</p>
+              {artistMix.length ? (
+                artistMix.map((item, index) => (
+                  <div key={item.name} className="rounded-[1.3rem] border border-white/8 bg-white/[0.04] p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-xs font-semibold text-white">{index + 1}</div>
+                        <div>
+                          <p className="font-medium text-white">{item.name}</p>
+                          <p className="text-sm text-white/55">{item.plays.toLocaleString()} plays</p>
+                        </div>
                       </div>
+                      <div className="text-right text-lg font-semibold text-white">{item.percent}%</div>
                     </div>
-                    <div className="text-right text-lg font-semibold text-white">{item.percent}%</div>
                   </div>
+                ))
+              ) : (
+                <div className="rounded-[1.3rem] border border-white/8 bg-white/[0.04] p-4 text-sm text-white/58">
+                  No stable artist mix is available yet for this period.
                 </div>
-              ))}
+              )}
             </div>
           </article>
         </section>

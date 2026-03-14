@@ -104,7 +104,7 @@ export default async function DashboardPage({
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_28%),linear-gradient(135deg,rgba(143,69,255,0.24),rgba(255,79,216,0.12)_45%,rgba(68,214,255,0.08)_100%)]" />
           <div className="relative z-10 flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-              <p className="text-sm font-bold uppercase tracking-[0.35em] text-lime-200">Listening history, not fake wrap-up math</p>
+              <p className="text-sm font-bold uppercase tracking-[0.35em] text-lime-200">Persisted listening history</p>
               <h2 className="display-font mt-4 text-4xl font-bold text-white text-glow sm:text-6xl">Your music activity</h2>
               <p className="mt-5 max-w-2xl text-base leading-8 text-white/70">
                 You&apos;ve logged {data.totalPlays.toLocaleString()} scrobbles from {data.uniqueArtists.toLocaleString()} artists in this range. Spotics is now preserving history, generating recap material, and surfacing snapshot-driven insights instead of decorative-only analytics.
@@ -305,6 +305,20 @@ function ArtistCard({ artist, index }: { artist: ArtistItem; index: number }) {
           <h3 className="mt-2 text-xl font-semibold text-white">{artist.name}</h3>
         </div>
         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-lime-200">{artist.plays.toLocaleString()} plays</span>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {(artist.genres?.length ? artist.genres : ["Persisted", "Last.fm"]).slice(0, 2).map((genre) => (
+          <span key={genre} className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/52">{genre}</span>
+        ))}
+      </div>
+    </article>
+  );
+}
+      </div>
+    </article>
+  );
+}
+an>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {(artist.genres?.length ? artist.genres : ["Persisted", "Last.fm"]).slice(0, 2).map((genre) => (
