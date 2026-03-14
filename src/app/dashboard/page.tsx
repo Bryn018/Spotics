@@ -175,6 +175,12 @@ export default async function DashboardPage({
           <aside className="xl:col-span-4">
             <SectionTitle title="Recent Activity" reverse />
             <div className="space-y-4 xl:sticky xl:top-8">
+              <SyncStatusCard
+                status={syncState.lastSyncStatus}
+                lastSuccessfulSyncLabel={formatSyncTime(syncState.lastSuccessfulSyncAt)}
+                lastRunLabel={syncState.latestRun ? `${syncState.latestRun.status.toLowerCase()} · ${formatSyncTime(syncState.latestRun.startedAt)}` : "No runs yet"}
+                wasFresh={syncState.wasFresh}
+              />
               <div className="panel-soft rounded-[1.6rem] p-5">
                 <p className="text-xs uppercase tracking-[0.32em] text-lime-200">Now Playing</p>
                 {data.currentTrack ? (

@@ -11,7 +11,7 @@ export async function POST() {
 
   try {
     const result = await syncLastFmProfile(session.lastfmUsername, 200);
-    return NextResponse.json({ ok: true, ...result });
+    return NextResponse.redirect(new URL("/dashboard", process.env.NEXTAUTH_URL || "http://localhost:3000"));
   } catch (error) {
     return NextResponse.json(
       { ok: false, error: error instanceof Error ? error.message : "Unknown sync error" },

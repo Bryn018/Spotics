@@ -79,6 +79,12 @@ export default async function AnalyticsPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <SyncStatusCard
+            status={syncState.lastSyncStatus}
+            lastSuccessfulSyncLabel={formatSyncTime(syncState.lastSuccessfulSyncAt)}
+            lastRunLabel={syncState.latestRun ? `${syncState.latestRun.status.toLowerCase()} · ${formatSyncTime(syncState.latestRun.startedAt)}` : "No runs yet"}
+            wasFresh={syncState.wasFresh}
+          />
           <article className="panel-soft rounded-[1.75rem] p-5 sm:p-6">
             <p className="text-xs uppercase tracking-[0.3em] text-white/40">Weekly Insights</p>
             <h3 className="mt-2 text-xl font-semibold text-white">Simple, explainable summaries</h3>
