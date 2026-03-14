@@ -20,6 +20,9 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Generate Prisma client
+        run: npm run db:generate
+
       - name: Lint
         run: npm run lint
 
@@ -27,4 +30,10 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Build
+        env:
+          LASTFM_API_KEY: ci-lastfm-key
+          NEXTAUTH_SECRET: ci-nextauth-secret
+          NEXTAUTH_URL: http://localhost:3000
+          AUTH_TRUST_HOST: "true"
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/spotics
         run: npm run build

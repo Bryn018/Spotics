@@ -30,12 +30,12 @@ export type LastFmArtist = {
   url?: string;
 };
 
+import { env } from "@/lib/env";
+
 const API_BASE = "https://ws.audioscrobbler.com/2.0/";
 
 function requireApiKey() {
-  const key = process.env.LASTFM_API_KEY;
-  if (!key) throw new Error("LASTFM_API_KEY is missing");
-  return key;
+  return env.LASTFM_API_KEY;
 }
 
 async function callLastFm<T>(params: Record<string, string | number>): Promise<T> {

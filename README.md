@@ -1,155 +1,164 @@
-# Spotics 🎵
+# Spotics
 
-Spotics is a **Last.fm-first music insights dashboard** focused on a clean wrapped-style experience:
-- real listening-history windows from Last.fm scrobbles
-- top tracks, artists, albums, and activity views
-- dedicated analytics page
-- simple deployment on Railway
+Spotics is a **Last.fm music intelligence platform**.
 
-Built with **Next.js App Router + NextAuth + Last.fm API**.
+Instead of pretending to be a one-off wrapped clone, Spotics is being rebuilt as a production-oriented product that:
+- tracks a user's listening history from Last.fm
+- stores and aggregates listening activity over time
+- produces honest dashboards and trend views
+- prepares the foundation for recurring recaps, insights, and notifications
 
----
-
-## Features
-
-- Last.fm sign-in using username verification
-- Dashboard with:
-  - hero summary
-  - top tracks
-  - top artists
-  - top albums
-  - recent activity
-  - listening score
-- Dedicated analytics page with:
-  - weekly listening chart
-  - insight cards
-  - genre distribution
-- Range switcher: `7d`, `30d`, `all`
-- No database required for v1
+This branch introduces the **production foundation** for that direction.
 
 ---
 
-## Tech Stack
+## Product direction
 
-- Next.js 16 (App Router)
+### What Spotics is
+- a Last.fm-first listening analytics product
+- a long-term personal music dashboard
+- a foundation for insights, recaps, and trend monitoring
+
+### What Spotics is not
+- fake analytics wrapped in pretty cards
+- a Spotify clone with ghost integrations
+- a one-page demo pretending to be production-ready
+
+---
+
+## Current rebuild goals
+
+This phase focuses on the foundation required for a real product:
+
+- environment validation
+- database and Prisma schema scaffolding
+- durable data model for users, profiles, scrobbles, rollups, insights, and recaps
+- clearer product framing and more honest language
+- removal of dead Spotify-era leftovers from the active architecture
+
+---
+
+## Tech stack
+
+- Next.js 16
 - TypeScript
 - NextAuth v4
-- Last.fm API
+- Prisma
+- PostgreSQL
 - Tailwind CSS v4
-- Railway deployment
+- Last.fm API
 
 ---
 
-## Project Structure
+## Environment
 
-```text
-src/
-  app/
-    page.tsx                         # Landing/sign-in page
-    dashboard/page.tsx               # Main dashboard
-    dashboard/analytics/page.tsx     # Dedicated analytics view
-    api/auth/[...nextauth]/route.ts  # Auth endpoint
-  components/
-    lastfm-signin.tsx                # Last.fm sign-in form
-  lib/
-    auth.ts                          # NextAuth configuration
-    lastfm.ts                        # Last.fm helpers
-    rate-limit.ts                    # Lightweight rate limiting
-  types/
-    next-auth.d.ts                   # Session/token type extensions
-```
-
----
-
-## Local Development
-
-### 1) Install dependencies
-
-```bash
-npm install
-```
-
-### 2) Configure environment
-
-Create `.env.local`:
+Create `.env.local` from `.env.example` and fill in:
 
 ```env
-LASTFM_API_KEY=your_lastfm_api_key
-NEXTAUTH_SECRET=your_random_secret
+LASTFM_API_KEY=
+NEXTAUTH_SECRET=
 NEXTAUTH_URL=http://localhost:3000
 AUTH_TRUST_HOST=true
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/spotics
+NEXTAUTH_DEBUG=false
 ```
 
-Generate `NEXTAUTH_SECRET`:
+Generate a secret if needed:
 
 ```bash
 openssl rand -base64 32
 ```
 
-### 3) Last.fm setup
+---
 
-- Create a Last.fm API app and get an API key
-- Set `LASTFM_API_KEY` in your env
-- Users sign in using their public Last.fm username
+## Local development
 
-### 4) Run
+Install dependencies:
+
+```bash
+npm install
+```
+
+Generate Prisma client:
+
+```bash
+npm run db:generate
+```
+
+Push schema to your local database during development:
+
+```bash
+npm run db:push
+```
+
+Run the app:
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
-
 ---
 
-## Build & Quality
+## Scripts
 
 ```bash
+npm run dev
 npm run lint
 npm run build
-npm run start
+npm run db:generate
+npm run db:push
+npm run db:migrate
 ```
 
 ---
 
-## Deployment
+## Rebuild roadmap
 
-### Railway (recommended)
+### Phase 1: production foundation
+- env validation
+- Prisma schema
+- cleanup of misleading product positioning
+- remove dead integration leftovers
 
-Set these environment variables in Railway:
+### Phase 2: ingestion and persistence
+- initial Last.fm sync
+- incremental sync pipeline
+- scrobble persistence
+- sync logging
 
-```env
-LASTFM_API_KEY=...
-NEXTAUTH_SECRET=...
-NEXTAUTH_URL=https://your-railway-domain.up.railway.app
-AUTH_TRUST_HOST=true
+### Phase 3: honest dashboard
+- persisted metrics
+- exact vs estimated labels
+- real time-window comparisons
+
+### Phase 4: insights and recaps
+- trend detection
+- recap generation
+- milestone notifications
+- shareable outputs
+
+---
+
+## Repo structure
+
+```text
+prisma/
+  schema.prisma                # Production-oriented domain model
+src/
+  app/                         # Next.js routes and pages
+  components/                  # UI components
+  lib/
+    auth.ts                    # NextAuth config
+    db.ts                      # Prisma client singleton
+    env.ts                     # Runtime environment validation
+    lastfm.ts                  # Last.fm client/helpers
+    rate-limit.ts              # Lightweight app-side rate limiting
+  types/
+    next-auth.d.ts             # Session/JWT extensions
 ```
 
-Then deploy from GitHub.
-
 ---
 
-## Troubleshooting
+## Notes
 
-- **Last.fm sign-in fails**
-  - Verify `LASTFM_API_KEY`
-  - Confirm the username exists publicly on Last.fm
-- **Auth/session issues**
-  - Verify `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, and `AUTH_TRUST_HOST`
-- **Dashboard looks empty**
-  - Confirm the Last.fm account has scrobble history
-
----
-
-## Roadmap
-
-- Persistent saved snapshots in a later v2
-- Shareable public wrapped cards
-- More analytics and comparisons
-- Optional Spotify support later
-
----
-
-## License
-
-Educational / personal project.
+This branch is intentionally a **foundation rebuild**, not the final product. The goal is to create a clean base for persistence, ingestion, and honest analytics.

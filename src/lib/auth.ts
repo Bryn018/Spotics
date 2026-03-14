@@ -56,8 +56,16 @@ export const authOptions: NextAuthOptions = {
       console.warn("[next-auth][warn]", code);
     },
     debug(code, metadata) {
-      if (process.env.NEXTAUTH_DEBUG === "true") {
+      if (env.NEXTAUTH_DEBUG === "true") {
         console.log("[next-auth][debug]", code, metadata);
+      }
+    },
+  },
+  session: {
+    strategy: "jwt",
+  },
+};
+ext-auth][debug]", code, metadata);
       }
     },
   },

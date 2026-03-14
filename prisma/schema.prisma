@@ -1,0 +1,335 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String             @id @default(cuid())
+  email               String?            @unique
+  name                String?
+  image               String?
+  onboardingCompleted Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  lastSeenAt          DateTime?
+  accounts            Account[]
+  sessions            Session[]
+  connectedProfiles   ConnectedProfile[]
+  settings            UserSettings?
+  notificationEvents  NotificationEvent[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model ConnectedProfile {
+  id                  String              @id @default(cuid())
+  userId              String
+  provider            String
+  externalUsername    String
+  externalUserId      String?
+  displayName         String
+  avatarUrl           String?
+  isPrimary           Boolean             @default(true)
+  connectedAt         DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  lastSuccessfulSyncAt DateTime?
+  lastSyncStatus      SyncStatus          @default(IDLE)
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  syncRuns            SyncRun[]
+  scrobbles           Scrobble[]
+  dailyRollups        DailyRollup[]
+  periodSnapshots     PeriodSnapshot[]
+  insights            InsightSnapshot[]
+  recaps              Recap[]
+  notifications       NotificationEvent[]
+
+  @@unique([provider, externalUsername])
+  @@index([userId])
+}
+
+model SyncRun {
+  id                 String      @id @default(cuid())
+  connectedProfileId String
+  syncType           SyncType
+  status             RunStatus
+  startedAt          DateTime    @default(now())
+  finishedAt         DateTime?
+  itemsFetched       Int         @default(0)
+  itemsInserted      Int         @default(0)
+  itemsUpdated       Int         @default(0)
+  errorMessage       String?
+  metadataJson       Json?
+  connectedProfile   ConnectedProfile @relation(fields: [connectedProfileId], references: [id], onDelete: Cascade)
+
+  @@index([connectedProfileId, startedAt])
+}
+
+model Artist {
+  id                String      @id @default(cuid())
+  provider          String
+  providerArtistKey String      @unique
+  mbid              String?
+  name              String
+  normalizedName    String
+  imageUrl          String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  albums            Album[]
+  tracks            Track[]
+  artistTags        ArtistTag[]
+  scrobbles         Scrobble[]
+}
+
+model Album {
+  id               String    @id @default(cuid())
+  provider         String
+  providerAlbumKey String    @unique
+  mbid             String?
+  artistId         String?
+  name             String
+  normalizedName   String
+  imageUrl         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  artist           Artist?   @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  tracks           Track[]
+  scrobbles        Scrobble[]
+}
+
+model Track {
+  id               String    @id @default(cuid())
+  provider         String
+  providerTrackKey String    @unique
+  mbid             String?
+  artistId         String?
+  albumId          String?
+  name             String
+  normalizedName   String
+  durationSeconds  Int?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  artist           Artist?   @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  album            Album?    @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  scrobbles        Scrobble[]
+}
+
+model Scrobble {
+  id                 String   @id @default(cuid())
+  connectedProfileId String
+  provider           String
+  providerScrobbleKey String
+  trackId            String?
+  artistId           String?
+  albumId            String?
+  trackNameRaw       String
+  artistNameRaw      String
+  albumNameRaw       String?
+  scrobbledAt        DateTime
+  nowPlaying         Boolean  @default(false)
+  sourcePayloadJson  Json?
+  insertedAt         DateTime @default(now())
+  connectedProfile   ConnectedProfile @relation(fields: [connectedProfileId], references: [id], onDelete: Cascade)
+  track              Track?   @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  artist             Artist?  @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  album              Album?   @relation(fields: [albumId], references: [id], onDelete: SetNull)
+
+  @@unique([connectedProfileId, providerScrobbleKey])
+  @@index([connectedProfileId, scrobbledAt])
+}
+
+model DailyRollup {
+  id                      String   @id @default(cuid())
+  connectedProfileId      String
+  dayDate                 DateTime
+  totalScrobbles          Int      @default(0)
+  uniqueTracks            Int      @default(0)
+  uniqueArtists           Int      @default(0)
+  uniqueAlbums            Int      @default(0)
+  estimatedListeningMinutes Int    @default(0)
+  repeatRate              Float    @default(0)
+  diversityIndex          Float    @default(0)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  connectedProfile        ConnectedProfile @relation(fields: [connectedProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([connectedProfileId, dayDate])
+}
+
+model PeriodSnapshot {
+  id                 String   @id @default(cuid())
+  connectedProfileId String
+  periodType         String
+  periodStart        DateTime
+  periodEnd          DateTime
+  totalScrobbles     Int      @default(0)
+  uniqueArtists      Int      @default(0)
+  uniqueTracks       Int      @default(0)
+  uniqueAlbums       Int      @default(0)
+  estimatedMinutes   Int      @default(0)
+  discoveryRatio     Float    @default(0)
+  repeatRatio        Float    @default(0)
+  topArtistId        String?
+  topTrackId         String?
+  topAlbumId         String?
+  summaryJson        Json?
+  createdAt          DateTime @default(now())
+  connectedProfile   ConnectedProfile @relation(fields: [connectedProfileId], references: [id], onDelete: Cascade)
+  insights           InsightSnapshot[]
+  topEntities        TopEntitySnapshot[]
+}
+
+model TopEntitySnapshot {
+  id               String   @id @default(cuid())
+  connectedProfileId String
+  periodSnapshotId String
+  entityType       String
+  entityId         String?
+  displayName      String
+  rankPosition     Int
+  playCount        Int      @default(0)
+  metadataJson     Json?
+  periodSnapshot   PeriodSnapshot @relation(fields: [periodSnapshotId], references: [id], onDelete: Cascade)
+
+  @@index([periodSnapshotId, entityType, rankPosition])
+}
+
+model Tag {
+  id             String      @id @default(cuid())
+  name           String
+  normalizedName String      @unique
+  tagType        String
+  createdAt      DateTime    @default(now())
+  artistTags     ArtistTag[]
+}
+
+model ArtistTag {
+  id        String   @id @default(cuid())
+  artistId  String
+  tagId     String
+  source    String
+  weight    Float    @default(0)
+  createdAt DateTime @default(now())
+  artist    Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([artistId, tagId, source])
+}
+
+model InsightSnapshot {
+  id                 String   @id @default(cuid())
+  connectedProfileId String
+  periodSnapshotId   String?
+  insightType        String
+  title              String
+  body               String
+  confidenceScore    Float    @default(0)
+  severityScore      Float?
+  supportingDataJson Json?
+  createdAt          DateTime @default(now())
+  connectedProfile   ConnectedProfile @relation(fields: [connectedProfileId], references: [id], onDelete: Cascade)
+  periodSnapshot     PeriodSnapshot? @relation(fields: [periodSnapshotId], references: [id], onDelete: SetNull)
+}
+
+model Recap {
+  id                 String   @id @default(cuid())
+  connectedProfileId String
+  recapType          String
+  yearNum            Int
+  monthNum           Int?
+  title              String
+  slug               String   @unique
+  isPublic           Boolean  @default(false)
+  shareImageUrl      String?
+  payloadJson        Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  connectedProfile   ConnectedProfile @relation(fields: [connectedProfileId], references: [id], onDelete: Cascade)
+}
+
+model UserSettings {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  timezone             String   @default("UTC")
+  privacyMode          String   @default("private")
+  recapAutoGenerate    Boolean  @default(true)
+  emailNotifications   Boolean  @default(false)
+  telegramNotifications Boolean @default(false)
+  preferredTheme       String   @default("system")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NotificationEvent {
+  id                 String   @id @default(cuid())
+  userId             String
+  connectedProfileId String
+  eventType          String
+  title              String
+  body               String
+  status             String
+  channel            String
+  payloadJson        Json?
+  createdAt          DateTime @default(now())
+  deliveredAt        DateTime?
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  connectedProfile   ConnectedProfile @relation(fields: [connectedProfileId], references: [id], onDelete: Cascade)
+}
+
+enum SyncStatus {
+  IDLE
+  SYNCING
+  SUCCESS
+  FAILED
+}
+
+enum SyncType {
+  INITIAL
+  INCREMENTAL
+  MANUAL
+  BACKFILL
+}
+
+enum RunStatus {
+  QUEUED
+  RUNNING
+  SUCCESS
+  PARTIAL
+  FAILED
+}
