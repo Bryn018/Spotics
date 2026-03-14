@@ -2,8 +2,10 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import TopNav from "@/components/top-nav";
+import SyncStatusCard from "@/components/sync-status-card";
 import { getPersistedDashboardData, type DashboardRange } from "@/lib/dashboard-data";
-import { syncLastFmProfile } from "@/lib/sync";
+import { ensureFreshSync, formatSyncTime } from "@/lib/sync-status";
 
 type RankedItem = {
   id: string;
@@ -38,7 +40,7 @@ export default async function DashboardPage({
   const selectedRange = (sp.range || "7d").toLowerCase() as DashboardRange;
   const activeRange: DashboardRange = RANGES.some((r) => r.key === selectedRange) ? selectedRange : "7d";
 
-  await syncLastFmProfile(session.lastfmUsername, 200);
+  const syncState = await ensureFreshSync(session.lastfmUsername, 15 * 60 * 1000);
   const data = await getPersistedDashboardData(session.lastfmUsername, activeRange);
 
   const score = Math.min(9.8, Math.max(6.2, Number((6.3 + data.uniqueArtists / 160 + data.totalPlays / 650).toFixed(1))));
@@ -67,21 +69,22 @@ export default async function DashboardPage({
   }));
 
   const analyticsStats = [
-    { label: "Estimated Listening Time", value: data.totalListeningHours, delta: "3.5 min per scrobble" },
-    { label: "Scrobbles", value: data.totalPlays.toLocaleString(), delta: "Persisted in range" },
-    { label: "Unique Artists", value: data.uniqueArtists.toLocaleString(), delta: "Distinct artist count" },
+    { label: "Estimated Listening Time", value: data.totalListeningHours, delta: `${data.comparison.deltas.minutes >= 0 ? "+" : ""}${data.comparison.deltas.minutes}% vs previous period` },
+    { label: "Scrobbles", value: data.totalPlays.toLocaleString(), delta: `${data.comparison.deltas.scrobbles >= 0 ? "+" : ""}${data.comparison.deltas.scrobbles}% vs previous period` },
+    { label: "Unique Artists", value: data.uniqueArtists.toLocaleString(), delta: `${data.comparison.deltas.artists >= 0 ? "+" : ""}${data.comparison.deltas.artists}% vs previous period` },
     { label: "Avg. Daily Minutes", value: String(data.avgDailyMinutes || 0), delta: "Estimated habit intensity" },
   ];
 
   return (
     <main className="min-h-screen px-4 py-6 text-white sm:px-6 lg:px-10 lg:py-8">
       <div className="mx-auto max-w-[1400px]">
+        <TopNav />
         <header className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.35em] text-white/40">Spotics</p>
             <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl">Your Listening Dashboard</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60 sm:text-base">
-              This dashboard is now backed by persisted Last.fm scrobbles. Metrics are intentionally framed as exact counts where possible and estimates where estimation is being used.
+              This dashboard is now backed by persisted Last.fm scrobbles, period snapshots, and comparison-aware insights. Metrics are framed as exact counts where possible and estimates where estimation is being used.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -89,7 +92,7 @@ export default async function DashboardPage({
               Source: Last.fm
             </span>
             <span className="rounded-full border border-lime-300/20 bg-lime-300/10 px-4 py-2 text-xs uppercase tracking-[0.22em] text-lime-200">
-              Persisted sync enabled
+              Last sync {formatSyncTime(syncState.lastSuccessfulSyncAt)}
             </span>
             <Link href="/api/auth/signout" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75 transition hover:bg-white/8">
               Sign out
@@ -104,7 +107,7 @@ export default async function DashboardPage({
               <p className="text-sm font-bold uppercase tracking-[0.35em] text-lime-200">Listening history, not fake wrap-up math</p>
               <h2 className="display-font mt-4 text-4xl font-bold text-white text-glow sm:text-6xl">Your music activity</h2>
               <p className="mt-5 max-w-2xl text-base leading-8 text-white/70">
-                You&apos;ve logged {data.totalPlays.toLocaleString()} scrobbles from {data.uniqueArtists.toLocaleString()} artists in this range. Spotics is now moving toward persisted, explainable music intelligence instead of decorative-only analytics.
+                You&apos;ve logged {data.totalPlays.toLocaleString()} scrobbles from {data.uniqueArtists.toLocaleString()} artists in this range. Spotics is now preserving history, generating recap material, and surfacing snapshot-driven insights instead of decorative-only analytics.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-3 xl:w-[420px] xl:grid-cols-1">
@@ -173,6 +176,7 @@ export default async function DashboardPage({
               )}
             </div>
           </div>
+
           <div className="xl:col-span-8">
             <SectionTitle title="Top Tracks" />
             <div className="space-y-4">

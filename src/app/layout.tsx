@@ -14,7 +14,7 @@ const displayFont = Syne({
 
 export const metadata: Metadata = {
   title: "Spotics",
-  description: "Music listening insights with a wrapped-style dashboard for Spotify and Last.fm.",
+  description: "Last.fm music intelligence with persisted listening history, snapshots, insights, and recaps.",
 };
 
 export default function RootLayout({

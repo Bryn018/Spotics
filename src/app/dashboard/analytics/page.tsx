@@ -2,14 +2,16 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import TopNav from "@/components/top-nav";
+import SyncStatusCard from "@/components/sync-status-card";
 import { getPersistedDashboardData } from "@/lib/dashboard-data";
-import { syncLastFmProfile } from "@/lib/sync";
+import { ensureFreshSync, formatSyncTime } from "@/lib/sync-status";
 
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.lastfmUsername) redirect("/");
 
-  await syncLastFmProfile(session.lastfmUsername, 200);
+  const syncState = await ensureFreshSync(session.lastfmUsername, 15 * 60 * 1000);
   const data = await getPersistedDashboardData(session.lastfmUsername, "7d");
 
   const sourceLabel = "Last.fm";
@@ -22,12 +24,13 @@ export default async function AnalyticsPage() {
   return (
     <main className="min-h-screen px-4 py-6 text-white sm:px-6 lg:px-10 lg:py-8">
       <div className="mx-auto max-w-[1400px]">
+        <TopNav />
         <header className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.35em] text-white/40">Spotics</p>
             <h1 className="display-font mt-3 text-4xl font-bold text-white sm:text-5xl">Analytics</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/60 sm:text-base">
-              This analytics view now reads from persisted scrobbles. Where estimates are shown, they are labeled as estimates instead of being disguised as exact values.
+              This analytics view now reads from persisted scrobbles, snapshot comparisons, and generated insights. Where estimates are shown, they are labeled as estimates instead of being disguised as exact values.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -40,7 +43,26 @@ export default async function AnalyticsPage() {
           </div>
         </header>
 
-        <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <SyncStatusCard
+            status={syncState.lastSyncStatus}
+            lastSuccessfulSyncLabel={formatSyncTime(syncState.lastSuccessfulSyncAt)}
+            lastRunLabel={syncState.latestRun ? `${syncState.latestRun.status.toLowerCase()} · ${formatSyncTime(syncState.latestRun.startedAt)}` : "No runs yet"}
+            wasFresh={syncState.wasFresh}
+          />
+          <div className="panel-soft rounded-[1.5rem] p-5">
+            <p className="text-xs uppercase tracking-[0.28em] text-white/40">Archive readiness</p>
+            <p className="mt-2 text-2xl font-semibold text-white">History & recap layer enabled</p>
+            <p className="mt-3 text-sm leading-7 text-white/58">
+              Spotics now has recap records and snapshot history, which means analytics are no longer trapped in the present moment.
+            </p>
+            <Link href="/history" className="mt-5 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 transition hover:bg-white/8">
+              Open history
+            </Link>
+          </div>
+        </section>
+
+        <section className="panel mt-8 rounded-[2rem] p-6 sm:p-8">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-white/40">Listening Activity</p>
@@ -79,12 +101,6 @@ export default async function AnalyticsPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <SyncStatusCard
-            status={syncState.lastSyncStatus}
-            lastSuccessfulSyncLabel={formatSyncTime(syncState.lastSuccessfulSyncAt)}
-            lastRunLabel={syncState.latestRun ? `${syncState.latestRun.status.toLowerCase()} · ${formatSyncTime(syncState.latestRun.startedAt)}` : "No runs yet"}
-            wasFresh={syncState.wasFresh}
-          />
           <article className="panel-soft rounded-[1.75rem] p-5 sm:p-6">
             <p className="text-xs uppercase tracking-[0.3em] text-white/40">Weekly Insights</p>
             <h3 className="mt-2 text-xl font-semibold text-white">Simple, explainable summaries</h3>
@@ -104,10 +120,19 @@ export default async function AnalyticsPage() {
             </div>
             <div className="mt-5 rounded-[1.5rem] border border-orange-300/20 bg-orange-300/10 p-5">
               <p className="text-sm">📌</p>
-              <h4 className="mt-2 text-lg font-semibold text-white">Analytics honesty note</h4>
-              <p className="mt-2 text-sm leading-7 text-white/65">
-                Genre claims and decorative milestone XP were intentionally removed from the primary analytics framing here. This page is being rebuilt around persisted scrobbles and explainable metrics first.
-              </p>
+              <h4 className="mt-2 text-lg font-semibold text-white">Snapshot insight layer</h4>
+              <div className="mt-3 space-y-3 text-sm leading-7 text-white/65">
+                {data.latestInsights.length ? (
+                  data.latestInsights.map((insight) => (
+                    <div key={insight.id}>
+                      <p className="font-semibold text-white">{insight.title}</p>
+                      <p>{insight.body}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>Snapshot-based insights will appear here after more sync history accumulates.</p>
+                )}
+              </div>
             </div>
           </article>
 
