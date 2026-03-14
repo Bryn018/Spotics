@@ -154,6 +154,25 @@ export default async function DashboardPage({
         </section>
 
         <section className="mt-12 grid gap-8 xl:grid-cols-12">
+          <div className="xl:col-span-12">
+            <SectionTitle title="Insights" />
+            <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+              {data.latestInsights.length ? (
+                data.latestInsights.map((insight) => (
+                  <article key={insight.id} className="panel-soft rounded-[1.5rem] p-5">
+                    <p className="text-xs uppercase tracking-[0.22em] text-lime-200">{insight.insightType}</p>
+                    <h3 className="mt-3 text-xl font-semibold text-white">{insight.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-white/58">{insight.body}</p>
+                    <p className="mt-4 text-xs uppercase tracking-[0.2em] text-white/40">Confidence {Math.round(insight.confidenceScore * 100)}%</p>
+                  </article>
+                ))
+              ) : (
+                <article className="panel-soft rounded-[1.5rem] p-5 text-sm text-white/60">
+                  Snapshot-driven insights will appear here after synced listening periods accumulate.
+                </article>
+              )}
+            </div>
+          </div>
           <div className="xl:col-span-8">
             <SectionTitle title="Top Tracks" />
             <div className="space-y-4">

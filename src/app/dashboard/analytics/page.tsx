@@ -90,10 +90,10 @@ export default async function AnalyticsPage() {
             <h3 className="mt-2 text-xl font-semibold text-white">Simple, explainable summaries</h3>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {[
-                ["Scrobbles", data.totalPlays.toLocaleString(), "Persisted plays in range"],
-                ["Unique Tracks", data.uniqueTracks.toLocaleString(), "Distinct track count"],
-                ["Unique Artists", data.uniqueArtists.toLocaleString(), "Distinct artist count"],
-                ["Listening Time", `${data.totalMinutes}m`, "Estimated from scrobbles"],
+                ["Scrobbles", data.totalPlays.toLocaleString(), `${data.comparison.deltas.scrobbles >= 0 ? "+" : ""}${data.comparison.deltas.scrobbles}% vs previous period`],
+                ["Unique Tracks", data.uniqueTracks.toLocaleString(), `${data.comparison.deltas.tracks >= 0 ? "+" : ""}${data.comparison.deltas.tracks}% vs previous period`],
+                ["Unique Artists", data.uniqueArtists.toLocaleString(), `${data.comparison.deltas.artists >= 0 ? "+" : ""}${data.comparison.deltas.artists}% vs previous period`],
+                ["Listening Time", `${data.totalMinutes}m`, `${data.comparison.deltas.minutes >= 0 ? "+" : ""}${data.comparison.deltas.minutes}% vs previous period`],
               ].map(([label, value, note]) => (
                 <div key={label} className="rounded-[1.4rem] border border-white/8 bg-white/[0.04] p-4">
                   <p className="text-xs uppercase tracking-[0.22em] text-white/40">{label}</p>

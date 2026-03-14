@@ -99,6 +99,8 @@ export async function getPersistedDashboardData(lastfmUsername: string, range: D
     weeklyBars,
     peakDay,
     totalListeningHours: `${Math.floor(totalMinutes / 60)}h ${Math.round(totalMinutes % 60)}m`,
+    comparison,
+    latestInsights,
     currentTrack: scrobbles.find((item) => item.nowPlaying)
       ? {
           name: scrobbles.find((item) => item.nowPlaying)?.trackNameRaw || "Unknown Track",
@@ -113,6 +115,11 @@ function formatAgo(date: Date) {
   const diffMinutes = Math.max(1, Math.round((Date.now() - date.getTime()) / 60000));
   if (diffMinutes < 60) return `${diffMinutes} minutes ago`;
   const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  const diffDays = Math.round(diffHours / 24);
+  return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+}
+ Math.round(diffMinutes / 60);
   if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
   const diffDays = Math.round(diffHours / 24);
   return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;

@@ -172,6 +172,10 @@ export async function syncLastFmProfile(lastfmUsername: string, limit = 200) {
       });
     }
 
+    await buildPeriodSnapshot(profile.id, "7d");
+    await buildPeriodSnapshot(profile.id, "30d");
+    await generateInsights(profile.id, "7d");
+
     await db.connectedProfile.update({
       where: { id: profile.id },
       data: {
