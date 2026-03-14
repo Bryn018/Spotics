@@ -1,8 +1,7 @@
 import { db } from "@/lib/db";
 import { ensureUserAndProfile } from "@/lib/identity";
+import { DEFAULT_SYNC_INTERVAL_MS } from "@/lib/runtime";
 import { syncLastFmProfile } from "@/lib/sync";
-
-const DEFAULT_SYNC_INTERVAL_MS = 15 * 60 * 1000;
 
 export async function ensureFreshSync(lastfmUsername: string, maxAgeMs = DEFAULT_SYNC_INTERVAL_MS) {
   const profile = await ensureUserAndProfile(lastfmUsername);

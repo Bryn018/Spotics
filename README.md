@@ -161,6 +161,10 @@ src/
 
 ---
 
+## Railway deployment
+
+See `RAILWAY_DEPLOY.md` for the production-oriented Railway test deployment path.
+
 ## Notes
 
-This branch is intentionally a **foundation rebuild**, not the final product. The goal is to create a clean base for persistence, ingestion, and honest analytics.
+This branch is intentionally a staged rebuild, not the final product. The goal is to create a clean base for persistence, ingestion, honest analytics, and deploy-safe iteration.

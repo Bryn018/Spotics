@@ -37,3 +37,6 @@ jobs:
           AUTH_TRUST_HOST: "true"
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/spotics
         run: npm run build
+
+      - name: Railway release script smoke check
+        run: npm run railway:release -- --help || true
