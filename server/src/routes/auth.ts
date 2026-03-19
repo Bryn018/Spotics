@@ -42,6 +42,7 @@ router.get(
 
     const tokenResponse = await spotify.authorizationCodeGrant(code);
     const { access_token, refresh_token, expires_in, scope } = tokenResponse.body;
+    const scopeList = typeof scope === 'string' ? scope.split(' ').filter(Boolean) : [];
 
     spotify.setAccessToken(access_token);
     spotify.setRefreshToken(refresh_token);
@@ -73,7 +74,7 @@ router.get(
         spotify_user_id: me.body.id,
         access_token,
         refresh_token,
-        scope,
+        scope: scopeList,
         product: me.body.product,
         followers: me.body.followers?.total,
         external_url: me.body.external_urls?.spotify,
