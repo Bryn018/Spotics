@@ -3,6 +3,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
+import fs from 'fs';
 import authRoutes from './routes/auth';
 import apiRoutes from './routes/api';
 import { errorHandler } from './middleware/errorHandler';
@@ -31,6 +33,21 @@ app.get('/health', (_req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/api/v1', apiRoutes);
+
+if (env.nodeEnv === 'production') {
+  const clientDistPath = path.resolve(__dirname, '../public');
+
+  if (fs.existsSync(clientDistPath)) {
+    app.use(express.static(clientDistPath));
+
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api') || req.path.startsWith('/auth') || req.path.startsWith('/health')) {
+        return next();
+      }
+      return res.sendFile(path.join(clientDistPath, 'index.html'));
+    });
+  }
+}
 
 app.use(errorHandler);
 
