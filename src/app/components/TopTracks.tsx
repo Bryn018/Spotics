@@ -1,4 +1,4 @@
-import { Play, MoreVertical } from 'lucide-react';
+import { MoreVertical, Play } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { useDashboardData } from '../context/DashboardContext';
@@ -6,18 +6,19 @@ import { useDashboardData } from '../context/DashboardContext';
 export function TopTracks() {
   const { data } = useDashboardData();
   const tracks = data?.summary?.payload?.topTracks ?? [];
+  const maxPlays = tracks[0]?.plays ?? 1;
 
-  if (tracks.length === 0) {
+  if (!tracks.length) {
     return <EmptyState message="No tracks for this timeframe yet." />;
   }
 
   return (
     <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
       <CardContent className="p-6">
-        <div className="space-y-3">
+        <div className="space-y-2">
           {tracks.map((track, index) => (
             <div
-              key={track.id}
+              key={track.id ?? index}
               className="group flex items-center gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-purple-900/20 hover:to-pink-900/20 transition-all border border-transparent hover:border-purple-500/20"
             >
               <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -33,7 +34,7 @@ export function TopTracks() {
                       className="h-14 w-14 rounded-lg object-cover shadow-lg ring-2 ring-gray-800 group-hover:ring-purple-500/30 transition-all"
                     />
                   ) : (
-                    <div className="h-14 w-14 rounded-lg bg-gray-800 flex items-center justify-center text-gray-500 ring-2 ring-gray-800">
+                    <div className="h-14 w-14 rounded-lg bg-gray-800 ring-2 ring-gray-800 flex items-center justify-center text-gray-500">
                       ♫
                     </div>
                   )}
@@ -47,16 +48,16 @@ export function TopTracks() {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-white truncate mb-1">{track.title}</p>
                   <p className="text-sm text-gray-400 truncate">{track.artist}</p>
-                  <p className="text-xs text-gray-500 truncate">{track.album}</p>
                 </div>
               </div>
 
               <div className="hidden md:flex items-center gap-6">
-                <div className="flex items-center gap-2 w-28">
+                <span className="text-sm text-gray-400 w-32 truncate">{track.album}</span>
+                <div className="flex items-center gap-2 w-24">
                   <div className="h-2 flex-1 bg-gray-800 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                      style={{ width: `${Math.min(100, (track.plays / (tracks[0]?.plays || 1)) * 100)}%` }}
+                      style={{ width: `${Math.min(100, (track.plays / maxPlays) * 100)}%` }}
                     />
                   </div>
                   <span className="text-sm text-purple-400 font-medium">{track.plays}</span>

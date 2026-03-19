@@ -5,10 +5,10 @@ import { Button } from './ui/button';
 import { useDashboardData } from '../context/DashboardContext';
 import type { TimeRange } from '../types';
 
-const ranges: { label: string; value: TimeRange; description: string }[] = [
-  { label: 'Last 4 Weeks', value: 'short_term', description: 'Fresh discoveries' },
-  { label: 'Last 6 Months', value: 'medium_term', description: 'Seasonal trends' },
-  { label: 'All Time', value: 'long_term', description: 'Lifetime favorites' },
+const ranges: { label: string; value: TimeRange }[] = [
+  { label: 'Last 4 Weeks', value: 'short_term' },
+  { label: 'Last 6 Months', value: 'medium_term' },
+  { label: 'All Time', value: 'long_term' },
 ];
 
 export function TimeRangeSelector() {
@@ -22,9 +22,7 @@ export function TimeRangeSelector() {
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
         <h2 className="text-2xl font-bold text-white">Your Music Stats</h2>
-        <p className="text-sm text-gray-400 mt-1">
-          Track your listening habits and explore what defined your soundtrack.
-        </p>
+        <p className="text-sm text-gray-400 mt-1">Track your listening habits and discover your musical journey.</p>
         <p className="text-xs text-gray-500 mt-2">Last refreshed: {lastUpdatedLabel}</p>
       </div>
 
@@ -37,10 +35,7 @@ export function TimeRangeSelector() {
                 value={range.value}
                 className="data-[state=active]:bg-purple-500 data-[state=active]:text-white"
               >
-                <div className="flex flex-col">
-                  <span>{range.label}</span>
-                  <span className="text-[11px] text-gray-400">{range.description}</span>
-                </div>
+                {range.label}
               </TabsTrigger>
             ))}
           </TabsList>
