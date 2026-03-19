@@ -8,9 +8,11 @@ export class HttpError extends Error {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   const status = (err as HttpError).status || 500;
+
+  // Always log server-side so Railway logs capture the real cause, even in production.
+  console.error(`[${new Date().toISOString()}] ${req.method} ${req.path}`, err);
   const payload = {
     success: false,
     error: {
