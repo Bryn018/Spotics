@@ -8,18 +8,10 @@ import { TopAlbums } from '../components/TopAlbums';
 import { ListeningChart } from '../components/ListeningChart';
 import { GenreDistribution } from '../components/GenreDistribution';
 import { RecentActivity } from '../components/RecentActivity';
-import { DashboardProvider, useDashboardData } from '../context/DashboardContext';
+import { useDashboardData } from '../context/DashboardContext';
 import { Button } from '../components/ui/button';
 
 export function Home() {
-  return (
-    <DashboardProvider>
-      <DashboardContent />
-    </DashboardProvider>
-  );
-}
-
-function DashboardContent() {
   const { data, isLoading, isError, refetch, sync, syncing } = useDashboardData();
   const summary = data?.summary;
 
