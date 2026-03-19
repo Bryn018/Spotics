@@ -40,7 +40,7 @@ if (env.nodeEnv === 'production') {
   if (fs.existsSync(clientDistPath)) {
     app.use(express.static(clientDistPath));
 
-    app.get('*', (req, res, next) => {
+    app.get('/*', (req, res, next) => {
       if (req.path.startsWith('/api') || req.path.startsWith('/auth') || req.path.startsWith('/health')) {
         return next();
       }
