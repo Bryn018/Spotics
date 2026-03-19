@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-export const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
+const fallbackBaseUrl = (() => {
+  if (import.meta.env.DEV) {
+    return 'http://localhost:4000';
+  }
+
+  if (typeof window !== 'undefined' && window?.location?.origin) {
+    return window.location.origin;
+  }
+
+  return 'http://localhost:4000';
+})();
+
+export const apiBaseUrl = import.meta.env.VITE_API_URL ?? fallbackBaseUrl;
 
 export const api = axios.create({
   baseURL: apiBaseUrl,
