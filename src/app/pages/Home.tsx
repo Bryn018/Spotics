@@ -8,6 +8,7 @@ import { TopAlbums } from '../components/TopAlbums';
 import { ListeningChart } from '../components/ListeningChart';
 import { GenreDistribution } from '../components/GenreDistribution';
 import { RecentActivity } from '../components/RecentActivity';
+import { HeroSection } from '../components/HeroSection';
 import { useDashboardData } from '../context/DashboardContext';
 import { Button } from '../components/ui/button';
 
@@ -60,6 +61,10 @@ export function Home() {
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
       <div className="mb-10">
         <WrappedSelector />
+      </div>
+
+      <div className="mb-10">
+        <HeroSection />
       </div>
 
       <div className="mb-8">
