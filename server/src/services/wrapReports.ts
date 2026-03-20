@@ -113,7 +113,7 @@ export async function getWrapReportForUser<T extends WrapTimeframe>(
     periodStart: record.period_start,
     periodEnd: record.period_end,
     generatedAt: record.generated_at,
-    payload: record.payload as WrapPayloadMap[T],
+    payload: record.payload as unknown as WrapPayloadMap[T],
   };
 }
 
@@ -450,7 +450,11 @@ function findPeakHour(activities: Activity[]) {
     const hour = new Date(activity.occurred_at).getHours();
     buckets.set(hour, (buckets.get(hour) ?? 0) + 1);
   });
-  const [hour] = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1])[0];
+  const topBucket = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (!topBucket) {
+    return '—';
+  }
+  const [hour] = topBucket;
   return formatHourRange(hour);
 }
 
@@ -512,7 +516,11 @@ function computePeakDay(activities: Activity[]) {
     const label = date.toLocaleDateString('en', { weekday: 'long' });
     buckets.set(label, (buckets.get(label) ?? 0) + 1);
   });
-  const [day, count] = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1])[0];
+  const topBucket = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (!topBucket) {
+    return { day: 'Saturday', count: 0 };
+  }
+  const [day, count] = topBucket;
   return { day, count };
 }
 
