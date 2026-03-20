@@ -1,5 +1,5 @@
 import { Loader2, RefreshCw } from 'lucide-react';
-import { HeroSection } from '../components/HeroSection';
+import { WrappedSelector } from '../components/WrappedSelector';
 import { TimeRangeSelector } from '../components/TimeRangeSelector';
 import { StatsOverview } from '../components/StatsOverview';
 import { TopTracks } from '../components/TopTracks';
@@ -59,7 +59,7 @@ export function Home() {
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
       <div className="mb-10">
-        <HeroSection />
+        <WrappedSelector />
       </div>
 
       <div className="mb-8">
