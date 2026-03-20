@@ -4,6 +4,7 @@ import { asyncHandler } from '../middleware/asyncHandler';
 import { requireAuth, type AuthedRequest } from '../middleware/requireAuth';
 import { supabaseAdmin } from '../lib/supabase';
 import { syncUserListeningData } from '../services/spotifySync';
+import { generateWrapReports, getWrapReportForUser } from '../services/wrapReports';
 import type {
   Activity,
   DashboardPayload,
@@ -11,6 +12,7 @@ import type {
   ListeningSummary,
   NormalizedListeningSummary,
   TimeRange,
+  WrapTimeframe,
 } from '../types';
 
 const router = Router();
@@ -18,6 +20,10 @@ const router = Router();
 const timeframeSchema = z
   .enum(['short_term', 'medium_term', 'long_term'])
   .default('medium_term') satisfies z.ZodType<TimeRange>;
+
+const wrapTimeframeSchema = z
+  .enum(['daily', 'weekly', 'yearly'])
+  .default('daily') satisfies z.ZodType<WrapTimeframe>;
 
 const paginationSchema = z.object({
   limit: z.coerce.number().min(1).max(50).default(10),
@@ -136,6 +142,30 @@ router.get(
     };
 
     res.json({ success: true, data: response });
+  }),
+);
+
+router.get(
+  '/wraps',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const timeframe = wrapTimeframeSchema.parse(req.query.timeframe);
+
+    let report = await getWrapReportForUser(req.auth!.userId, timeframe);
+
+    if (!report) {
+      await generateWrapReports(req.auth!.userId);
+      report = await getWrapReportForUser(req.auth!.userId, timeframe);
+    }
+
+    res.json({ success: true, data: report });
+  }),
+);
+
+router.post(
+  '/wraps/sync',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    await generateWrapReports(req.auth!.userId);
+    res.status(202).json({ success: true });
   }),
 );
 

@@ -25,4 +25,6 @@ export const apiRoutes = {
   logout: '/auth/logout',
   dashboard: '/api/v1/dashboard',
   sync: '/api/v1/summaries/sync',
+  wraps: '/api/v1/wraps',
+  wrapSync: '/api/v1/wraps/sync',
 };

@@ -1,6 +1,7 @@
 import SpotifyWebApi from 'spotify-web-api-node';
 import { supabaseAdmin } from '../lib/supabase';
 import { getSpotifyClientForUser } from '../lib/spotifyClient';
+import { generateWrapReports } from './wrapReports';
 import type {
   AlbumStat,
   ArtistStat,
@@ -60,6 +61,7 @@ export async function syncUserListeningData(userId: string) {
   );
 
   await syncRecentActivity(client, userId);
+  await generateWrapReports(userId);
 }
 
 async function buildDashboardPayload(client: SpotifyWebApi, timeframe: TimeRange): Promise<DashboardPayload> {
