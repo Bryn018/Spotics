@@ -1,7 +1,7 @@
 {
   "name": "spotics-server",
   "version": "0.1.0",
-  "description": "Spotics API server (Express + Supabase + Spotify OAuth)",
+  "description": "Spotics API server (Express + Neon/pg + Spotify OAuth)",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --cls src/index.ts",
