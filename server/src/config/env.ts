@@ -23,9 +23,7 @@ type RequiredEnv =
   | 'APP_URL'
   | 'API_URL'
   | 'CLIENT_URL'
-  | 'SUPABASE_URL'
-  | 'SUPABASE_SERVICE_ROLE_KEY'
-  | 'SUPABASE_ANON_KEY'
+  | 'DATABASE_URL'
   | 'SPOTIFY_CLIENT_ID'
   | 'SPOTIFY_CLIENT_SECRET'
   | 'SPOTIFY_REDIRECT_URI'
@@ -38,9 +36,7 @@ const requiredKeys: RequiredEnv[] = [
   'APP_URL',
   'API_URL',
   'CLIENT_URL',
-  'SUPABASE_URL',
-  'SUPABASE_SERVICE_ROLE_KEY',
-  'SUPABASE_ANON_KEY',
+  'DATABASE_URL',
   'SPOTIFY_CLIENT_ID',
   'SPOTIFY_CLIENT_SECRET',
   'SPOTIFY_REDIRECT_URI',
@@ -61,9 +57,7 @@ export const env = {
   appUrl: process.env.APP_URL!,
   apiUrl: process.env.API_URL!,
   clientUrl: process.env.CLIENT_URL!,
-  supabaseUrl: process.env.SUPABASE_URL!,
-  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  supabaseAnonKey: process.env.SUPABASE_ANON_KEY!,
+  databaseUrl: process.env.DATABASE_URL!,
   spotifyClientId: process.env.SPOTIFY_CLIENT_ID!,
   spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
   spotifyRedirectUri: process.env.SPOTIFY_REDIRECT_URI!,

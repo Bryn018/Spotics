@@ -1,15 +1,13 @@
-import { supabaseAdmin } from '../lib/supabase';
+import { pool } from '../lib/db';
 import { syncUserListeningData } from '../services/spotifySync';
 
 async function main() {
-  const { data: users, error } = await supabaseAdmin.from('users').select('id');
+  const result = await pool.query('SELECT id FROM users');
+  const users = result.rows;
 
-  if (error) {
-    throw new Error(`Failed to load users: ${error.message}`);
-  }
-
-  if (!users || users.length === 0) {
+  if (!users.length) {
     console.log('No users found to sync.');
+    await pool.end();
     return;
   }
 
@@ -19,6 +17,7 @@ async function main() {
   }
 
   console.log('Sync complete.');
+  await pool.end();
 }
 
 main().catch((error) => {

@@ -2,7 +2,7 @@ import { Router, type Response, type Request, type CookieOptions } from 'express
 import crypto from 'crypto';
 import { spotify, scopes } from '../lib/spotify';
 import { asyncHandler } from '../middleware/asyncHandler';
-import { supabaseAdmin } from '../lib/supabase';
+import { pool } from '../lib/db';
 import { HttpError } from '../middleware/errorHandler';
 import { signSession, verifySession } from '../lib/jwt';
 import { env } from '../config/env';
@@ -49,43 +49,51 @@ router.get(
 
     const me = await spotify.getMe();
 
-    const userPayload = {
-      email: me.body.email ?? `${me.body.id}@spotify.com`,
-      display_name: me.body.display_name,
-      avatar_url: me.body.images?.[0]?.url,
-      country: me.body.country,
-    };
+    const email = me.body.email ?? `${me.body.id}@spotify.com`;
+    const display_name = me.body.display_name ?? null;
+    const avatar_url = me.body.images?.[0]?.url ?? null;
+    const country = me.body.country ?? null;
 
-    const { data: user, error: userError } = await supabaseAdmin
-      .from('users')
-      .upsert(userPayload, { onConflict: 'email' })
-      .select()
-      .single();
-
-    if (userError) {
-      throw new Error(`Supabase user upsert failed: ${userError.message}`);
-    }
+    const userResult = await pool.query(
+      `INSERT INTO users (email, display_name, avatar_url, country)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (email) DO UPDATE
+         SET display_name = EXCLUDED.display_name,
+             avatar_url   = EXCLUDED.avatar_url,
+             country      = EXCLUDED.country,
+             updated_at   = now()
+       RETURNING *`,
+      [email, display_name, avatar_url, country],
+    );
+    const user = userResult.rows[0];
 
     const token_expires_at = new Date(Date.now() + expires_in * 1000).toISOString();
 
-    const { error: profileError } = await supabaseAdmin.from('spotify_profiles').upsert(
-      {
-        user_id: user.id,
-        spotify_user_id: me.body.id,
+    await pool.query(
+      `INSERT INTO spotify_profiles
+         (user_id, spotify_user_id, access_token, refresh_token, scope, product, followers, external_url, token_expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       ON CONFLICT (spotify_user_id) DO UPDATE
+         SET access_token     = EXCLUDED.access_token,
+             refresh_token    = EXCLUDED.refresh_token,
+             scope            = EXCLUDED.scope,
+             product          = EXCLUDED.product,
+             followers        = EXCLUDED.followers,
+             external_url     = EXCLUDED.external_url,
+             token_expires_at = EXCLUDED.token_expires_at,
+             updated_at       = now()`,
+      [
+        user.id,
+        me.body.id,
         access_token,
         refresh_token,
-        scope: scopeList,
-        product: me.body.product,
-        followers: me.body.followers?.total,
-        external_url: me.body.external_urls?.spotify,
+        scopeList,
+        me.body.product ?? null,
+        me.body.followers?.total ?? null,
+        me.body.external_urls?.spotify ?? null,
         token_expires_at,
-      },
-      { onConflict: 'spotify_user_id' },
+      ],
     );
-
-    if (profileError) {
-      throw new Error(`Supabase profile upsert failed: ${profileError.message}`);
-    }
 
     const session = signSession({ userId: user.id, email: user.email });
     res.cookie(env.sessionCookieName, session, {
@@ -116,14 +124,13 @@ router.get(
 
     try {
       const session = verifySession(token);
-      const { data: user } = await supabaseAdmin
-        .from('users')
-        .select('id, email, display_name, avatar_url')
-        .eq('id', session.userId)
-        .single();
-
+      const result = await pool.query(
+        'SELECT id, email, display_name, avatar_url FROM users WHERE id = $1',
+        [session.userId],
+      );
+      const user = result.rows[0] ?? null;
       return res.json({ authenticated: true, user });
-    } catch (error) {
+    } catch {
       res.clearCookie(env.sessionCookieName);
       return res.json({ authenticated: false });
     }

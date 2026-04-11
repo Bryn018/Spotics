@@ -1,5 +1,5 @@
 import SpotifyWebApi from 'spotify-web-api-node';
-import { supabaseAdmin } from '../lib/supabase';
+import { pool } from '../lib/db';
 import { getSpotifyClientForUser } from '../lib/spotifyClient';
 import { generateWrapReports } from './wrapReports';
 import type {
@@ -45,17 +45,25 @@ export async function syncUserListeningData(userId: string) {
   await Promise.all(
     TIMEFRAMES.map(async (timeframe) => {
       const payload = await buildDashboardPayload(client, timeframe);
-      await supabaseAdmin.from('listening_summaries').upsert(
-        {
-          user_id: userId,
+      await pool.query(
+        `INSERT INTO listening_summaries
+           (user_id, timeframe, total_minutes, total_tracks, total_artists, payload, fetched_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT (user_id, timeframe) DO UPDATE
+           SET total_minutes = EXCLUDED.total_minutes,
+               total_tracks  = EXCLUDED.total_tracks,
+               total_artists = EXCLUDED.total_artists,
+               payload       = EXCLUDED.payload,
+               fetched_at    = EXCLUDED.fetched_at`,
+        [
+          userId,
           timeframe,
-          total_minutes: Math.round(payload.stats.totalMinutes),
-          total_tracks: payload.stats.totalTracks,
-          total_artists: payload.stats.totalArtists,
-          payload,
-          fetched_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id,timeframe' },
+          Math.round(payload.stats.totalMinutes),
+          payload.stats.totalTracks,
+          payload.stats.totalArtists,
+          JSON.stringify(payload),
+          new Date().toISOString(),
+        ],
       );
     }),
   );
@@ -134,19 +142,36 @@ async function syncRecentActivity(client: SpotifyWebApi, userId: string) {
     activity_type: 'listened',
     title: item.track.name,
     subtitle: item.track.artists.map((artist) => artist.name).join(', '),
-    metadata: {
+    metadata: JSON.stringify({
       image: item.track.album.images?.[0]?.url ?? null,
       album: item.track.album.name,
       durationMs: item.track.duration_ms,
       previewUrl: item.track.preview_url,
-    },
+    }),
     occurred_at: item.played_at,
   }));
 
   if (activities.length === 0) return;
 
-  await supabaseAdmin.from('activities').delete().eq('user_id', userId);
-  await supabaseAdmin.from('activities').insert(activities);
+  await pool.query('DELETE FROM activities WHERE user_id = $1', [userId]);
+
+  // Bulk insert
+  const values = activities.map((_, i) => {
+    const base = i * 6;
+    return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6})`;
+  });
+  const flat = activities.flatMap((a) => [
+    a.user_id,
+    a.activity_type,
+    a.title,
+    a.subtitle,
+    a.metadata,
+    a.occurred_at,
+  ]);
+  await pool.query(
+    `INSERT INTO activities (user_id, activity_type, title, subtitle, metadata, occurred_at) VALUES ${values.join(', ')}`,
+    flat,
+  );
 }
 
 function estimatePlays(popularity: number, position: number, base = 450) {
@@ -165,11 +190,9 @@ function formatDuration(durationMs: number) {
 
 function buildAlbumStats(tracks: TrackStat[]): AlbumStat[] {
   const albums = new Map<string, AlbumStat>();
-
   tracks.forEach((track) => {
     const key = `${track.album}-${track.artist}`;
     const existing = albums.get(key);
-
     if (existing) {
       existing.plays += Math.round(track.plays * 0.7);
       existing.totalMinutes += Number((track.durationMs / 60000).toFixed(1));
@@ -184,21 +207,17 @@ function buildAlbumStats(tracks: TrackStat[]): AlbumStat[] {
       });
     }
   });
-
   return Array.from(albums.values()).sort((a, b) => b.plays - a.plays).slice(0, 6);
 }
 
 function buildGenreStats(artists: SimplifiedArtist[]): GenreStat[] {
   const counts = new Map<string, number>();
-
   artists.forEach((artist) => {
     artist.genres.forEach((genre: string) => {
       counts.set(genre, (counts.get(genre) ?? 0) + 1);
     });
   });
-
   const total = Array.from(counts.values()).reduce((sum, count) => sum + count, 0) || 1;
-
   return Array.from(counts.entries())
     .map<GenreStat>(([name, count]) => ({
       name,
@@ -212,7 +231,6 @@ function buildGenreStats(artists: SimplifiedArtist[]): GenreStat[] {
 function buildListeningChart(tracks: TrackStat[]): ListeningChartPoint[] {
   const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const sliceSize = Math.max(Math.floor(tracks.length / labels.length), 1);
-
   return labels.map((label, index) => {
     const chunk = tracks.slice(index * sliceSize, (index + 1) * sliceSize);
     const minutes = chunk.reduce((sum, track) => sum + track.durationMs, 0) / 60000;
@@ -225,16 +243,8 @@ function buildListeningChart(tracks: TrackStat[]): ListeningChartPoint[] {
 
 function getEmptyPayload(): DashboardPayload {
   return {
-    hero: {
-      totalTracks: 0,
-      totalArtists: 0,
-    },
-    stats: {
-      totalMinutes: 0,
-      totalTracks: 0,
-      totalArtists: 0,
-      averageDailyMinutes: 0,
-    },
+    hero: { totalTracks: 0, totalArtists: 0 },
+    stats: { totalMinutes: 0, totalTracks: 0, totalArtists: 0, averageDailyMinutes: 0 },
     listeningScore: 0,
     topTracks: [],
     topArtists: [],

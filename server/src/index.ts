@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import fs from 'fs';
-import crypto from 'crypto';
 import authRoutes from './routes/auth';
 import apiRoutes from './routes/api';
 import { errorHandler } from './middleware/errorHandler';
@@ -13,13 +12,7 @@ import { env } from './config/env';
 
 const app = express();
 
-const supabaseKeyHash = crypto
-  .createHash('sha256')
-  .update(env.supabaseServiceRoleKey)
-  .digest('hex')
-  .slice(0, 12);
-
-console.log('[env] nodeEnv=%s appUrl=%s clientUrl=%s apiUrl=%s supabaseKeyHash=%s', env.nodeEnv, env.appUrl, env.clientUrl, env.apiUrl, supabaseKeyHash);
+console.log('[env] nodeEnv=%s appUrl=%s clientUrl=%s apiUrl=%s', env.nodeEnv, env.appUrl, env.clientUrl, env.apiUrl);
 app.disable('x-powered-by');
 app.use(helmet({
   contentSecurityPolicy: false,

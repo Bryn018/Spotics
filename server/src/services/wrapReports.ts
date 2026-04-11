@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../lib/supabase';
+import { pool } from '../lib/db';
 import type {
   Activity,
   DailyWrapPayload,
@@ -47,42 +47,44 @@ const builders: GeneratorMap = {
 };
 
 export async function generateWrapReports(userId: string) {
-  const [{ data: summaryRows, error: summaryError }, { data: activityRows, error: activityError }] = await Promise.all([
-    supabaseAdmin.from('listening_summaries').select('*').eq('user_id', userId),
-    supabaseAdmin
-      .from('activities')
-      .select('*')
-      .eq('user_id', userId)
-      .order('occurred_at', { ascending: false })
-      .limit(200),
+  const [summaryResult, activityResult] = await Promise.all([
+    pool.query('SELECT * FROM listening_summaries WHERE user_id = $1', [userId]),
+    pool.query(
+      'SELECT * FROM activities WHERE user_id = $1 ORDER BY occurred_at DESC LIMIT 200',
+      [userId],
+    ),
   ]);
 
-  if (summaryError) throw summaryError;
-  if (activityError) throw activityError;
-
   const summaries = new Map<string, NormalizedListeningSummary>();
-  (summaryRows ?? []).forEach((row) => {
+  summaryResult.rows.forEach((row) => {
     const normalized = normalizeSummary(row as ListeningSummary);
     summaries.set(normalized.timeframe, normalized);
   });
 
-  const activities = (activityRows ?? []) as Activity[];
+  const activities = activityResult.rows as Activity[];
   const now = new Date();
 
   for (const timeframe of WRAP_TIMEFRAMES) {
     const builder = builders[timeframe];
     const result = builder({ summaries, activities, now });
 
-    await supabaseAdmin.from('wrap_reports').upsert(
-      {
-        user_id: userId,
+    await pool.query(
+      `INSERT INTO wrap_reports
+         (user_id, timeframe, period_start, period_end, payload, generated_at)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (user_id, timeframe) DO UPDATE
+         SET period_start = EXCLUDED.period_start,
+             period_end   = EXCLUDED.period_end,
+             payload      = EXCLUDED.payload,
+             generated_at = EXCLUDED.generated_at`,
+      [
+        userId,
         timeframe,
-        period_start: result.periodStart,
-        period_end: result.periodEnd,
-        payload: result.payload,
-        generated_at: new Date().toISOString(),
-      },
-      { onConflict: 'user_id,timeframe' },
+        result.periodStart,
+        result.periodEnd,
+        JSON.stringify(result.payload),
+        new Date().toISOString(),
+      ],
     );
   }
 }
@@ -91,22 +93,16 @@ export async function getWrapReportForUser<T extends WrapTimeframe>(
   userId: string,
   timeframe: T,
 ): Promise<WrapReport<WrapPayloadMap[T]> | null> {
-  const { data, error } = await supabaseAdmin
-    .from('wrap_reports')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('timeframe', timeframe)
-    .maybeSingle();
+  const result = await pool.query(
+    'SELECT * FROM wrap_reports WHERE user_id = $1 AND timeframe = $2',
+    [userId, timeframe],
+  );
 
-  if (error) {
-    throw error;
-  }
-
-  if (!data) {
+  if (!result.rows[0]) {
     return null;
   }
 
-  const record = data as WrapReportRecord;
+  const record = result.rows[0] as WrapReportRecord;
   return {
     id: record.id,
     timeframe: record.timeframe,
@@ -154,12 +150,7 @@ function buildDailyPayload({ summaries, activities, now }: BuildContext): BuildR
       type: 'intro' as const,
       title: "Today's Musical Journey",
       subtitle: formatReadableDate(now),
-      content: {
-        totalTracks: totalTracks ?? 0,
-        totalMinutes: Math.round(totalMinutes),
-        topGenre,
-        mood,
-      },
+      content: { totalTracks: totalTracks ?? 0, totalMinutes: Math.round(totalMinutes), topGenre, mood },
     },
     {
       id: 'daily-top-song',
@@ -198,11 +189,7 @@ function buildDailyPayload({ summaries, activities, now }: BuildContext): BuildR
     },
   ];
 
-  return {
-    periodStart: formatDate(start),
-    periodEnd: formatDate(end),
-    payload: { slides },
-  };
+  return { periodStart: formatDate(start), periodEnd: formatDate(end), payload: { slides } };
 }
 
 function buildWeeklyPayload({ summaries, activities, now }: BuildContext): BuildResult<WeeklyWrapPayload> {
@@ -233,7 +220,6 @@ function buildWeeklyPayload({ summaries, activities, now }: BuildContext): Build
   const longestSession = buildLongestSessionLabel(totalMinutes);
   const discoveries = Math.max(1, Math.round(uniqueArtists * 0.15));
   const streak = computeStreak(activities, now);
-
   const achievements = buildWeeklyAchievements(totalMinutes, uniqueArtists, streak);
 
   const slides = [
@@ -242,20 +228,9 @@ function buildWeeklyPayload({ summaries, activities, now }: BuildContext): Build
       type: 'intro' as const,
       title: "This Week's Soundtrack",
       subtitle: `${formatMonthDay(start)} - ${formatMonthDay(end)}`,
-      content: {
-        totalTracks,
-        totalHours: Math.floor(totalMinutes / 60),
-        totalMinutes: Math.round(totalMinutes % 60),
-        uniqueArtists,
-        topGenre,
-      },
+      content: { totalTracks, totalHours: Math.floor(totalMinutes / 60), totalMinutes: Math.round(totalMinutes % 60), uniqueArtists, topGenre },
     },
-    {
-      id: 'weekly-tracks',
-      type: 'top-tracks' as const,
-      title: 'Your Top 3 Tracks',
-      content: topTracks,
-    },
+    { id: 'weekly-tracks', type: 'top-tracks' as const, title: 'Your Top 3 Tracks', content: topTracks },
     {
       id: 'weekly-artist',
       type: 'top-artist' as const,
@@ -273,28 +248,12 @@ function buildWeeklyPayload({ summaries, activities, now }: BuildContext): Build
       id: 'weekly-stats',
       type: 'stats' as const,
       title: 'Week in Numbers',
-      content: {
-        dailyAverage,
-        peakDay: peakDayData.day,
-        peakDayTracks: peakDayData.count,
-        longestSession,
-        discoveries,
-        streak,
-      },
+      content: { dailyAverage, peakDay: peakDayData.day, peakDayTracks: peakDayData.count, longestSession, discoveries, streak },
     },
-    {
-      id: 'weekly-achievements',
-      type: 'achievements' as const,
-      title: 'Weekly Achievements',
-      content: achievements,
-    },
+    { id: 'weekly-achievements', type: 'achievements' as const, title: 'Weekly Achievements', content: achievements },
   ];
 
-  return {
-    periodStart: formatDate(start),
-    periodEnd: formatDate(end),
-    payload: { slides },
-  };
+  return { periodStart: formatDate(start), periodEnd: formatDate(end), payload: { slides } };
 }
 
 function buildYearlyPayload({ summaries, activities, now }: BuildContext): BuildResult<YearlyWrapPayload> {
@@ -325,12 +284,7 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
       type: 'intro' as const,
       title: 'Your 2026 Wrapped',
       subtitle: 'A Year in Music',
-      content: {
-        totalTracks,
-        totalHours: Math.round(totalMinutes / 60),
-        totalArtists,
-        totalGenres: genres.length,
-      },
+      content: { totalTracks, totalHours: Math.round(totalMinutes / 60), totalArtists, totalGenres: genres.length },
     },
     {
       id: 'yearly-artist',
@@ -346,12 +300,7 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
         globalRank: formatGlobalRank(topArtist?.plays ?? 0),
       },
     },
-    {
-      id: 'yearly-songs',
-      type: 'top-songs' as const,
-      title: 'Your Top 5 Songs of the Year',
-      content: topTracks,
-    },
+    { id: 'yearly-songs', type: 'top-songs' as const, title: 'Your Top 5 Songs of the Year', content: topTracks },
     {
       id: 'yearly-genres',
       type: 'genres' as const,
@@ -359,36 +308,17 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
       content: {
         topGenre: genres[0]?.name ?? 'Pop',
         percentage: genres[0]?.percentage ?? 0,
-        genres: genres.slice(0, 5).map((genre) => ({
-          name: genre.name,
-          value: genre.percentage,
-          color: pickGenreColor(genre.name),
-        })),
+        genres: genres.slice(0, 5).map((genre) => ({ name: genre.name, value: genre.percentage, color: pickGenreColor(genre.name) })),
       },
     },
     {
       id: 'yearly-habits',
       type: 'listening-habits' as const,
       title: 'Your Listening Personality',
-      content: {
-        personality: personality.title,
-        description: personality.description,
-        traits: personality.traits,
-        insights,
-      },
+      content: { personality: personality.title, description: personality.description, traits: personality.traits, insights },
     },
-    {
-      id: 'yearly-timeline',
-      type: 'timeline' as const,
-      title: 'Year in Review',
-      content: timeline,
-    },
-    {
-      id: 'yearly-achievements',
-      type: 'achievements' as const,
-      title: 'Your 2026 Achievements',
-      content: achievements,
-    },
+    { id: 'yearly-timeline', type: 'timeline' as const, title: 'Year in Review', content: timeline },
+    { id: 'yearly-achievements', type: 'achievements' as const, title: 'Your 2026 Achievements', content: achievements },
     {
       id: 'yearly-stats',
       type: 'stats' as const,
@@ -406,21 +336,15 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
       id: 'yearly-thanks',
       type: 'thank-you' as const,
       title: 'Thank You for Listening',
-      subtitle: "Here’s to another year of great music!",
-      content: {
-        yearlyRank: formatYearlyRank(totalTracks),
-        totalListeners: '10M+',
-        shareMessage: 'Share your 2026 Wrapped',
-      },
+      subtitle: "Here's to another year of great music!",
+      content: { yearlyRank: formatYearlyRank(totalTracks), totalListeners: '10M+', shareMessage: 'Share your 2026 Wrapped' },
     },
   ];
 
-  return {
-    periodStart: formatDate(start),
-    periodEnd: formatDate(end),
-    payload: { slides },
-  };
+  return { periodStart: formatDate(start), periodEnd: formatDate(end), payload: { slides } };
 }
+
+// ---- helpers ----
 
 function sumActivityMinutes(activities: Activity[]) {
   return activities.reduce((sum, activity) => {
@@ -451,11 +375,8 @@ function findPeakHour(activities: Activity[]) {
     buckets.set(hour, (buckets.get(hour) ?? 0) + 1);
   });
   const topBucket = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1])[0];
-  if (!topBucket) {
-    return '—';
-  }
-  const [hour] = topBucket;
-  return formatHourRange(hour);
+  if (!topBucket) return '—';
+  return formatHourRange(topBucket[0]);
 }
 
 function computeStreak(activities: Activity[], now: Date) {
@@ -463,7 +384,6 @@ function computeStreak(activities: Activity[], now: Date) {
   activities.forEach((activity) => {
     days.add(formatDate(startOfDay(new Date(activity.occurred_at))));
   });
-
   let streak = 0;
   let cursor = startOfDay(now);
   while (days.has(formatDate(cursor))) {
@@ -473,88 +393,52 @@ function computeStreak(activities: Activity[], now: Date) {
   return streak;
 }
 
-function getTrackTitle(track: TrackLike) {
-  if (!track) return '—';
-  return track.title ?? '—';
-}
-
+function getTrackTitle(track: TrackLike) { return track?.title ?? '—'; }
 function getTrackArtist(track: TrackLike) {
   if (!track) return '—';
   return isSummaryTrack(track) ? track.artist : track.subtitle ?? '—';
 }
-
 function getTrackImage(track: TrackLike) {
   if (!track) return null;
   return isSummaryTrack(track) ? track.image ?? null : ((track.metadata?.image as string | null) ?? null);
 }
-
 function formatDurationLabel(track: TrackLike) {
   if (!track) return '0:00';
   if (isSummaryTrack(track) && track.durationLabel) return track.durationLabel;
   const durationMs = isActivityTrack(track) ? Number(track.metadata?.durationMs) || 0 : 0;
   const minutes = Math.floor(durationMs / 60000);
-  const seconds = Math.floor((durationMs % 60000) / 1000)
-    .toString()
-    .padStart(2, '0');
+  const seconds = Math.floor((durationMs % 60000) / 1000).toString().padStart(2, '0');
   return `${minutes}:${seconds}`;
 }
-
 function estimatePlaysFromActivity(track: TrackLike) {
   if (!track) return 0;
   if (isSummaryTrack(track)) return track.plays;
   const durationMs = Number(track.metadata?.durationMs) || 0;
   return Math.max(1, Math.round((durationMs / 60000) * 2));
 }
-
 function computePeakDay(activities: Activity[]) {
-  if (!activities.length) {
-    return { day: 'Saturday', count: 0 };
-  }
+  if (!activities.length) return { day: 'Saturday', count: 0 };
   const buckets = new Map<string, number>();
   activities.forEach((activity) => {
-    const date = new Date(activity.occurred_at);
-    const label = date.toLocaleDateString('en', { weekday: 'long' });
+    const label = new Date(activity.occurred_at).toLocaleDateString('en', { weekday: 'long' });
     buckets.set(label, (buckets.get(label) ?? 0) + 1);
   });
-  const topBucket = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1])[0];
-  if (!topBucket) {
-    return { day: 'Saturday', count: 0 };
-  }
-  const [day, count] = topBucket;
-  return { day, count };
+  const top = Array.from(buckets.entries()).sort((a, b) => b[1] - a[1])[0];
+  return top ? { day: top[0], count: top[1] } : { day: 'Saturday', count: 0 };
 }
-
 function buildLongestSessionLabel(totalMinutes: number) {
   const sessionMinutes = Math.max(30, Math.round(totalMinutes / 3));
   const hours = Math.floor(sessionMinutes / 60);
   const minutes = sessionMinutes % 60;
-  if (hours === 0) return `${minutes}m`;
-  return `${hours}h ${minutes}m`;
+  return hours === 0 ? `${minutes}m` : `${hours}h ${minutes}m`;
 }
-
 function buildWeeklyAchievements(totalMinutes: number, uniqueArtists: number, streak: number) {
   return [
-    {
-      icon: 'trophy' as const,
-      title: 'Music Marathon',
-      desc: `Listened for ${Math.round(totalMinutes)} minutes`,
-      color: 'from-yellow-500 to-orange-500',
-    },
-    {
-      icon: 'star' as const,
-      title: 'Variety King',
-      desc: `Explored ${uniqueArtists} artists`,
-      color: 'from-purple-500 to-pink-500',
-    },
-    {
-      icon: 'flame' as const,
-      title: 'Perfect Week',
-      desc: `${streak}-day listening streak`,
-      color: 'from-red-500 to-orange-500',
-    },
+    { icon: 'trophy' as const, title: 'Music Marathon', desc: `Listened for ${Math.round(totalMinutes)} minutes`, color: 'from-yellow-500 to-orange-500' },
+    { icon: 'star' as const, title: 'Variety King', desc: `Explored ${uniqueArtists} artists`, color: 'from-purple-500 to-pink-500' },
+    { icon: 'flame' as const, title: 'Perfect Week', desc: `${streak}-day listening streak`, color: 'from-red-500 to-orange-500' },
   ];
 }
-
 function buildYearTimeline(genres: SummaryGenre[], totalTracks: number) {
   const templateMonths = ['Jan', 'Mar', 'Jun', 'Sep', 'Dec'];
   const moods = ['Chill', 'Energetic', 'Upbeat', 'Intense', 'Festive'];
@@ -566,36 +450,14 @@ function buildYearTimeline(genres: SummaryGenre[], totalTracks: number) {
     mood: moods[index] ?? 'Vibe',
   }));
 }
-
 function buildYearlyAchievements(totalMinutes: number, totalTracks: number, totalGenres: number) {
   return [
-    {
-      icon: 'crown' as const,
-      title: 'Top Listener',
-      desc: `Logged ${Math.round(totalMinutes / 60)} hours`,
-      color: 'from-yellow-500 to-orange-500',
-    },
-    {
-      icon: 'trophy' as const,
-      title: 'Music Marathon',
-      desc: `${totalTracks} tracks this year`,
-      color: 'from-purple-500 to-pink-500',
-    },
-    {
-      icon: 'sparkles' as const,
-      title: 'Explorer Badge',
-      desc: `Dove into ${totalGenres} genres`,
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      icon: 'heart' as const,
-      title: 'Collector',
-      desc: 'Saved your favorites all year',
-      color: 'from-red-500 to-pink-500',
-    },
+    { icon: 'crown' as const, title: 'Top Listener', desc: `Logged ${Math.round(totalMinutes / 60)} hours`, color: 'from-yellow-500 to-orange-500' },
+    { icon: 'trophy' as const, title: 'Music Marathon', desc: `${totalTracks} tracks this year`, color: 'from-purple-500 to-pink-500' },
+    { icon: 'sparkles' as const, title: 'Explorer Badge', desc: `Dove into ${totalGenres} genres`, color: 'from-blue-500 to-cyan-500' },
+    { icon: 'heart' as const, title: 'Collector', desc: 'Saved your favorites all year', color: 'from-red-500 to-pink-500' },
   ];
 }
-
 function determinePersonality(summary?: NormalizedListeningSummary) {
   const variety = summary?.payload?.genreDistribution?.length ?? 0;
   const traits = [
@@ -603,23 +465,9 @@ function determinePersonality(summary?: NormalizedListeningSummary) {
     { label: 'Discovery', value: Math.min(100, (summary?.payload?.topArtists?.length ?? 0) * 6), icon: 'zap' as const },
     { label: 'Consistency', value: Math.min(100, Math.round((summary?.payload?.stats.averageDailyMinutes ?? 0) * 2)), icon: 'award' as const },
   ];
-
-  if (variety > 10) {
-    return {
-      title: 'The Explorer',
-      description: 'You love discovering new music and artists',
-      traits,
-      favoriteTime: '8 PM - 11 PM',
-    };
-  }
-  return {
-    title: 'The Curator',
-    description: 'You perfect playlists and return to trusted sounds',
-    traits,
-    favoriteTime: '5 PM - 8 PM',
-  };
+  if (variety > 10) return { title: 'The Explorer', description: 'You love discovering new music and artists', traits, favoriteTime: '8 PM - 11 PM' };
+  return { title: 'The Curator', description: 'You perfect playlists and return to trusted sounds', traits, favoriteTime: '5 PM - 8 PM' };
 }
-
 function buildYearlyInsights(summary: NormalizedListeningSummary | undefined, activityCount: number) {
   return [
     `Discovered ${summary?.payload?.topArtists?.length ?? 0} artists`,
@@ -627,93 +475,44 @@ function buildYearlyInsights(summary: NormalizedListeningSummary | undefined, ac
     `Logged ${activityCount} listening sessions`,
   ];
 }
-
 function pickGenreColor(name: string) {
-  if (name.toLowerCase().includes('pop')) return 'from-purple-500 to-purple-600';
-  if (name.toLowerCase().includes('hip')) return 'from-pink-500 to-pink-600';
-  if (name.toLowerCase().includes('rock')) return 'from-blue-500 to-blue-600';
-  if (name.toLowerCase().includes('elect')) return 'from-cyan-500 to-cyan-600';
-  if (name.toLowerCase().includes('indie')) return 'from-green-500 to-green-600';
+  const n = name.toLowerCase();
+  if (n.includes('pop')) return 'from-purple-500 to-purple-600';
+  if (n.includes('hip')) return 'from-pink-500 to-pink-600';
+  if (n.includes('rock')) return 'from-blue-500 to-blue-600';
+  if (n.includes('elect')) return 'from-cyan-500 to-cyan-600';
+  if (n.includes('indie')) return 'from-green-500 to-green-600';
   return 'from-purple-500 to-pink-500';
 }
-
 function formatPercentile(topArtistPlays: number, totalTracks: number) {
   if (!totalTracks) return 'Top 25%';
   const ratio = Math.min(99, Math.max(1, Math.round((topArtistPlays / totalTracks) * 100)));
   return `Top ${Math.max(1, 100 - ratio)}%`;
 }
-
 function formatGlobalRank(topArtistPlays: number) {
-  const rank = Math.max(1, Math.round(20000 - topArtistPlays * 10));
-  return `#${rank.toLocaleString()}`;
+  return `#${Math.max(1, Math.round(20000 - topArtistPlays * 10)).toLocaleString()}`;
 }
-
 function calculateGrowthLabel(plays: number) {
   if (!plays) return 'steady';
   const growth = Math.min(150, Math.max(-50, plays - 50));
-  const sign = growth >= 0 ? '+' : '';
-  return `${sign}${growth}%`;
+  return `${growth >= 0 ? '+' : ''}${growth}%`;
 }
-
 function formatYearlyRank(totalTracks: number) {
-  const rank = Math.max(1, 1000 - Math.round(totalTracks / 10));
-  return `#${rank}`;
+  return `#${Math.max(1, 1000 - Math.round(totalTracks / 10))}`;
 }
-
 function formatReadableDate(date: Date) {
   return date.toLocaleDateString('en', { month: 'long', day: 'numeric', year: 'numeric' });
 }
-
 function formatMonthDay(date: Date) {
   return date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
 }
-
-function formatDate(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function startOfDay(date: Date) {
-  const copy = new Date(date);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
-
-function endOfDay(date: Date) {
-  const copy = new Date(date);
-  copy.setHours(23, 59, 59, 999);
-  return copy;
-}
-
-function addDays(date: Date, amount: number) {
-  const copy = new Date(date);
-  copy.setDate(copy.getDate() + amount);
-  return copy;
-}
-
-function formatHourRange(hour: number) {
-  const startLabel = formatHour(hour);
-  const endLabel = formatHour((hour + 1) % 24);
-  return `${startLabel} - ${endLabel}`;
-}
-
-function formatHour(hour: number) {
-  const meridiem = hour >= 12 ? 'PM' : 'AM';
-  const normalized = ((hour + 11) % 12) + 1;
-  return `${normalized} ${meridiem}`;
-}
-
-function startOfYear(date: Date) {
-  return new Date(date.getFullYear(), 0, 1);
-}
-
-function endOfYear(date: Date) {
-  return new Date(date.getFullYear(), 11, 31, 23, 59, 59, 999);
-}
-
-function isSummaryTrack(track: TrackLike): track is SummaryTrack {
-  return Boolean(track && 'album' in track);
-}
-
-function isActivityTrack(track: TrackLike): track is Activity {
-  return Boolean(track && 'activity_type' in track);
-}
+function formatDate(date: Date) { return date.toISOString().slice(0, 10); }
+function startOfDay(date: Date) { const c = new Date(date); c.setHours(0, 0, 0, 0); return c; }
+function endOfDay(date: Date) { const c = new Date(date); c.setHours(23, 59, 59, 999); return c; }
+function addDays(date: Date, amount: number) { const c = new Date(date); c.setDate(c.getDate() + amount); return c; }
+function formatHourRange(hour: number) { return `${formatHour(hour)} - ${formatHour((hour + 1) % 24)}`; }
+function formatHour(hour: number) { const m = hour >= 12 ? 'PM' : 'AM'; return `${((hour + 11) % 12) + 1} ${m}`; }
+function startOfYear(date: Date) { return new Date(date.getFullYear(), 0, 1); }
+function endOfYear(date: Date) { return new Date(date.getFullYear(), 11, 31, 23, 59, 59, 999); }
+function isSummaryTrack(track: TrackLike): track is SummaryTrack { return Boolean(track && 'album' in track); }
+function isActivityTrack(track: TrackLike): track is Activity { return Boolean(track && 'activity_type' in track); }

@@ -2,7 +2,7 @@ import { Router, type Response } from 'express';
 import { z } from 'zod';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { requireAuth, type AuthedRequest } from '../middleware/requireAuth';
-import { supabaseAdmin } from '../lib/supabase';
+import { pool } from '../lib/db';
 import { syncUserListeningData } from '../services/spotifySync';
 import { generateWrapReports, getWrapReportForUser } from '../services/wrapReports';
 import type {
@@ -34,17 +34,11 @@ router.use(requireAuth);
 router.get(
   '/me',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
-    const { data: user, error } = await supabaseAdmin
-      .from('users')
-      .select('id, email, display_name, avatar_url, country, created_at, updated_at')
-      .eq('id', req.auth!.userId)
-      .maybeSingle();
-
-    if (error) {
-      throw error;
-    }
-
-    res.json({ success: true, data: user });
+    const result = await pool.query(
+      'SELECT id, email, display_name, avatar_url, country, created_at, updated_at FROM users WHERE id = $1',
+      [req.auth!.userId],
+    );
+    res.json({ success: true, data: result.rows[0] ?? null });
   }),
 );
 
@@ -53,28 +47,20 @@ router.get(
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     const timeframe = timeframeSchema.parse(req.query.timeframe);
 
-    const query = supabaseAdmin
-      .from('listening_summaries')
-      .select('*')
-      .eq('user_id', req.auth!.userId)
-      .order('fetched_at', { ascending: false });
+    let queryText: string;
+    let params: unknown[];
 
     if (req.query.timeframe) {
-      query.eq('timeframe', timeframe);
+      queryText = `SELECT * FROM listening_summaries WHERE user_id = $1 AND timeframe = $2 ORDER BY fetched_at DESC`;
+      params = [req.auth!.userId, timeframe];
+    } else {
+      queryText = `SELECT * FROM listening_summaries WHERE user_id = $1 ORDER BY fetched_at DESC`;
+      params = [req.auth!.userId];
     }
 
-    const { data: summaries, error } = await query;
-
-    if (error) {
-      throw error;
-    }
-
-    const normalized = (summaries ?? []).map(normalizeSummary);
-
-    res.json({
-      success: true,
-      data: normalized,
-    });
+    const result = await pool.query(queryText, params);
+    const normalized = result.rows.map(normalizeSummary);
+    res.json({ success: true, data: normalized });
   }),
 );
 
@@ -90,19 +76,11 @@ router.get(
   '/activities',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     const { limit } = paginationSchema.parse(req.query);
-
-    const { data: activities, error } = await supabaseAdmin
-      .from('activities')
-      .select('*')
-      .eq('user_id', req.auth!.userId)
-      .order('occurred_at', { ascending: false })
-      .limit(limit);
-
-    if (error) {
-      throw error;
-    }
-
-    res.json({ success: true, data: (activities ?? []) as Activity[] });
+    const result = await pool.query(
+      'SELECT * FROM activities WHERE user_id = $1 ORDER BY occurred_at DESC LIMIT $2',
+      [req.auth!.userId, limit],
+    );
+    res.json({ success: true, data: result.rows as Activity[] });
   }),
 );
 
@@ -111,34 +89,30 @@ router.get(
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     const timeframe = timeframeSchema.parse(req.query.timeframe);
 
-    const [{ data: user }, { data: summaries }, { data: activities }] = await Promise.all([
-      supabaseAdmin
-        .from('users')
-        .select('id, email, display_name, avatar_url, country, created_at, updated_at')
-        .eq('id', req.auth!.userId)
-        .maybeSingle(),
-      supabaseAdmin
-        .from('listening_summaries')
-        .select('*')
-        .eq('user_id', req.auth!.userId)
-        .order('fetched_at', { ascending: false }),
-      supabaseAdmin
-        .from('activities')
-        .select('*')
-        .eq('user_id', req.auth!.userId)
-        .order('occurred_at', { ascending: false })
-        .limit(15),
+    const [userResult, summariesResult, activitiesResult] = await Promise.all([
+      pool.query(
+        'SELECT id, email, display_name, avatar_url, country, created_at, updated_at FROM users WHERE id = $1',
+        [req.auth!.userId],
+      ),
+      pool.query(
+        'SELECT * FROM listening_summaries WHERE user_id = $1 ORDER BY fetched_at DESC',
+        [req.auth!.userId],
+      ),
+      pool.query(
+        'SELECT * FROM activities WHERE user_id = $1 ORDER BY occurred_at DESC LIMIT 15',
+        [req.auth!.userId],
+      ),
     ]);
 
-    const normalizedSummaries = (summaries ?? []).map(normalizeSummary);
+    const normalizedSummaries = summariesResult.rows.map(normalizeSummary);
     const summary = normalizedSummaries.find((item) => item.timeframe === timeframe) ?? null;
 
     const response: DashboardResponse = {
-      user: user ?? null,
+      user: userResult.rows[0] ?? null,
       timeframe,
       summary,
       summaries: normalizedSummaries,
-      activities: (activities ?? []) as Activity[],
+      activities: activitiesResult.rows as Activity[],
     };
 
     res.json({ success: true, data: response });
