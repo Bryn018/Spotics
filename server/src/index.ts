@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(env.cookieSecret));
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 
-app.get('/health', (_req, res) => {
+app.get(['/health', '/api/health'], (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
