@@ -2,6 +2,7 @@ import { MoreVertical, Play } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { useDashboardData } from '../context/DashboardContext';
+import { motion } from 'motion/react';
 
 export function TopTracks() {
   const { data } = useDashboardData();
@@ -17,12 +18,15 @@ export function TopTracks() {
       <CardContent className="p-6">
         <div className="space-y-2">
           {tracks.map((track, index) => (
-            <div
+            <motion.div
               key={track.id ?? index}
-              className="group flex items-center gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-purple-900/20 hover:to-pink-900/20 transition-all border border-transparent hover:border-purple-500/20"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              className="group flex items-center gap-4 p-4 rounded-xl hover:bg-gradient-to-r hover:from-emerald-900/20 hover:to-teal-900/20 transition-all border border-transparent hover:border-emerald-500/20"
             >
               <div className="flex items-center gap-4 flex-1 min-w-0">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-purple-400 font-bold text-sm">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-400 font-bold text-sm">
                   {index + 1}
                 </div>
 
@@ -31,7 +35,7 @@ export function TopTracks() {
                     <img
                       src={track.image}
                       alt={track.title}
-                      className="h-14 w-14 rounded-lg object-cover shadow-lg ring-2 ring-gray-800 group-hover:ring-purple-500/30 transition-all"
+                      className="h-14 w-14 rounded-lg object-cover shadow-lg ring-2 ring-gray-800 group-hover:ring-emerald-500/30 transition-all"
                     />
                   ) : (
                     <div className="h-14 w-14 rounded-lg bg-gray-800 ring-2 ring-gray-800 flex items-center justify-center text-gray-500">
@@ -39,7 +43,7 @@ export function TopTracks() {
                     </div>
                   )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                    <div className="h-8 w-8 rounded-full bg-purple-500 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full bg-emerald-500 flex items-center justify-center">
                       <Play className="h-4 w-4 text-white ml-0.5" fill="white" />
                     </div>
                   </div>
@@ -56,11 +60,11 @@ export function TopTracks() {
                 <div className="flex items-center gap-2 w-24">
                   <div className="h-2 flex-1 bg-gray-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
                       style={{ width: `${Math.min(100, (track.plays / maxPlays) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-sm text-purple-400 font-medium">{track.plays}</span>
+                  <span className="text-sm text-emerald-400 font-medium">{track.plays}</span>
                 </div>
                 <span className="text-sm text-gray-500 w-12 text-right">{track.durationLabel}</span>
               </div>
@@ -68,7 +72,7 @@ export function TopTracks() {
               <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <MoreVertical className="h-4 w-4 text-gray-400" />
               </Button>
-            </div>
+            </motion.div>
           ))}
         </div>
       </CardContent>

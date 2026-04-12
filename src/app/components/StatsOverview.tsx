@@ -1,6 +1,7 @@
 import { Clock, Headphones, Music, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { useDashboardData } from '../context/DashboardContext';
+import { motion } from 'motion/react';
 
 export function StatsOverview() {
   const { data } = useDashboardData();
@@ -35,24 +36,28 @@ export function StatsOverview() {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat) => (
-        <Card
+      {stats.map((stat, index) => (
+        <motion.div
           key={stat.label}
-          className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800 hover:border-purple-500/40 transition-colors"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: index * 0.1 }}
         >
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-white">{stat.value}</p>
-                <p className="text-sm text-green-400 mt-2">{stat.change} from last month</p>
+          <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800 hover:border-emerald-500/50 transition-colors">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
+                  <p className="text-3xl font-bold text-white">{stat.value}</p>
+                  <p className="text-sm text-green-400 mt-2">{stat.change} from last month</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
+                  <stat.icon className="h-6 w-6 text-emerald-400" />
+                </div>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/20">
-                <stat.icon className="h-6 w-6 text-purple-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
       ))}
     </div>
   );

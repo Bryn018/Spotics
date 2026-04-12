@@ -19,19 +19,26 @@ import {
   Award,
   Calendar,
   Clock,
+  Crown,
   Disc3,
+  Flame,
   Globe,
+  Heart,
   Headphones,
   Music,
   Music2,
   Sparkles,
+  Star,
   Target,
+  Trophy,
   TrendingDown,
   TrendingUp,
   Users,
+  Zap,
   RefreshCw,
   Loader2,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -127,6 +134,18 @@ export function Analytics() {
   const achievements = buildAchievements(stats, genres.length, activities.length);
   const milestones = buildMilestones();
 
+  const yearlyHighlights = [
+    { id: 1, title: 'Reached Top 1% of The Weeknd listeners', icon: Crown, color: 'from-yellow-500 to-orange-500', date: 'March 2026', followers: undefined as string | undefined },
+    { id: 2, title: 'Discovered 150 new artists', icon: Sparkles, color: 'from-purple-500 to-pink-500', date: 'February 2026', followers: undefined as string | undefined },
+    { id: 3, title: 'Created your most popular playlist', icon: Trophy, color: 'from-blue-500 to-cyan-500', date: 'January 2026', followers: '2.3K' },
+  ];
+
+  const listeningStreaks = [
+    { days: 127, type: 'Current Streak', icon: Flame, active: true, description: 'Days in a row' },
+    { days: 189, type: 'Longest Streak', icon: Star, active: false, description: 'Personal best' },
+    { days: 45, type: 'Monthly Average', icon: Calendar, active: false, description: 'This year' },
+  ];
+
   const topTrack = topTracks[0];
   const topArtist = topArtists[0];
   const recentActivity = activities[0];
@@ -185,16 +204,27 @@ export function Analytics() {
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                <Calendar className="h-5 w-5 text-purple-400" />
+        {/* Monthly Trends */}
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 animate-pulse" />
+          <CardHeader className="relative z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                  <Calendar className="h-5 w-5 text-purple-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl text-white">Monthly Trends</CardTitle>
+                  <p className="text-sm text-gray-400 mt-1">Your listening journey over time</p>
+                </div>
               </div>
-              <CardTitle className="text-xl text-white">Monthly Trends</CardTitle>
+              <div className="text-right">
+                <p className="text-xs text-gray-400">This Month</p>
+                <p className="text-lg font-bold text-purple-400">+43.9h</p>
+              </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={monthlyData}>
                 <defs>
@@ -212,19 +242,56 @@ export function Analytics() {
                 <Line type="monotone" dataKey="minutes" stroke="#a855f7" strokeWidth={3} dot={{ fill: '#a855f7', r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
+            <div className="grid grid-cols-3 gap-3 mt-6">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <TrendingUp className="h-4 w-4 text-purple-400" />
+                  <p className="text-xs text-gray-400">Growth</p>
+                </div>
+                <p className="text-lg font-bold text-white">+43%</p>
+                <p className="text-xs text-gray-500">vs last month</p>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-lg p-3 border border-pink-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Music className="h-4 w-4 text-pink-400" />
+                  <p className="text-xs text-gray-400">Avg Daily</p>
+                </div>
+                <p className="text-lg font-bold text-white">87.8 min</p>
+                <p className="text-xs text-gray-500">This month</p>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Heart className="h-4 w-4 text-purple-400" />
+                  <p className="text-xs text-gray-400">Best Month</p>
+                </div>
+                <p className="text-lg font-bold text-white">June</p>
+                <p className="text-xs text-gray-500">2,634 minutes</p>
+              </motion.div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
-                <Clock className="h-5 w-5 text-blue-400" />
+        {/* Hourly Distribution */}
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 animate-pulse" />
+          <CardHeader className="relative z-10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+                  <Clock className="h-5 w-5 text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl text-white">Listening by Hour</CardTitle>
+                  <p className="text-sm text-gray-400 mt-1">Peak activity times</p>
+                </div>
               </div>
-              <CardTitle className="text-xl text-white">Listening by Hour</CardTitle>
+              <div className="text-right">
+                <p className="text-xs text-gray-400">Peak Hour</p>
+                <p className="text-lg font-bold text-blue-400">8-9 PM</p>
+              </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={hourlyData}>
                 <defs>
@@ -237,11 +304,40 @@ export function Analytics() {
                 <XAxis dataKey="hour" stroke="#9ca3af" style={{ fontSize: '12px' }} />
                 <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #3b82f6', borderRadius: 12, color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: 8, boxShadow: '0 4px 6px rgba(0,0,0,0.3)' }}
+                  labelStyle={{ color: '#f3f4f6' }}
+                  itemStyle={{ color: '#a78bfa' }}
+                  cursor={false}
                 />
                 <Bar dataKey="plays" fill="url(#hourlyGradient)" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            <div className="grid grid-cols-3 gap-3 mt-6">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-lg p-3 border border-blue-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="h-4 w-4 text-blue-400" />
+                  <p className="text-xs text-gray-400">Morning</p>
+                </div>
+                <p className="text-lg font-bold text-white">63 plays</p>
+                <p className="text-xs text-gray-500">6AM - 12PM</p>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-lg p-3 border border-cyan-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="h-4 w-4 text-cyan-400" />
+                  <p className="text-xs text-gray-400">Afternoon</p>
+                </div>
+                <p className="text-lg font-bold text-white">156 plays</p>
+                <p className="text-xs text-gray-500">12PM - 6PM</p>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <Flame className="h-4 w-4 text-purple-400" />
+                  <p className="text-xs text-gray-400">Evening</p>
+                </div>
+                <p className="text-lg font-bold text-white">268 plays</p>
+                <p className="text-xs text-gray-500">6PM - 12AM</p>
+              </motion.div>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -419,6 +515,79 @@ export function Analytics() {
                         {milestone.title}
                       </h4>
                       <span className="text-sm text-gray-400">{milestone.date}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Yearly Highlights */}
+      <section className="mb-12">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-1 w-12 bg-gradient-to-r from-green-600 to-rose-900 rounded-full" />
+          <h2 className="text-2xl font-bold text-white">Yearly Highlights</h2>
+        </div>
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {yearlyHighlights.map((highlight, index) => (
+                <div key={highlight.id} className="relative flex items-center gap-4">
+                  {index !== yearlyHighlights.length - 1 && (
+                    <div className="absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] bg-gradient-to-b from-purple-500 to-pink-500" />
+                  )}
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 bg-gradient-to-br ${highlight.color}`}>
+                    <highlight.icon className="h-4 w-4 text-white" fill="white" />
+                  </div>
+                  <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-white">{highlight.title}</h4>
+                      <span className="text-sm text-gray-400">{highlight.date}</span>
+                    </div>
+                    {highlight.followers && (
+                      <div className="mt-2">
+                        <Badge className="bg-gray-800/30 border border-gray-700/30 text-gray-400">
+                          {highlight.followers} followers
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Listening Streaks */}
+      <section className="mb-12">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-1 w-12 bg-gradient-to-r from-rose-900 to-rose-800 rounded-full" />
+          <h2 className="text-2xl font-bold text-white">Listening Streaks</h2>
+        </div>
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {listeningStreaks.map((streak, index) => (
+                <div key={streak.type} className="relative flex items-center gap-4">
+                  {index !== listeningStreaks.length - 1 && (
+                    <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${streak.active ? 'bg-gradient-to-b from-purple-500 to-pink-500' : 'bg-gray-700'}`} />
+                  )}
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 ${streak.active ? 'bg-gradient-to-br from-purple-500 to-pink-500' : 'bg-gray-700'}`}>
+                    {streak.active ? (
+                      <Award className="h-4 w-4 text-white" fill="white" />
+                    ) : (
+                      <div className="h-3 w-3 rounded-full bg-gray-900" />
+                    )}
+                  </div>
+                  <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
+                    <div className="flex items-center justify-between">
+                      <h4 className={`font-semibold ${streak.active ? 'text-white' : 'text-gray-500'}`}>
+                        {streak.type}
+                      </h4>
+                      <span className="text-sm text-gray-400">{streak.days} {streak.description}</span>
                     </div>
                   </div>
                 </div>

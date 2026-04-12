@@ -1,6 +1,7 @@
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
 import { useDashboardData } from '../context/DashboardContext';
+import { motion } from 'motion/react';
 
 export function TopArtists() {
   const { data } = useDashboardData();
@@ -15,11 +16,15 @@ export function TopArtists() {
       <CardContent className="p-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {artists.map((artist, index) => (
-            <div
+            <motion.div
               key={artist.id ?? index}
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-800/40 to-gray-900/40 p-5 hover:from-purple-900/20 hover:to-pink-900/20 transition-all hover:scale-[1.02] border border-gray-700/30 hover:border-purple-500/30"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-800/40 to-gray-900/40 p-5 hover:from-emerald-900/20 hover:to-teal-900/20 transition-all hover:scale-[1.02] border border-gray-700/30 hover:border-emerald-500/30"
             >
-              <div className="absolute top-3 right-3 h-6 w-6 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center text-xs font-bold text-purple-300 border border-purple-500/30">
+              {/* Rank Badge */}
+              <div className="absolute top-3 right-3 h-6 w-6 rounded-full bg-gradient-to-br from-emerald-500/30 to-teal-500/30 flex items-center justify-center text-xs font-bold text-emerald-300 border border-emerald-500/30">
                 {index + 1}
               </div>
 
@@ -29,18 +34,18 @@ export function TopArtists() {
                     <img
                       src={artist.image}
                       alt={artist.name}
-                      className="h-16 w-16 rounded-full object-cover ring-2 ring-purple-500/30 group-hover:ring-purple-500/50 transition-all shadow-lg"
+                      className="h-16 w-16 rounded-full object-cover ring-2 ring-emerald-500/30 group-hover:ring-emerald-500/50 transition-all shadow-lg"
                     />
                   ) : (
-                    <div className="h-16 w-16 rounded-full bg-gray-800 ring-2 ring-purple-500/20 flex items-center justify-center text-lg text-gray-400">
+                    <div className="h-16 w-16 rounded-full bg-gray-800 ring-2 ring-emerald-500/20 flex items-center justify-center text-lg text-gray-400">
                       {artist.name?.[0] ?? '?'}
                     </div>
                   )}
-                  <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 border-gray-900" />
+                  <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 border-2 border-gray-900" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-white truncate mb-1">{artist.name}</h3>
-                  <p className="text-sm text-purple-400 font-medium">{artist.plays} plays</p>
+                  <p className="text-sm text-emerald-400 font-medium">{artist.plays} plays</p>
                 </div>
               </div>
 
@@ -55,14 +60,14 @@ export function TopArtists() {
                     <Badge
                       key={`${artist.id}-${genre}`}
                       variant="secondary"
-                      className="text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30"
+                      className="text-xs bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/30 hover:from-emerald-500/30 hover:to-teal-500/30 transition-all"
                     >
                       {genre}
                     </Badge>
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </CardContent>

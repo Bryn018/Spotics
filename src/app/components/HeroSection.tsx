@@ -1,67 +1,332 @@
-import { Play, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
-import { useDashboardData } from '../context/DashboardContext';
-
-const timeframeCopy: Record<string, string> = {
-  short_term: 'your last 4 weeks',
-  medium_term: 'the past 6 months',
-  long_term: 'all time',
-};
+import { Play, TrendingUp, Music2, Users, ArrowRight, Headphones, Clock, Calendar, Disc3, Radio } from 'lucide-react';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { motion } from 'motion/react';
 
 export function HeroSection() {
-  const { data, timeframe } = useDashboardData();
-  const summary = data?.summary;
-  const hero = summary?.payload?.hero;
-  const totals = summary?.totals;
-
-  const totalTracks = hero?.totalTracks ?? totals?.tracks ?? 0;
-  const totalArtists = hero?.totalArtists ?? totals?.artists ?? 0;
-  const headlineArtist = hero?.topArtist ?? 'Spotify';
-  const timeframeLabel = timeframeCopy[timeframe] ?? 'your listening';
-
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 p-1 shadow-2xl">
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 animate-pulse opacity-50" />
+    <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+      {/* Main container with sophisticated gradient background */}
+      <div className="relative bg-black overflow-hidden min-h-[600px] lg:min-h-[700px]">
+        
+        {/* Layered Background System */}
+        {/* Layer 1: Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950 via-gray-950 to-teal-950"></div>
+        
+        {/* Layer 2: Vinyl record background */}
+        <div className="absolute inset-0 opacity-[0.08]">
+          <ImageWithFallback 
+            src="https://images.unsplash.com/photo-1670529275215-d952f9633a4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW55bCUyMHJlY29yZCUyMHR1cm50YWJsZSUyMGRhcmslMjBhZXN0aGV0aWN8ZW58MXx8fHwxNzc0MDM3MjYwfDA&ixlib=rb-4.1.0&q=80&w=1080"
+            alt="Vinyl record"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-      <div className="relative bg-gradient-to-br from-gray-900 via-gray-950 to-black rounded-xl p-8 lg:p-10">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1771789391889-e209bf941a1c?w=1200')] bg-cover bg-center opacity-10 rounded-xl" />
+        {/* Layer 3: Radial gradient orbs with animation */}
+        <motion.div 
+          className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-emerald-500/20 rounded-full blur-[150px]"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        ></motion.div>
+        <motion.div 
+          className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-teal-500/20 rounded-full blur-[130px]"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        ></motion.div>
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[120px]"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        ></motion.div>
+        
+        {/* Layer 4: Noise texture overlay */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{
+          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' /%3E%3C/svg%3E")',
+          backgroundSize: '200px 200px'
+        }}></div>
 
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="h-1 w-8 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full" />
-              <Sparkles className="h-5 w-5 text-yellow-400 animate-pulse" />
-              <span className="text-sm font-bold text-yellow-400 tracking-wide uppercase">
-                {timeframeLabel} recap
-              </span>
+        {/* Layer 5: Mesh gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(16,185,129,0.1),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(20,184,166,0.1),transparent_50%)]"></div>
+
+        {/* Content Container */}
+        <div className="relative z-10 container mx-auto px-6 lg:px-12 py-16 lg:py-20">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            {/* Left Column - Main Content */}
+            <div className="lg:col-span-7 space-y-10">
+              
+              {/* Animated Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-400/30 backdrop-blur-xl shadow-lg shadow-emerald-500/10">
+                  <motion.div 
+                    className="w-2 h-2 rounded-full bg-emerald-400"
+                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  ></motion.div>
+                  <span className="text-sm font-bold text-emerald-300 tracking-wider">
+                    YOUR 2026 WRAPPED IS HERE
+                  </span>
+                  <div className="px-2 py-0.5 rounded-full bg-emerald-400/20 border border-emerald-400/30">
+                    <span className="text-xs font-bold text-emerald-300">NEW</span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Main Headline with Gradient */}
+              <motion.div 
+                className="space-y-6"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+              >
+                <div>
+                  <h1 className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] mb-6">
+                    <span className="block text-white mb-2">A Year of</span>
+                    <span className="block bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                      Pure Vibes
+                    </span>
+                  </h1>
+                  <div className="h-1.5 w-32 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full"></div>
+                </div>
+                <p className="text-xl md:text-2xl text-gray-300 max-w-2xl leading-relaxed font-light">
+                  Relive your musical journey through <span className="text-emerald-400 font-semibold">2,847 tracks</span>, 
+                  <span className="text-teal-400 font-semibold"> 312 artists</span>, and countless moments that defined your 2026.
+                </p>
+              </motion.div>
+
+              {/* Stats Grid - Glassmorphic Cards */}
+              <motion.div 
+                className="grid grid-cols-3 gap-4"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+              >
+                {[
+                  { icon: Music2, label: 'Tracks', value: '2,847', color: 'emerald' },
+                  { icon: Users, label: 'Artists', value: '312', color: 'teal' },
+                  { icon: Clock, label: 'Hours', value: '487', color: 'cyan' }
+                ].map((stat, index) => (
+                  <motion.div
+                    key={stat.label}
+                    className="relative group"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    {/* Glow effect on hover */}
+                    <div className={`absolute -inset-0.5 bg-gradient-to-r from-${stat.color}-500 to-${stat.color}-600 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-300`}></div>
+                    
+                    <div className="relative bg-gradient-to-br from-gray-900/60 to-gray-800/40 backdrop-blur-xl rounded-2xl p-5 border border-white/10 group-hover:border-emerald-400/30 transition-all">
+                      <stat.icon className={`h-6 w-6 text-${stat.color}-400 mb-3`} />
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">{stat.label}</p>
+                        <p className={`text-3xl font-black bg-gradient-to-br from-${stat.color}-400 to-${stat.color}-500 bg-clip-text text-transparent`}>
+                          {stat.value}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* CTA Section */}
+              <motion.div 
+                className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.7 }}
+              >
+                <Button className="group relative bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white font-bold px-10 py-7 text-lg rounded-2xl shadow-2xl shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all overflow-hidden">
+                  {/* Button shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
+                  
+                  <div className="relative flex items-center gap-3">
+                    <Play className="h-6 w-6" fill="white" />
+                    <span>Explore Your Wrapped</span>
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Button>
+
+                {/* Secondary action */}
+                <div className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-emerald-400/30 transition-all cursor-pointer group">
+                  <Headphones className="h-5 w-5 text-gray-400 group-hover:text-emerald-400 transition-colors" />
+                  <span className="text-sm font-semibold text-gray-300 group-hover:text-white transition-colors">
+                    Preview Highlights
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Social Proof */}
+              <motion.div 
+                className="flex items-center gap-4 text-sm text-gray-500"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.9 }}
+              >
+                <div className="flex -space-x-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className={`w-10 h-10 rounded-full bg-gradient-to-br from-emerald-${400 + i * 100} to-teal-${400 + i * 100} ring-2 ring-black`}></div>
+                  ))}
+                </div>
+                <p>
+                  Join <span className="text-emerald-400 font-bold">1.2M+</span> music lovers discovering their story
+                </p>
+              </motion.div>
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-              {totalTracks.toLocaleString()} tracks · {totalArtists.toLocaleString()} artists
-              <br />
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-                {headlineArtist}
-              </span>{' '}
-              is headlining your story.
-            </h2>
-            <p className="text-lg md:text-xl text-gray-300 mb-6 max-w-xl">
-              Spotics turns your Spotify habits into a cinematic story. Switch timeframes or refresh data to see the
-              soundtrack of your life evolve in real time.
-            </p>
-            <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-8 py-6 text-base shadow-xl hover:shadow-purple-500/30 transition-all hover:scale-105">
-              <Play className="h-5 w-5 mr-2" fill="white" />
-              View listening insights
-            </Button>
-          </div>
 
-          <div className="hidden lg:block relative">
-            <div className="absolute -inset-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-2xl" />
-            <img
-              src="https://images.unsplash.com/photo-1672841821756-fc04525771c2?w=600&auto=format&fit=crop"
-              alt="Music collage"
-              className="relative h-64 w-64 rounded-2xl object-cover shadow-2xl ring-4 ring-purple-500/30 hover:ring-pink-500/30 transition-all hover:scale-105"
-            />
+            {/* Right Column - Visual Feature Card */}
+            <div className="lg:col-span-5 hidden lg:block">
+              <motion.div 
+                className="relative"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+              >
+                {/* Main Feature Card */}
+                <div className="relative">
+                  {/* Outer glow */}
+                  <div className="absolute -inset-8 bg-gradient-to-r from-emerald-500/30 via-teal-500/30 to-cyan-500/30 rounded-[40px] blur-[60px]"></div>
+                  
+                  {/* Glass Card */}
+                  <div className="relative bg-gradient-to-br from-gray-900/70 to-gray-800/50 backdrop-blur-2xl rounded-[32px] p-8 border border-white/10 shadow-2xl overflow-hidden">
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-transparent rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-cyan-500/20 to-transparent rounded-full blur-3xl"></div>
+                    
+                    {/* Content */}
+                    <div className="relative z-10 space-y-6">
+                      {/* Header */}
+                      <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-400/20">
+                            <Radio className="h-5 w-5 text-emerald-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-white font-bold text-lg">Your Top Playlist</h3>
+                            <p className="text-xs text-gray-500">Most played this year</p>
+                          </div>
+                        </div>
+                        <div className="px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
+                          <span className="text-xs text-emerald-400 font-bold">2026</span>
+                        </div>
+                      </div>
+
+                      {/* Album Grid with Hover Effects */}
+                      <div className="grid grid-cols-3 gap-3">
+                        {[1, 2, 3, 4, 5, 6].map((item) => (
+                          <motion.div 
+                            key={item}
+                            className="aspect-square rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/15 border border-emerald-500/20 overflow-hidden group cursor-pointer relative"
+                            whileHover={{ scale: 1.05, rotate: 2 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
+                            {/* Vinyl icon */}
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Disc3 className="h-10 w-10 text-emerald-400/40 group-hover:text-emerald-400 transition-all group-hover:rotate-180 duration-700" />
+                            </div>
+                            
+                            {/* Overlay on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
+                              <Play className="h-5 w-5 text-white" fill="white" />
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      {/* Stats Footer */}
+                      <div className="pt-6 border-t border-white/10 grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-gray-500" />
+                            <p className="text-xs text-gray-500 uppercase tracking-wider">Total Plays</p>
+                          </div>
+                          <p className="text-3xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">1,245</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-gray-500" />
+                            <p className="text-xs text-gray-500 uppercase tracking-wider">Top Genre</p>
+                          </div>
+                          <p className="text-3xl font-black text-white">Pop</p>
+                        </div>
+                      </div>
+
+                      {/* Achievement Badge */}
+                      <div className="flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20">
+                        <div className="p-2 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20">
+                          <span className="text-2xl">🏆</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-white">Top 1% Listener</p>
+                          <p className="text-xs text-gray-400">You're in the elite club!</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating Mini Cards */}
+                <motion.div 
+                  className="absolute -top-6 -left-6 px-4 py-3 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-xl"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-white" />
+                    <div>
+                      <p className="text-xs text-white/90 font-medium">Active Days</p>
+                      <p className="text-lg font-black text-white">342</p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div 
+                  className="absolute -bottom-4 -right-6 px-4 py-3 rounded-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border border-emerald-500/30 shadow-xl"
+                  animate={{ y: [0, 10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                >
+                  <div className="flex items-center gap-2">
+                    <motion.div 
+                      className="w-2 h-2 rounded-full bg-emerald-400"
+                      animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    ></motion.div>
+                    <p className="text-xs text-gray-400 font-medium">Currently tracking...</p>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </div>
           </div>
         </div>
+
+        {/* Bottom Accent */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent"></div>
       </div>
     </div>
   );
