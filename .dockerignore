@@ -4,4 +4,8 @@ dist
 server/dist
 .git
 .env*
-Dockerfile
+server/.env*
+*.md
+.vscode
+.idea
+supabase
