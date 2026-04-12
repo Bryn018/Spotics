@@ -78,8 +78,8 @@ async function buildDashboardPayload(client: SpotifyWebApi, timeframe: TimeRange
     client.getMyTopArtists({ time_range: timeframe, limit: 15 }),
   ]);
 
-  const tracks = topTracksResponse.body.items;
-  const artists = topArtistsResponse.body.items as SimplifiedArtist[];
+  const tracks = topTracksResponse.body.items ?? [];
+  const artists = (topArtistsResponse.body.items ?? []) as SimplifiedArtist[];
 
   if (!tracks.length || !artists.length) {
     return getEmptyPayload();
@@ -102,7 +102,7 @@ async function buildDashboardPayload(client: SpotifyWebApi, timeframe: TimeRange
     plays: estimatePlays(artist.popularity, index, 600),
     hours: Number(((artist.popularity / 100) * 50).toFixed(1)),
     image: artist.images?.[0]?.url ?? null,
-    genres: artist.genres.slice(0, 3),
+    genres: (artist.genres ?? []).slice(0, 3),
   }));
 
   const albumStats = buildAlbumStats(trackStats);
@@ -213,7 +213,7 @@ function buildAlbumStats(tracks: TrackStat[]): AlbumStat[] {
 function buildGenreStats(artists: SimplifiedArtist[]): GenreStat[] {
   const counts = new Map<string, number>();
   artists.forEach((artist) => {
-    artist.genres.forEach((genre: string) => {
+    (artist.genres ?? []).forEach((genre: string) => {
       counts.set(genre, (counts.get(genre) ?? 0) + 1);
     });
   });
