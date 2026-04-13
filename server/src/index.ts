@@ -16,6 +16,8 @@ console.log('[env] nodeEnv=%s appUrl=%s clientUrl=%s apiUrl=%s', env.nodeEnv, en
 app.disable('x-powered-by');
 app.use(helmet({
   contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginEmbedderPolicy: false,
 }));
 app.use(
   cors({

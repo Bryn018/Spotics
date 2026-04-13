@@ -18,12 +18,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
     if (stored === 'dark' || stored === 'light') {
       setTheme(stored);
+      document.documentElement.classList.toggle('dark', stored === 'dark');
       document.documentElement.classList.toggle('light', stored === 'light');
+    } else {
+      // Default to dark
+      document.documentElement.classList.add('dark');
     }
   }, []);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
     document.documentElement.classList.toggle('light', theme === 'light');
   }, [theme]);
 
