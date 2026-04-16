@@ -10,8 +10,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "22.x"
           cache: "npm"
+          check-latest: true
+      - name: Show Node/NPM versions
+        run: |
+          node -v
+          npm -v
       - name: Install dependencies
         run: |
           cd server
