@@ -1,6 +1,9 @@
 import postgres from 'postgres';
 
-export const pool = postgres({
-  connectionString: import.meta.env.DATABASE_URL || process.env.DATABASE_URL,
-  ssl: import.meta.env.NODE_ENV === 'production',
+// Use constructor overload compatible with this project's TypeScript settings
+// Accepts a connection URL string to avoid using import.meta.env at build time
+const connectionString = process.env.DATABASE_URL || '';
+
+export const pool = postgres(connectionString, {
+  ssl: process.env.NODE_ENV === 'production',
 });
