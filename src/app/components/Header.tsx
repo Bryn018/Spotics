@@ -3,12 +3,12 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription, SheetHeader } from './ui/sheet';
 import { SpoticsLogo } from './SpoticsLogo';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { SettingsDialog } from './SettingsDialog';
 import { NotificationsDialog } from './NotificationsDialog';
 import { AccountDialog } from './AccountDialog';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export function Header() {
   const location = useLocation();

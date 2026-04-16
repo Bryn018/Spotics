@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router';
-import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Button } from '../components/ui/button';
 import { SpoticsLogo } from '../components/SpoticsLogo';
 

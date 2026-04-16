@@ -1,7 +1,7 @@
 import { Button } from './ui/button';
 import { Play, TrendingUp, Music2, Users, ArrowRight, Headphones, Clock, Calendar, Disc3, Radio } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export function HeroSection() {
   return (

@@ -1,7 +1,7 @@
 import { Clock, Headphones, Music, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { useDashboardData } from '../context/DashboardContext';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export function StatsOverview() {
   const { data } = useDashboardData();

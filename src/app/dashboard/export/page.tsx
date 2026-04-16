@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Download, Loader2, Clock, Music, Headphones, TrendingUp, Calendar, Play } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { SpoticsLogo } from '../components/SpoticsLogo';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 type ExportTimeRange = 'weekly' | 'monthly' | 'alltime';

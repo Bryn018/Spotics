@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 const fallbackBaseUrl = (() => {
   if (import.meta.env.DEV) {
     return 'http://localhost:4000';
@@ -14,10 +12,48 @@ const fallbackBaseUrl = (() => {
 
 export const apiBaseUrl = import.meta.env.VITE_API_URL ?? fallbackBaseUrl;
 
-export const api = axios.create({
-  baseURL: apiBaseUrl,
-  withCredentials: true,
-});
+// Simple fetch wrapper to replace axios
+class APIClient {
+  constructor(private baseURL: string) {}
+
+  private async request<T = any>(
+    method: string,
+    url: string,
+    config?: { data?: any; headers?: any }
+  ): Promise<{ data: T; status: number }> {
+    const fullURL = new URL(url, this.baseURL).toString();
+    const response = await fetch(fullURL, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...config?.headers,
+      },
+      body: config?.data ? JSON.stringify(config.data) : undefined,
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+    return { data, status: response.status };
+  }
+
+  get<T = any>(url: string, config?: any) {
+    return this.request<T>('GET', url, config);
+  }
+
+  post<T = any>(url: string, data?: any, config?: any) {
+    return this.request<T>('POST', url, { ...config, data });
+  }
+
+  put<T = any>(url: string, data?: any, config?: any) {
+    return this.request<T>('PUT', url, { ...config, data });
+  }
+
+  delete<T = any>(url: string, config?: any) {
+    return this.request<T>('DELETE', url, config);
+  }
+}
+
+export const api = new APIClient(apiBaseUrl);
 
 export const apiRoutes = {
   session: '/auth/session',

@@ -1,6 +1,6 @@
 import { Button } from './ui/button';
 import { Play, Sparkles, Calendar, TrendingUp, Music, Headphones, Disc3, Radio, Zap, Star } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { DailyWrapDialog } from './DailyWrapDialog';
 import { WeeklyWrapDialog } from './WeeklyWrapDialog';

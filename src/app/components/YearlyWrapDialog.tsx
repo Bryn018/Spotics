@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Sparkles, Music, Clock, Award, Trophy, Crown, Heart, TrendingUp, Zap, Star, Calendar, Disc } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 

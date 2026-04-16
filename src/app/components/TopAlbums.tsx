@@ -2,7 +2,7 @@ import { Play, Heart } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { useDashboardData } from '../context/DashboardContext';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export function TopAlbums() {
   const { data } = useDashboardData();

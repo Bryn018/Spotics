@@ -1,7 +1,7 @@
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
 import { useDashboardData } from '../context/DashboardContext';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export function TopArtists() {
   const { data } = useDashboardData();
