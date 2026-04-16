@@ -27,7 +27,7 @@ export function Header() {
           <div className="flex items-center gap-8">
             <Link to="/dashboard" className="flex items-center gap-3">
               <SpoticsLogo className="h-10 w-10" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">
                 Spotics
               </h1>
             </Link>

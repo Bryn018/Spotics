@@ -8,7 +8,6 @@ import { TopAlbums } from '../components/TopAlbums';
 import { ListeningChart } from '../components/ListeningChart';
 import { GenreDistribution } from '../components/GenreDistribution';
 import { RecentActivity } from '../components/RecentActivity';
-import { HeroSection } from '../components/HeroSection';
 import { useDashboardData } from '../context/DashboardContext';
 import { Button } from '../components/ui/button';
 
@@ -59,71 +58,68 @@ export function Home() {
 
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
-      {/* Wrapped Selector */}
+      {/* Hero Section */}
       <div className="mb-10">
         <WrappedSelector />
       </div>
-
-      {/* Hero Section */}
-      <div className="mb-10">
-        <HeroSection />
-      </div>
-
+      
       {/* Time Range Selector */}
       <div className="mb-8">
         <TimeRangeSelector />
       </div>
-
+      
       {/* Stats Overview */}
       <div className="mb-12">
         <StatsOverview />
       </div>
-
-      {/* Top Albums */}
+      
+      {/* Top Albums Section */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-          <h2 className="text-2xl font-bold text-white">Top Albums</h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"></div>
+          <h2 className="text-2xl font-bold text-white light:text-gray-900">Top Albums</h2>
         </div>
         <TopAlbums />
       </div>
-
-      {/* 12-col grid: Tracks+Artists left 8col, Activity right 4col */}
+      
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 mb-12">
+        {/* Left Column - Tracks & Artists */}
         <div className="xl:col-span-8 space-y-8">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-              <h2 className="text-2xl font-bold text-white">Top Tracks</h2>
+              <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-full"></div>
+              <h2 className="text-2xl font-bold text-white light:text-gray-900">Top Tracks</h2>
             </div>
             <TopTracks />
           </div>
-
+          
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-              <h2 className="text-2xl font-bold text-white">Top Artists</h2>
+              <div className="h-1 w-12 bg-gradient-to-r from-green-600 to-blue-600 rounded-full"></div>
+              <h2 className="text-2xl font-bold text-white light:text-gray-900">Top Artists</h2>
             </div>
             <TopArtists />
           </div>
         </div>
-
+        
+        {/* Right Column - Recent Activity */}
         <div className="xl:col-span-4">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-1 w-12 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full"></div>
-            <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
+            <div className="h-1 w-12 bg-gradient-to-r from-rose-900 to-rose-800 rounded-full"></div>
+            <h2 className="text-2xl font-bold text-white light:text-gray-900">Recent Activity</h2>
           </div>
           <div className="xl:sticky xl:top-24">
             <RecentActivity />
           </div>
         </div>
       </div>
-
-      {/* Listening Chart + Genre Distribution */}
+      
+      {/* Analytics Section */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
-          <h2 className="text-2xl font-bold text-white">Analytics</h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+          <h2 className="text-2xl font-bold text-white light:text-gray-900">Analytics</h2>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <ListeningChart />
