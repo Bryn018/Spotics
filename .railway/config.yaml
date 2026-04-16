@@ -1,0 +1,11 @@
+build:
+  env:
+    - DATABASE_URL
+    - SPOTIFY_CLIENT_ID
+    - SPOTIFY_CLIENT_SECRET
+    - SPOTIFY_REDIRECT_URI
+    - JWT_SECRET
+    - SESSION_COOKIE_NAME
+    - COOKIE_SECRET
+run:
+  autoDeploy: true
