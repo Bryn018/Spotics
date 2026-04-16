@@ -7,5 +7,7 @@ build:
     - JWT_SECRET
     - SESSION_COOKIE_NAME
     - COOKIE_SECRET
+    - NODE_ENV
 run:
   autoDeploy: true
+  command: npm run build && npm start

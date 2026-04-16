@@ -1,26 +1,6 @@
-import { Pool } from 'pg';
-import { env } from '../config/env';
+import postgres from 'postgres';
 
-// Strip sslmode query param from DATABASE_URL to silence pg-connection-string
-// deprecation warning — we set ssl explicitly below.
-function cleanConnectionString(url: string): string {
-  try {
-    const u = new URL(url);
-    u.searchParams.delete('sslmode');
-    return u.toString();
-  } catch {
-    return url;
-  }
-}
-
-export const pool = new Pool({
-  connectionString: cleanConnectionString(env.databaseUrl),
-  ssl: env.nodeEnv === 'production' ? { rejectUnauthorized: false } : false,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-});
-
-pool.on('error', (err) => {
-  console.error('[db] Unexpected pool error', err);
+export const pool = postgres({
+  connectionString: import.meta.env.DATABASE_URL || process.env.DATABASE_URL,
+  ssl: import.meta.env.NODE_ENV === 'production',
 });

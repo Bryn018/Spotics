@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  displayName     String?
+  avatarUrl       String?
+  country         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  spotifyProfile  SpotifyProfile?
+  listeningSummaries ListeningSummary[]
+  activities      Activity[]
+  wrapReports     WrapReport[]
+}
+
+model SpotifyProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  spotifyUserId   String   @unique
+  accessToken     String
+  refreshToken    String
+  scope           String[]
+  tokenExpiresAt  DateTime
+  product         String?
+  followers       Int?
+  externalUrl     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ListeningSummary {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  timeframe       String   // "short_term", "medium_term", "long_term"
+  totalMinutes    Int?
+  totalTracks     Int?
+  totalArtists    Int?
+  payload         Json?
+  fetchedAt       DateTime @default(now())
+  
+  @@unique([userId, timeframe])
+  @@index([userId])
+}
+
+model Activity {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  activityType    String
+  title           String
+  subtitle        String?
+  metadata        Json?
+  occurredAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([occurredAt])
+}
+
+model WrapReport {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  timeframe       String   // "daily", "weekly", "yearly"
+  periodStart     String
+  periodEnd       String
+  payload         Json
+  generatedAt     DateTime @default(now())
+  
+  @@unique([userId, timeframe, periodStart, periodEnd])
+  @@index([userId])
+}

@@ -102,7 +102,10 @@ router.get(
       signed: false,
     });
 
-    res.redirect(env.clientUrl);
+    // Redirect back to dashboard or home
+    const redirectUrl = new URL(env.clientUrl);
+    redirectUrl.pathname = '/dashboard';
+    res.redirect(redirectUrl.toString());
   }),
 );
 
