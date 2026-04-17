@@ -6,7 +6,7 @@
     "outDir": "dist",
 
     // Environment Settings
-    "module": "es2022",
+    "module": "commonjs",
     "target": "es2020",
     "lib": ["es2020"],
     "types": ["node"],
