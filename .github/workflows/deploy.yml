@@ -1,7 +1,6 @@
-name: Deploy to Railway
+name: Deploy to Railway (DISABLED - Using Railway autoDeploy instead)
 on:
-  push:
-    branches: [ main, "feature/**" ]
+  workflow_dispatch: # Manual trigger only
 jobs:
   deploy:
     runs-on: ubuntu-latest
