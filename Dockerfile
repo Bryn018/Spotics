@@ -6,8 +6,11 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
-COPY . .
-RUN npm run build
+
+COPY src ./src
+COPY index.html vite.config.ts tsconfig.json postcss.config.js tailwind.config.js ./
+
+RUN npm run build:client
 
 # --- Build server (Express API) ---------------------------------------------
 FROM node:20-bullseye-slim AS server-builder

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "vite build && npm -C server run build",
+    "build:client": "vite build",
     "dev": "vite",
     "start": "node server/dist/index.js",
     "typecheck": "tsc --noEmit"
