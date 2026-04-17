@@ -1,6 +1,6 @@
 import { Router, type Response, type Request, type CookieOptions } from 'express';
 import crypto from 'crypto';
-import { spotify, scopes } from '../lib/spotify';
+import { spotify, scopes, createAuthorizeURL, authorizationCodeGrant } from '../lib/spotify';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { pool } from '../lib/db';
 import { HttpError } from '../middleware/errorHandler';
@@ -21,7 +21,7 @@ const cookieOptions: CookieOptions = {
 router.get('/login', (_req: Request, res: Response) => {
   const state = crypto.randomBytes(16).toString('hex');
   res.cookie(STATE_COOKIE, state, { ...cookieOptions, maxAge: 10 * 60 * 1000 });
-  const authorizeUrl = spotify.createAuthorizeURL(scopes, state, true);
+  const authorizeUrl = createAuthorizeURL(scopes, state, true);
   res.redirect(authorizeUrl);
 });
 
@@ -40,7 +40,7 @@ router.get(
 
     res.clearCookie(STATE_COOKIE);
 
-    const tokenResponse = await spotify.authorizationCodeGrant(code);
+    const tokenResponse = await authorizationCodeGrant(code);
     const { access_token, refresh_token, expires_in, scope } = tokenResponse.body;
     const scopeList = typeof scope === 'string' ? scope.split(' ').filter(Boolean) : [];
 

@@ -62,6 +62,16 @@ CREATE TABLE wrap_reports (
   UNIQUE(user_id, timeframe, period_start, period_end)
 );
 
+-- User recent tracks table
+CREATE TABLE user_recent_tracks (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+  track_uri TEXT NOT NULL,
+  spotify_track_id TEXT NOT NULL,
+  played_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, spotify_track_id)
+);
+
 -- Create indexes
 CREATE INDEX idx_listening_summaries_user_id ON listening_summaries(user_id);
 CREATE INDEX idx_listening_summaries_timeframe ON listening_summaries(timeframe);
@@ -69,6 +79,7 @@ CREATE INDEX idx_activities_user_id ON activities(user_id);
 CREATE INDEX idx_activities_occurred_at ON activities(occurred_at DESC);
 CREATE INDEX idx_wrap_reports_user_id ON wrap_reports(user_id);
 CREATE INDEX idx_spotify_profiles_user_id ON spotify_profiles(user_id);
+CREATE INDEX idx_user_recent_tracks_user_id ON user_recent_tracks(user_id);
 
 -- Enable Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

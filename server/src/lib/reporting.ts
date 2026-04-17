@@ -8,7 +8,7 @@ export async function generateListeningSummary(userId: string, timeframe: 'short
       Authorization: token ? `Bearer ${token}` : '',
     },
   });
-  const data = await response.json();
+  const data = (await response.json()) as any;
 
   const totalMinutes = Math.floor(data.items.reduce((acc: any, item: any) => acc + (item.played_for_ms ?? 0), 0) / 60000);
   const totalTracks = data.items.length;

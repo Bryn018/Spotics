@@ -11,9 +11,7 @@ router.get(
   '/recently-played',
   asyncHandler(async (req: Request, res: Response) => {
     const { limit = 50 } = req.query;
-    const result = await spotify.get('/me/player/recently-played', {
-      qs: { limit: Number(limit) },
-    });
+    const result = await spotify.getMyRecentlyPlayedTracks({ limit: Number(limit) });
 
     const trackIds = result.body.items.map((item: any) => item.track.id);
     const trackUris = result.body.items.map((item: any) => item.track.uri);
@@ -42,9 +40,9 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const { uris, context_uri } = req.body;
     if (uris && uris.length > 0) {
-      await spotify.startPlayback(uris);
+      await spotify.play({ uris });
     } else {
-      await spotify.resumePlayback();
+      await spotify.play();
     }
     res.json({ success: true });
   }),
@@ -53,7 +51,7 @@ router.post(
 router.post(
   '/pause',
   asyncHandler(async (_req: Request, res: Response) => {
-    await spotify.pausePlayback();
+    await spotify.pause();
     res.json({ success: true });
   }),
 );

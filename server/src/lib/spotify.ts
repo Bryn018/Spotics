@@ -1,27 +1,10 @@
-import { create } from 'openinplayground';
-import qs from 'qs';
+import SpotifyWebApi from 'spotify-web-api-node';
 
-const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-const CLIENT_SECRET = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
-const AUTH_BASE_URL = 'https://accounts.spotify.com/authorize';
-const TOKEN_URL = 'https://accounts.spotify.com/api/token';
-const API_BASE = 'https://api.spotify.com/v1';
-
-if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
-  throw new Error('Missing Spotify environment variables');
-}
-
-// Create authenticated client using access token
-export const spotify = create({
-  baseURL: API_BASE,
-  headers: {
-    Authorization: async () => {
-      const tokens = await getValidToken();
-      return `Bearer ${tokens.accessToken}`;
-    },
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
+// Create a global spotify client instance
+export const spotify = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI,
 });
 
 export const scopes = [
@@ -34,96 +17,21 @@ export const scopes = [
   'user-top-read',
 ].join(' ');
 
-let tokenCache = {
-  accessToken: '',
-  refreshToken: '',
-  expiresAt: 0,
-};
-
-async function getValidToken() {
-  if (tokenCache.accessToken && Date.now() < tokenCache.expiresAt) {
-    return tokenCache;
-  }
-  return refreshToken();
-}
-
-async function refreshToken() {
-  try {
-    const response = await fetch(TOKEN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
-      },
-      body: qs.stringify({
-        grant_type: 'refresh_token',
-        refresh_token: tokenCache.refreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to refresh token');
-    }
-
-    const data = await response.json();
-    tokenCache = {
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token ?? tokenCache.refreshToken,
-      expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
-    };
-    return tokenCache;
-  } catch (error) {
-    console.error('Token refresh error:', error);
-    throw error;
-  }
-}
-
-export async function getMe() {
-  const response = await spotify.get('/me');
-  return response;
-}
-
-export async function authorizationCodeGrant(code: string, state: string, showDialog?: boolean) {
-  const response = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
-    },
-    body: qs.stringify({
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: REDIRECT_URI,
-    }),
+// Helper to create authorize URL (spotify doesn't have this built-in)
+export function createAuthorizeURL(scopes: string, state: string, showDialog = false): string {
+  const params = new URLSearchParams({
+    client_id: process.env.SPOTIFY_CLIENT_ID!,
+    response_type: 'code',
+    redirect_uri: process.env.SPOTIFY_REDIRECT_URI!,
+    state,
+    scope: scopes,
+    show_dialog: showDialog ? 'true' : 'false',
   });
-
-  if (!response.ok) {
-    throw new Error('Failed to get token');
-  }
-
-  return response.json();
+  return `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
-export async function pausePlayback() {
-  await spotify.put('/me/player/pause');
-}
-
-export async function startPlayback(uris: string[] = []) {
-  await spotify.put('/me/player/play', {
-    body: JSON.stringify({
-      uris,
-      context_uri: '',
-    }),
-  });
-}
-
-export async function getRecentlyPlayed(limit = 50) {
-  const response = await spotify.get(`/me/player/recently-played?limit=${limit}`);
-  return response;
-}
-
-export async function saveToLibrary(tracks: string[]) {
-  await spotify.put('/me/library', {
-    body: JSON.stringify({ ids: tracks, type: 'track' }),
-  });
+// Helper to exchange code for token
+export async function authorizationCodeGrant(code: string): Promise<any> {
+  const result = await spotify.authorizationCodeGrant(code);
+  return result;
 }
