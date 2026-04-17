@@ -22,6 +22,9 @@ app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 // Logging
 app.use(morgan('dev'));
 
+// Static files (serve client assets)
+app.use(express.static('public'));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
