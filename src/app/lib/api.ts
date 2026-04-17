@@ -56,9 +56,9 @@ class APIClient {
 export const api = new APIClient(apiBaseUrl);
 
 export const apiRoutes = {
-  session: '/auth/session',
-  login: '/auth/login',
-  logout: '/auth/logout',
+  session: '/api/auth/session',
+  login: '/api/auth/login',
+  logout: '/api/auth/logout',
   dashboard: '/api/v1/dashboard',
   sync: '/api/v1/summaries/sync',
   wraps: '/api/v1/wraps',
