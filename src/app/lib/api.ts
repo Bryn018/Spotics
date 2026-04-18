@@ -19,9 +19,15 @@ class APIClient {
   private async request<T = any>(
     method: string,
     url: string,
-    config?: { data?: any; headers?: any }
+    config?: { data?: any; headers?: any; params?: Record<string, string> }
   ): Promise<{ data: T; status: number }> {
-    const fullURL = new URL(url, this.baseURL).toString();
+    const baseURL = new URL(url, this.baseURL);
+    if (config?.params) {
+      Object.entries(config.params).forEach(([key, value]) => {
+        baseURL.searchParams.append(key, value);
+      });
+    }
+    const fullURL = baseURL.toString();
     const response = await fetch(fullURL, {
       method,
       headers: {
