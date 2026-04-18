@@ -34,7 +34,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 // SPA catch-all: serve index.html for all non-API routes
 const publicDir = path.join(process.cwd(), 'public');
-app.get('*', (_req, res) => {
+app.get('/{*splat}', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
