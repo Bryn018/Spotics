@@ -7,6 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+# Force rebuild: 2026-04-18T16:50
 COPY src ./src
 COPY index.html vite.config.ts tsconfig.json postcss.config.js tailwind.config.js ./
 
