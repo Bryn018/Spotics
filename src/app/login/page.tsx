@@ -7,7 +7,8 @@ export function Login() {
   const navigate = useNavigate();
 
   const handleSpotifyLogin = () => {
-    navigate('/dashboard');
+    // Redirect to OAuth endpoint instead of navigating to dashboard
+    window.location.href = '/api/auth/login';
   };
 
   return (
