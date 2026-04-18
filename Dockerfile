@@ -1,42 +1,22 @@
 # syntax=docker/dockerfile:1.7
 
-# --- Build client (Vite) ----------------------------------------------------
-FROM node:20-bullseye-slim AS client-builder
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-# Cache bust: 2026-04-18T17:40
-ARG CACHE_BUST=0
-COPY src ./src
-COPY index.html vite.config.ts tsconfig.json postcss.config.js tailwind.config.js ./
-
-RUN npm run build:client
-
-# --- Build server (Express API) ---------------------------------------------
-FROM node:20-bullseye-slim AS server-builder
-WORKDIR /app
-
-COPY server/package*.json ./
-RUN npm ci
-COPY server/ ./
-RUN npm run build
-
-# --- Runtime ----------------------------------------------------------------
 FROM node:20-bullseye-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy server build + deps
-COPY --from=server-builder /app/dist ./dist
-COPY --from=server-builder /app/node_modules ./node_modules
-COPY --from=server-builder /app/package.json ./package.json
+# Copy server deps and build
+COPY server/package*.json ./server/
+RUN cd server && npm ci
+COPY server/ ./server/
+RUN cd server && npm run build
 
-# Copy client assets the API will serve statically
-COPY --from=client-builder /app/dist ./public
+# Move server deps to root for runtime
+RUN cp -r server/node_modules ./node_modules && cp server/package.json ./package.json
+
+# Copy pre-built client assets
+COPY dist/ ./public/
 
 EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD node -e "fetch('http://localhost:4000/health').then(r=>{if(!r.ok)throw r.status}).catch(()=>process.exit(1))"
-CMD ["node", "dist/index.js"]
+CMD ["node", "server/dist/index.js"]
