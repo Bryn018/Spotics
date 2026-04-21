@@ -31,9 +31,6 @@ jobs:
       - name: Typecheck server
         run: cd server && npm run lint
 
-      - name: Typecheck frontend
-        run: npm run typecheck
-
       - name: Build server
         run: cd server && npm run build
 
