@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install server dependencies
+        run: cd server && npm ci
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Typecheck server
+        run: cd server && npm run lint
+
+      - name: Typecheck frontend
+        run: npm run typecheck
+
+      - name: Build server
+        run: cd server && npm run build
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Verify build outputs
+        run: |
+          test -f server/dist/index.js || (echo "Server build missing" && exit 1)
+          test -f dist/index.html || (echo "Frontend build missing" && exit 1)
+          echo "Build verified successfully"

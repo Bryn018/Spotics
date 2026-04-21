@@ -1,37 +1,45 @@
-name: Deploy to Railway (DISABLED - Using Railway autoDeploy instead)
+name: Deploy to Railway
+
 on:
-  workflow_dispatch: # Manual trigger only
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
           cache: "npm"
-          check-latest: true
-      - name: Show Node/NPM versions
-        run: |
-          node -v
-          npm -v
+
       - name: Install dependencies
         run: |
-          cd server
-          npm ci
-          cd ..
-          npm ci
+          cd server && npm ci
+          cd .. && npm ci
+
       - name: Build server
-        run: |
-          cd server
-          npm run build
+        run: cd server && npm run build
+
       - name: Build frontend
-        run: |
-          npm run build
+        run: npm run build
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          npm install -g @railway/cli
-          railway up --ci
+        run: railway up --ci
