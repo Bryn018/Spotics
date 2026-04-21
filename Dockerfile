@@ -26,6 +26,9 @@ ARG VITE_API_URL=https://spotics.insights.autos
 ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build:client
 
+# Copy built frontend to where server expects it
+RUN cp -r dist public
+
 # Prune frontend devDependencies
 RUN npm prune --production
 
