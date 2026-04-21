@@ -1,6 +1,6 @@
-import { Outlet } from "react-router";
+import { Outlet } from "react-router-dom";
 import { Header } from "../components/Header";
-import { ThemeProvider } from "../context/ThemeContext";
+import { ThemeProvider } from "../contexts/ThemeContext";
 import { TimeRangeProvider } from "../contexts/TimeRangeContext";
 import { DashboardProvider } from "../context/DashboardContext";
 
