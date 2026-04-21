@@ -10,4 +10,3 @@ build:
     - NODE_ENV
 run:
   autoDeploy: true
-  command: npm run build && npm start
