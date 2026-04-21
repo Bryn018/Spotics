@@ -7,7 +7,9 @@ import { WeeklyWrapDialog } from './WeeklyWrapDialog';
 import { YearlyWrapDialog } from './YearlyWrapDialog';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
-export function WrappedSelector() {
+import type { DashboardPayload } from '../types';
+
+export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['hero'] }) {
   const [activeWrap, setActiveWrap] = useState<'daily' | 'weekly' | 'yearly'>('yearly');
   const [dailyDialogOpen, setDailyDialogOpen] = useState(false);
   const [weeklyDialogOpen, setWeeklyDialogOpen] = useState(false);
@@ -55,13 +57,13 @@ export function WrappedSelector() {
       title: 'Look Back At It',
       description: (
         <>
-          An epic year of music awaits. <strong>2,847 songs</strong> from <strong>312 artists</strong> shaped your soundtrack.
+          An epic year of music awaits. <strong>{heroData ? heroData.totalTracks.toLocaleString() : '2,847'} songs</strong> from <strong>{heroData ? heroData.totalArtists : '312'} artists</strong> shaped your soundtrack.
         </>
       ),
       stats: [
-        { label: 'Songs', value: '2,847', icon: Music },
-        { label: 'Artists', value: '312', icon: Headphones },
-        { label: 'Hours', value: '487', icon: Zap }
+        { label: 'Songs', value: heroData ? heroData.totalTracks.toLocaleString() : '2,847', icon: Music },
+        { label: 'Artists', value: heroData ? heroData.totalArtists.toString() : '312', icon: Headphones },
+        { label: 'Hours', value: heroData ? Math.round(heroData.totalTracks * 3.5 / 60).toString() : '487', icon: Zap }
       ]
     }
   };
