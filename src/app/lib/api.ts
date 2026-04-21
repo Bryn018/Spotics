@@ -10,7 +10,7 @@ const fallbackBaseUrl = (() => {
   return 'http://localhost:4000';
 })();
 
-export const apiBaseUrl = import.meta.env.VITE_API_URL ?? fallbackBaseUrl;
+export const apiBaseUrl = import.meta.env.VITE_API_URL || fallbackBaseUrl;
 
 // Simple fetch wrapper to replace axios
 class APIClient {

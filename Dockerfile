@@ -3,7 +3,7 @@
 FROM node:20-bullseye-slim
 WORKDIR /app
 
-# Install deps (include devDeps for build)
+# Install server deps (include devDeps for build)
 COPY server/package*.json ./server/
 RUN cd server && npm ci
 
@@ -11,11 +11,23 @@ RUN cd server && npm ci
 COPY server/ ./server/
 RUN cd server && npm run build
 
-# Prune devDependencies after build
+# Prune server devDependencies
 RUN cd server && npm prune --production
 
-# Pre-built client
-COPY dist/ ./public/
+# Install frontend deps (include devDeps for build)
+COPY package*.json ./
+RUN npm ci
+
+# Copy frontend source and build with VITE_API_URL
+COPY tsconfig.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
+COPY src/ ./src/
+
+ARG VITE_API_URL=https://spotics.insights.autos
+ENV VITE_API_URL=${VITE_API_URL}
+RUN npm run build:client
+
+# Prune frontend devDependencies
+RUN npm prune --production
 
 # Symlink node_modules for runtime
 RUN ln -s /app/server/node_modules /app/node_modules
