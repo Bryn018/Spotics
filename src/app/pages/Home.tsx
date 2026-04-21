@@ -8,11 +8,14 @@ import { ListeningChart } from '../components/ListeningChart';
 import { GenreDistribution } from '../components/GenreDistribution';
 import { RecentActivity } from '../components/RecentActivity';
 import { useDashboardData } from '../context/DashboardContext';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { useSession } from '../context/SessionContext';
+import { Loader2, RefreshCw, LogIn } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { apiRoutes } from '../lib/api';
 
 export function Home() {
   const { data, isLoading, syncing, sync, isError } = useDashboardData();
+  const { authenticated } = useSession();
   const payload = data?.summary?.payload;
   const activities = data?.activities ?? [];
 
@@ -22,6 +25,22 @@ export function Home() {
         <div className="text-center">
           <Loader2 className="h-12 w-12 text-green-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading your music data...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
+        <div className="text-center py-20">
+          <h2 className="text-2xl font-bold text-white mb-4">Welcome to Spotics</h2>
+          <p className="text-gray-400 mb-6">Connect with Spotify to see your music analytics</p>
+          <a href={apiRoutes.login}>
+            <Button className="bg-gradient-to-r from-green-500 to-blue-500">
+              <LogIn className="mr-2 h-4 w-4" /> Continue with Spotify
+            </Button>
+          </a>
         </div>
       </main>
     );
