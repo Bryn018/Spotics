@@ -99,8 +99,8 @@ export const apiRoutes = {
   session: '/api/auth/session',
   login: '/api/auth/login',
   logout: '/api/auth/logout',
-  dashboard: '/api/v1/dashboard',
-  sync: '/api/v1/summaries/sync',
-  wraps: '/api/v1/wraps',
-  wrapSync: '/api/v1/wraps/sync',
+  dashboard: '/api/dashboard',
+  sync: '/api/summaries/sync',
+  wraps: '/api/wraps',
+  wrapSync: '/api/wraps/sync',
 };
