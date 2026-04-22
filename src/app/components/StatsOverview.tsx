@@ -24,21 +24,21 @@ export function StatsOverview({ stats }: { stats?: DashboardPayload['stats'] }) 
     {
       icon: Music,
       label: 'Tracks Played',
-      value: stats.totalTracks.toLocaleString(),
+      value: (Number(stats.totalTracks) || 0).toLocaleString(),
       change: '+23%',
       trend: 'up'
     },
     {
       icon: Headphones,
       label: 'Unique Artists',
-      value: stats.totalArtists.toString(),
+      value: String(Number(stats.totalArtists) || 0),
       change: '+8%',
       trend: 'up'
     },
     {
       icon: TrendingUp,
       label: 'Avg. Daily Mins',
-      value: stats.averageDailyMinutes.toString(),
+      value: String(Number(stats.averageDailyMinutes) || 0),
       change: '+5%',
       trend: 'up'
     }

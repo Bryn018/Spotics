@@ -57,13 +57,13 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
       title: 'Look Back At It',
       description: (
         <>
-          An epic year of music awaits. <strong>{heroData ? heroData.totalTracks.toLocaleString() : '2,847'} songs</strong> from <strong>{heroData ? heroData.totalArtists : '312'} artists</strong> shaped your soundtrack.
+          An epic year of music awaits. <strong>{heroData ? (Number(heroData.totalTracks) || 0).toLocaleString() : '2,847'} songs</strong> from <strong>{heroData ? (Number(heroData.totalArtists) || 0) : '312'} artists</strong> shaped your soundtrack.
         </>
       ),
       stats: [
-        { label: 'Songs', value: heroData ? heroData.totalTracks.toLocaleString() : '2,847', icon: Music },
-        { label: 'Artists', value: heroData ? heroData.totalArtists.toString() : '312', icon: Headphones },
-        { label: 'Hours', value: heroData ? Math.round(heroData.totalTracks * 3.5 / 60).toString() : '487', icon: Zap }
+        { label: 'Songs', value: heroData ? (Number(heroData.totalTracks) || 0).toLocaleString() : '2,847', icon: Music },
+        { label: 'Artists', value: heroData ? String(Number(heroData.totalArtists) || 0) : '312', icon: Headphones },
+        { label: 'Hours', value: heroData ? String(Math.round(((Number(heroData.totalTracks) || 0) * 3.5) / 60)) : '487', icon: Zap }
       ]
     }
   };

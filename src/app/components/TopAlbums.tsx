@@ -11,6 +11,10 @@ const demoAlbums = [
 
 export function TopAlbums({ albums }: { albums?: AlbumStat[] }) {
   const albumsToShow = albums?.length ? albums : demoAlbums;
+  const formatPlays = (value: unknown) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n.toLocaleString() : '0';
+  };
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
@@ -29,7 +33,7 @@ export function TopAlbums({ albums }: { albums?: AlbumStat[] }) {
           <h3 className="text-white font-medium truncate">{album.name}</h3>
           <p className="text-gray-400 text-sm truncate">{album.artist}</p>
           <p className="text-gray-500 text-xs mt-1">
-            {(album as any).year ?? ''} {album.plays.toLocaleString()} plays
+            {(album as any).year ?? ''} {formatPlays((album as any).plays)} plays
           </p>
         </div>
       ))}
