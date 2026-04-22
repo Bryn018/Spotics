@@ -28,6 +28,8 @@ app.use(express.static('public'));
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
+// Backward-compatible API prefix for older cached frontend bundles
+app.use('/api/v1', apiRoutes);
 
 // Health check for Railway
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
