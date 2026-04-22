@@ -27,6 +27,7 @@ class APIClient {
         baseURL.searchParams.append(key, value);
       });
     }
+
     const fullURL = baseURL.toString();
     const response = await fetch(fullURL, {
       method,
@@ -36,10 +37,43 @@ class APIClient {
       },
       body: config?.data ? JSON.stringify(config.data) : undefined,
       credentials: 'include',
+      cache: 'no-store',
     });
 
-    const data = await response.json();
-    return { data, status: response.status };
+    let parsed: any = null;
+    const contentType = response.headers.get('content-type') || '';
+
+    // 204/304 have no response body by definition.
+    if (response.status !== 204 && response.status !== 304) {
+      if (contentType.includes('application/json')) {
+        try {
+          parsed = await response.json();
+        } catch {
+          parsed = null;
+        }
+      } else {
+        try {
+          const text = await response.text();
+          parsed = text ? { message: text } : null;
+        } catch {
+          parsed = null;
+        }
+      }
+    }
+
+    if (!response.ok) {
+      const message =
+        parsed?.error?.message ||
+        parsed?.message ||
+        `Request failed with status ${response.status}`;
+
+      const error = new Error(message) as Error & { status?: number; data?: unknown };
+      error.status = response.status;
+      error.data = parsed;
+      throw error;
+    }
+
+    return { data: parsed as T, status: response.status };
   }
 
   get<T = any>(url: string, config?: any) {
