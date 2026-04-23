@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Disc3 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Disc3, Music } from 'lucide-react';
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   trackId?: string;
   artistId?: string;
   gradientSeed?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const GRADIENT_PAIRS = [
@@ -30,6 +31,14 @@ function getGradientFromSeed(seed?: string): string {
   return GRADIENT_PAIRS[index];
 }
 
+function getInitials(name?: string): string {
+  if (!name) return '';
+  const words = name.split(/[\s&,-]+/).filter(Boolean);
+  if (words.length === 0) return '';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
 async function fetchTrackImage(trackId: string): Promise<string | null> {
   try {
     const res = await fetch(`/api/tracks/${trackId}/image`);
@@ -52,19 +61,23 @@ async function fetchArtistImage(artistId: string): Promise<string | null> {
 
 export function ImageWithFallback(props: ImageWithFallbackProps) {
   const [didError, setDidError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [fetchedSrc, setFetchedSrc] = useState<string | null>(null);
-  const { src, alt, className, style, gradientSeed, trackId, artistId, ...rest } = props;
+  const { src, alt, className, style, gradientSeed, trackId, artistId, size = 'md', ...rest } = props;
   const gradient = getGradientFromSeed(gradientSeed || alt || trackId || artistId);
+  const hasFetched = useRef(false);
 
   const effectiveSrc = src || fetchedSrc;
 
   useEffect(() => {
-    if (!src && !fetchedSrc && !didError) {
+    if (!src && !fetchedSrc && !didError && !hasFetched.current) {
       if (trackId) {
+        hasFetched.current = true;
         fetchTrackImage(trackId).then((url) => {
           if (url) setFetchedSrc(url);
         });
       } else if (artistId) {
+        hasFetched.current = true;
         fetchArtistImage(artistId).then((url) => {
           if (url) setFetchedSrc(url);
         });
@@ -72,19 +85,41 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
     }
   }, [src, fetchedSrc, didError, trackId, artistId]);
 
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setDidError(true);
+  };
+
   if (effectiveSrc && !didError) {
     return (
-      <img
-        src={effectiveSrc}
-        alt={alt || ''}
-        className={className}
-        style={style}
-        {...rest}
-        onError={() => setDidError(true)}
-        loading="lazy"
-      />
+      <div className="relative w-full h-full">
+        {isLoading && (
+          <div
+            className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${gradient} animate-pulse ${className ?? ''}`}
+            style={style}
+          >
+            <Music className="h-5 w-5 text-white/40" />
+          </div>
+        )}
+        <img
+          src={effectiveSrc}
+          alt={alt || ''}
+          className={`${className ?? ''} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          style={style}
+          {...rest}
+          onLoad={handleLoad}
+          onError={handleError}
+          loading="lazy"
+        />
+      </div>
     );
   }
+
+  const initials = getInitials(alt);
 
   return (
     <div
@@ -92,7 +127,13 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
       style={style}
       title={alt}
     >
-      <Disc3 className="h-6 w-6 text-white/70" />
+      {initials ? (
+        <span className="text-white/90 font-bold select-none" style={{ fontSize: size === 'sm' ? '10px' : size === 'md' ? '14px' : size === 'lg' ? '20px' : '28px' }}>
+          {initials}
+        </span>
+      ) : (
+        <Disc3 className="h-6 w-6 text-white/70" />
+      )}
     </div>
   );
 }

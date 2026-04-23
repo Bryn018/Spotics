@@ -1,4 +1,3 @@
-import { Card, CardContent } from './ui/card';
 import { Clock, Music, Headphones, TrendingUp } from 'lucide-react';
 import type { DashboardPayload } from '../types';
 
@@ -47,23 +46,21 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {statItems.map((stat, index) => (
-        <Card
+        <div
           key={index}
-          className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 hover:border-purple-500/50 transition-all hover:scale-[1.01] shadow-xl"
+          className="rounded-2xl bg-[#121212] border border-white/[0.06] p-6 hover:border-white/10 transition-all group"
         >
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-white">{stat.value}</p>
-                <p className="text-sm text-green-400 mt-2">{stat.change} from last month</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/20">
-                <stat.icon className="h-6 w-6 text-purple-400" />
-              </div>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold text-white">{stat.value}</p>
+              <p className="text-sm text-green-400 mt-2">{stat.change} from last month</p>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] border border-white/[0.06]">
+              <stat.icon className="h-6 w-6 text-[#1DB954]" />
+            </div>
+          </div>
+        </div>
       ))}
     </div>
   );

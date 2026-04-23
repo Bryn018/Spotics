@@ -21,6 +21,10 @@ export interface DashboardPayload {
     totalTracks: number;
     totalArtists: number;
     averageDailyMinutes: number;
+    currentStreak?: number;
+    peakHour?: string;
+    bestDay?: string;
+    songsThisWeek?: number;
   };
   listeningScore: number;
   topTracks: TrackStat[];

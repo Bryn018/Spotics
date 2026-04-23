@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
 import type { ArtistStat } from '../types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -7,70 +5,59 @@ export function TopArtists({ artists }: { artists?: ArtistStat[] }) {
   const artistsToShow = artists ?? [];
 
   return (
-    <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-bold text-white">Top Artists</CardTitle>
-      </CardHeader>
-      <CardContent className="p-6 pt-0">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {artistsToShow.slice(0, 6).map((artist, index) => (
-            <div
-              key={artist.id}
-              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-800/40 to-gray-900/40 p-4 hover:from-purple-900/20 hover:to-pink-900/20 transition-all hover:scale-[1.02] border border-gray-700/30 hover:border-purple-500/30"
-            >
-              <div className="flex items-center gap-4">
-                {/* Artist Image */}
-                <div className="relative flex-shrink-0">
-                  <ImageWithFallback
-                    src={artist.image ?? undefined}
-                    alt={artist.name}
-                    gradientSeed={artist.id}
-                    artistId={artist.id}
-                    className="h-16 w-16 rounded-full object-cover shadow-lg ring-2 ring-gray-800 group-hover:ring-purple-500/30 transition-all"
-                  />
-                  {/* Rank Badge */}
-                  <div className="absolute -top-1 -left-1 h-6 w-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold flex items-center justify-center shadow-lg">
-                    {index + 1}
-                  </div>
-                </div>
+    <div className="rounded-2xl bg-[#121212] border border-white/[0.06] overflow-hidden">
+      <div className="p-6 pb-4">
+        <h2 className="text-xl font-bold text-white">Top Artists</h2>
+      </div>
+      <div className="px-4 pb-4 space-y-2">
+        {artistsToShow.slice(0, 6).map((artist, index) => (
+          <div
+            key={artist.id}
+            className="group flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/[0.04] transition-all cursor-pointer"
+          >
+            {/* Rank */}
+            <span className="text-lg font-bold text-gray-600 w-6 text-center group-hover:text-white transition-colors">
+              {index + 1}
+            </span>
 
-                {/* Artist Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white truncate group-hover:text-purple-300 transition-colors">
-                    {artist.name}
-                  </h3>
-                  <p className="text-sm text-gray-400">{artist.hours}h listened</p>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {artist.genres?.slice(0, 2).map((genre) => (
-                      <Badge
-                        key={genre}
-                        variant="secondary"
-                        className="text-[10px] bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20"
-                      >
-                        {genre}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+            {/* Artist Image */}
+            <div className="relative flex-shrink-0 w-14 h-14">
+              <ImageWithFallback
+                src={artist.image ?? undefined}
+                alt={artist.name}
+                gradientSeed={artist.id}
+                artistId={artist.id}
+                className="w-full h-full rounded-full object-cover shadow-lg ring-2 ring-transparent group-hover:ring-white/10 transition-all"
+              />
+            </div>
+
+            {/* Artist Info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-white truncate group-hover:text-green-400 transition-colors text-[15px]">
+                {artist.name}
+              </h3>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-sm text-gray-400">{artist.plays} plays</span>
+                <span className="text-gray-600">•</span>
+                <span className="text-sm text-gray-500">{artist.hours}h</span>
               </div>
-
-              {/* Stats Bar */}
-              <div className="mt-3 pt-3 border-t border-gray-700/50 flex items-center justify-between">
-                <span className="text-xs text-gray-500">{artist.plays} plays</span>
-                <div className="h-1 w-16 bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
-                    style={{ width: `${Math.min((artist.plays / 1000) * 100, 100)}%` }}
-                  />
-                </div>
+              <div className="flex flex-wrap gap-1.5 mt-1.5">
+                {artist.genres?.slice(0, 3).map((genre) => (
+                  <span
+                    key={genre}
+                    className="text-[11px] px-2 py-0.5 rounded-full bg-white/[0.06] text-gray-400 border border-white/[0.06]"
+                  >
+                    {genre}
+                  </span>
+                ))}
               </div>
             </div>
-          ))}
-          {artistsToShow.length === 0 && (
-            <div className="col-span-full text-center text-gray-500 py-12">No artists available</div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+        ))}
+        {artistsToShow.length === 0 && (
+          <div className="text-center text-gray-500 py-12">No artists available</div>
+        )}
+      </div>
+    </div>
   );
 }
