@@ -188,10 +188,10 @@ export function Analytics() {
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
-          <h1 className="text-4xl font-bold text-white">Analytics</h1>
+          <div className="h-1 w-8 bg-[#1DB954] rounded-full"></div>
+          <h1 className="text-[40px] font-extrabold text-white">Analytics</h1>
         </div>
-        <p className="text-gray-400">Deep dive into your listening patterns and music preferences</p>
+        <p className="text-[#9CA3AF]">Deep dive into your listening patterns and music preferences</p>
       </div>
 
       {/* Key Stats */}
@@ -199,22 +199,21 @@ export function Analytics() {
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index} className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 overflow-hidden relative group hover:border-purple-500/30 transition-all">
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
+            <Card key={index} className="bg-[#0B0E14] border-[#1F2937] overflow-hidden relative group hover:border-[#374151] transition-all">
               <CardContent className="p-6 relative z-10">
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor}`}>
-                    <Icon className="h-6 w-6 text-white" />
+                  <div className="h-11 w-11 rounded-lg bg-[#06201E] flex items-center justify-center">
+                    <Icon className="h-6 w-6 text-[#1DB954]" />
                   </div>
                   {stat.trend !== 'same' && (
-                    <div className={`flex items-center gap-1 text-sm font-medium ${stat.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                    <div className="flex items-center gap-1 text-xs font-bold text-[#1DB954]">
                       {stat.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                       <span>{stat.change}</span>
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-white">{stat.value}</p>
+                <p className="text-sm text-[#9CA3AF] mb-1">{stat.label}</p>
+                <p className="text-[32px] font-bold text-white">{stat.value}</p>
               </CardContent>
             </Card>
           );

@@ -1,11 +1,10 @@
 import { Button } from './ui/button';
-import { Play, Sparkles, Calendar, TrendingUp, Music, Headphones, Disc3, Radio, Zap, Star } from 'lucide-react';
+import { Play, Sparkles, Calendar, TrendingUp, Music, Headphones, Zap, Radio, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { DailyWrapDialog } from './DailyWrapDialog';
 import { WeeklyWrapDialog } from './WeeklyWrapDialog';
 import { YearlyWrapDialog } from './YearlyWrapDialog';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 
 import type { DashboardPayload } from '../types';
 
@@ -28,10 +27,11 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
   // Dynamic content based on selected wrap
   const wrapContent = {
     daily: {
+      badge: "Today's Recap",
       title: 'Your Day in Music',
       description: (
         <>
-          You listened to <strong>47 songs</strong> from <strong>12 artists</strong> today. Not bad.
+          You listened to <strong className="text-white">47 songs</strong> from <strong className="text-white">12 artists</strong> today. Not bad.
         </>
       ),
       stats: [
@@ -41,10 +41,11 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
       ]
     },
     weekly: {
+      badge: 'Weekly Stats',
       title: 'This Week\'s Soundtrack',
       description: (
         <>
-          <strong>342 tracks</strong> across <strong>87 artists</strong> kept you company this week.
+          <strong className="text-white">342 tracks</strong> across <strong className="text-white">87 artists</strong> kept you company this week.
         </>
       ),
       stats: [
@@ -54,10 +55,11 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
       ]
     },
     yearly: {
+      badge: 'Year in Review',
       title: 'Look Back At It',
       description: (
         <>
-          An epic year of music awaits. <strong>{heroData ? (Number(heroData.totalTracks) || 0).toLocaleString() : '2,847'} songs</strong> from <strong>{heroData ? (Number(heroData.totalArtists) || 0) : '312'} artists</strong> shaped your soundtrack.
+          An epic year of music awaits. <strong className="text-white">{heroData ? (Number(heroData.totalTracks) || 0).toLocaleString() : '2,847'} songs</strong> from <strong className="text-white">{heroData ? (Number(heroData.totalArtists) || 0) : '312'} artists</strong> shaped your soundtrack.
         </>
       ),
       stats: [
@@ -73,29 +75,20 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
   return (
     <>
       {/* Main Banner Container */}
-      <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-        {/* Background System - Multiple Layers */}
-        <div className="relative bg-black min-h-[500px] lg:min-h-[600px] overflow-hidden">
+      <div className="relative overflow-hidden rounded-3xl">
+        {/* Background System */}
+        <div className="relative bg-black min-h-[500px] lg:min-h-[560px] overflow-hidden">
           
-          {/* Layer 1: Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-green-950 to-black"></div>
+          {/* Base gradient - dark green to black */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#052c1a] via-black to-black"></div>
           
-          {/* Layer 2: Abstract wave background */}
-          <div className="absolute inset-0 opacity-[0.06]">
-            <ImageWithFallback 
-              src="https://images.unsplash.com/photo-1771448233734-087d6a9151a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyYWRpZW50JTIwd2F2ZSUyMGRhcmt8ZW58MXx8fHwxNzc0MDM3ODI4fDA&ixlib=rb-4.1.0&q=80&w=1080"
-              alt="Abstract background"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Layer 3: Animated gradient orbs */}
+          {/* Animated gradient orbs */}
           <motion.div 
-            className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-500/20 rounded-full blur-[120px]"
+            className="absolute top-0 right-0 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[120px]"
             animate={{
               scale: [1, 1.2, 1],
               x: [0, 50, 0],
-              opacity: [0.2, 0.3, 0.2],
+              opacity: [0.1, 0.2, 0.1],
             }}
             transition={{
               duration: 10,
@@ -103,25 +96,6 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
               ease: "easeInOut"
             }}
           ></motion.div>
-          <motion.div 
-            className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/15 rounded-full blur-[130px]"
-            animate={{
-              scale: [1.2, 1, 1.2],
-              x: [0, -30, 0],
-              opacity: [0.15, 0.25, 0.15],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          ></motion.div>
-
-          {/* Layer 4: Grid pattern overlay */}
-          <div className="absolute inset-0 opacity-[0.03]" style={{
-            backgroundImage: 'linear-gradient(rgba(34, 197, 94, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 197, 94, 0.3) 1px, transparent 1px)',
-            backgroundSize: '50px 50px'
-          }}></div>
 
           {/* Content Container */}
           <div className="relative z-10 px-6 lg:px-12 py-12 lg:py-16">
@@ -136,16 +110,11 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-green-400/40 backdrop-blur-xl"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0a2a24] border border-[#1DB954]/40"
                   >
-                    <motion.div
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Sparkles className="h-4 w-4 text-green-400" />
-                    </motion.div>
-                    <span className="text-sm font-bold text-green-300 uppercase tracking-wider">
-                      {activeWrap === 'daily' ? 'Today\'s Recap' : activeWrap === 'weekly' ? 'Weekly Stats' : 'Year in Review'}
+                    <Sparkles className="h-4 w-4 text-[#1DB954]" />
+                    <span className="text-xs font-bold text-[#1DB954] uppercase tracking-wider">
+                      {content.badge}
                     </span>
                   </motion.div>
 
@@ -156,11 +125,11 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                     transition={{ duration: 0.7, delay: 0.2 }}
                     className="space-y-4"
                   >
-                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[0.95]">
+                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[0.95]">
                       {content.title}
                     </h1>
-                    <div className="h-1.5 w-24 bg-gradient-to-r from-green-400 to-green-600 rounded-full"></div>
-                    <p className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-2xl">
+                    <div className="h-2 w-24 bg-[#1DB954] rounded-full"></div>
+                    <p className="text-xl md:text-2xl text-[#CCCCCC] leading-relaxed max-w-2xl">
                       {content.description}
                     </p>
                   </motion.div>
@@ -181,13 +150,10 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                         transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                         whileHover={{ scale: 1.05, y: -5 }}
                       >
-                        {/* Hover glow */}
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl blur opacity-0 group-hover:opacity-40 transition duration-300"></div>
-                        
-                        <div className="relative bg-gradient-to-br from-gray-900/80 to-gray-800/60 backdrop-blur-xl rounded-xl p-4 border border-white/10 group-hover:border-green-400/40 transition-all">
-                          <stat.icon className="h-5 w-5 text-green-400 mb-3" />
-                          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">{stat.label}</p>
-                          <p className="text-2xl md:text-3xl font-black bg-gradient-to-br from-green-400 to-blue-400 bg-clip-text text-transparent">
+                        <div className="relative bg-[rgba(25,33,41,0.5)] backdrop-blur-xl rounded-xl p-4 border border-[#2a343d] group-hover:border-[#1DB954]/40 transition-all">
+                          <stat.icon className="h-5 w-5 text-[#1DB954] mb-3" />
+                          <p className="text-xs text-[#777777] uppercase tracking-wider font-semibold mb-1">{stat.label}</p>
+                          <p className="text-2xl md:text-3xl font-black text-[#1DB954]">
                             {stat.value}
                           </p>
                         </div>
@@ -205,10 +171,10 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                     <Button
                       onClick={() => setActiveWrap('daily')}
                       variant={activeWrap === 'daily' ? 'default' : 'outline'}
-                      className={`relative overflow-hidden transition-all ${
+                      className={`relative overflow-hidden transition-all rounded-lg ${
                         activeWrap === 'daily'
-                          ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-500/30'
-                          : 'bg-gray-900/60 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white hover:border-blue-500/50 backdrop-blur-sm'
+                          ? 'bg-gradient-to-r from-[#9b0a33] to-[#6b0724] hover:from-[#b00a3c] hover:to-[#7a082a] text-white border-0'
+                          : 'bg-[#0a0a0a] border-[#2a343d] text-gray-300 hover:bg-[#111827] hover:text-white'
                       }`}
                     >
                       <Calendar className="h-4 w-4 mr-2" />
@@ -218,10 +184,10 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                     <Button
                       onClick={() => setActiveWrap('weekly')}
                       variant={activeWrap === 'weekly' ? 'default' : 'outline'}
-                      className={`relative overflow-hidden transition-all ${
+                      className={`relative overflow-hidden transition-all rounded-lg ${
                         activeWrap === 'weekly'
-                          ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white border-0 shadow-lg shadow-green-500/30'
-                          : 'bg-gray-900/60 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white hover:border-green-500/50 backdrop-blur-sm'
+                          ? 'bg-gradient-to-r from-[#9b0a33] to-[#6b0724] hover:from-[#b00a3c] hover:to-[#7a082a] text-white border-0'
+                          : 'bg-[#0a0a0a] border-[#2a343d] text-gray-300 hover:bg-[#111827] hover:text-white'
                       }`}
                     >
                       <TrendingUp className="h-4 w-4 mr-2" />
@@ -231,10 +197,10 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                     <Button
                       onClick={() => setActiveWrap('yearly')}
                       variant={activeWrap === 'yearly' ? 'default' : 'outline'}
-                      className={`relative overflow-hidden transition-all ${
+                      className={`relative overflow-hidden transition-all rounded-lg ${
                         activeWrap === 'yearly'
-                          ? 'bg-gradient-to-r from-rose-900 to-rose-800 hover:from-rose-950 hover:to-rose-900 text-white border-0 shadow-xl shadow-rose-900/40'
-                          : 'bg-gray-900/60 border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white hover:border-green-500/50 backdrop-blur-sm'
+                          ? 'bg-gradient-to-r from-[#9b0a33] to-[#6b0724] hover:from-[#b00a3c] hover:to-[#7a082a] text-white border-0'
+                          : 'bg-[#0a0a0a] border-[#2a343d] text-gray-300 hover:bg-[#111827] hover:text-white'
                       }`}
                     >
                       <Sparkles className="h-4 w-4 mr-2" />
@@ -251,26 +217,18 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                     <Button 
                       size="lg"
                       onClick={handleViewWrapped}
-                      className="group relative bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold px-10 py-7 text-lg rounded-2xl shadow-2xl shadow-green-500/40 hover:shadow-green-500/60 transition-all overflow-hidden"
+                      className="group relative bg-[#1DB954] hover:bg-[#1ed760] text-white font-bold px-8 py-6 text-lg rounded-xl shadow-xl shadow-green-500/30 hover:shadow-green-500/50 transition-all overflow-hidden"
                     >
-                      {/* Shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
-                      
                       <div className="relative flex items-center gap-3">
                         <Play className="h-5 w-5" fill="white" />
                         <span>View {activeWrap === 'daily' ? 'Today' : activeWrap === 'weekly' ? 'This Week' : 'Your Year'}</span>
-                        <motion.div
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                        >
-                          <Sparkles className="h-5 w-5" />
-                        </motion.div>
+                        <Sparkles className="h-5 w-5" />
                       </div>
                     </Button>
                   </motion.div>
                 </div>
 
-                {/* Right Column - Visual Feature */}
+                {/* Right Column - Visual Elements */}
                 <div className="lg:col-span-5 hidden lg:block">
                   <motion.div
                     initial={{ opacity: 0, x: 50 }}
@@ -278,90 +236,60 @@ export function WrappedSelector({ heroData }: { heroData?: DashboardPayload['her
                     transition={{ duration: 0.8, delay: 0.3 }}
                     className="relative"
                   >
-                    {/* Decorative Vinyl Record Stack */}
                     <div className="relative">
                       {/* Background glow */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-green-500/30 via-blue-500/30 to-rose-900/30 rounded-full blur-[80px]"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 via-blue-500/20 to-purple-500/20 rounded-full blur-[80px]"></div>
                       
-                      {/* Main feature card */}
-                      <div className="relative">
-                        {/* Floating vinyl records */}
-                        <div className="relative w-full aspect-square max-w-md mx-auto">
-                          {/* Record 1 - Back */}
-                          <motion.div 
-                            className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 rounded-full border-4 border-green-500/20 shadow-2xl"
-                            animate={{ 
-                              rotate: 360,
-                              scale: [1, 1.02, 1]
-                            }}
-                            transition={{ 
-                              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                              scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-                            }}
-                            style={{ transform: 'translateX(20px) translateY(20px)' }}
-                          >
-                            {/* Vinyl grooves */}
-                            <div className="absolute inset-8 rounded-full bg-gradient-to-br from-green-900/40 to-gray-900 border border-green-500/10"></div>
-                            <div className="absolute inset-16 rounded-full bg-gradient-to-br from-gray-800 to-black border border-green-500/20"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gray-950 border-2 border-green-500/30 flex items-center justify-center">
-                              <div className="w-8 h-8 rounded-full bg-black border border-green-500/40"></div>
-                            </div>
-                          </motion.div>
-
-                          {/* Record 2 - Front */}
-                          <motion.div 
-                            className="absolute inset-0 bg-gradient-to-br from-green-900 via-blue-900 to-gray-900 rounded-full border-4 border-green-400/30 shadow-2xl"
-                            animate={{ 
-                              rotate: -360,
-                              scale: [1, 1.05, 1]
-                            }}
-                            transition={{ 
-                              rotate: { duration: 15, repeat: Infinity, ease: "linear" },
-                              scale: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }
-                            }}
-                            style={{ transform: 'translateX(-20px) translateY(-20px)' }}
-                          >
-                            {/* Vinyl grooves */}
-                            <div className="absolute inset-8 rounded-full bg-gradient-to-br from-green-800/50 to-gray-900 border border-green-400/20"></div>
-                            <div className="absolute inset-16 rounded-full bg-gradient-to-br from-blue-900 to-black border border-green-400/30"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gray-950 border-2 border-green-400/50 flex items-center justify-center">
-                              <Disc3 className="w-8 h-8 text-green-400" />
-                            </div>
-                            
-                            {/* Reflective highlight */}
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/5 via-transparent to-transparent"></div>
-                          </motion.div>
+                      {/* Abstract circular graphic */}
+                      <div className="relative w-full aspect-square max-w-md mx-auto">
+                        <motion.div 
+                          className="absolute inset-4 rounded-full border-2 border-[#2d46b9]/30"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                        ></motion.div>
+                        <motion.div 
+                          className="absolute inset-12 rounded-full border-2 border-[#1DB954]/20"
+                          animate={{ rotate: -360 }}
+                          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        ></motion.div>
+                        <motion.div 
+                          className="absolute inset-20 rounded-full border border-[#2d46b9]/40"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                        ></motion.div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#1DB954]/20 to-[#2d46b9]/20 blur-xl"></div>
                         </div>
-
-                        {/* Floating stats badges */}
-                        <motion.div 
-                          className="absolute -top-6 -right-6 px-5 py-4 rounded-2xl bg-gradient-to-br from-green-600 to-blue-600 shadow-xl"
-                          animate={{ y: [0, -10, 0] }}
-                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Star className="h-5 w-5 text-white" fill="white" />
-                            <div>
-                              <p className="text-xs text-white/90 font-medium">Top 1%</p>
-                              <p className="text-lg font-black text-white">Listener</p>
-                            </div>
-                          </div>
-                        </motion.div>
-
-                        <motion.div 
-                          className="absolute -bottom-6 -left-6 px-5 py-4 rounded-2xl bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border border-blue-500/30 shadow-xl"
-                          animate={{ y: [0, 10, 0] }}
-                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Radio className="h-5 w-5 text-blue-400" />
-                            <div>
-                              <p className="text-xs text-gray-400 font-medium">Active Days</p>
-                              <p className="text-lg font-black text-white">342</p>
-                            </div>
-                          </div>
-                        </motion.div>
                       </div>
+
+                      {/* Floating badges */}
+                      <motion.div 
+                        className="absolute -top-4 -right-4 px-5 py-4 rounded-2xl bg-gradient-to-br from-green-600 to-blue-600 shadow-xl"
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Star className="h-5 w-5 text-white" fill="white" />
+                          <div>
+                            <p className="text-xs text-white/90 font-medium">Top 1%</p>
+                            <p className="text-lg font-black text-white">Listener</p>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <motion.div 
+                        className="absolute -bottom-4 -left-4 px-5 py-4 rounded-2xl bg-[#1a222e] border border-blue-500/30 shadow-xl"
+                        animate={{ y: [0, 10, 0] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Radio className="h-5 w-5 text-blue-400" />
+                          <div>
+                            <p className="text-xs text-gray-400 font-medium">Active Days</p>
+                            <p className="text-lg font-black text-white">342</p>
+                          </div>
+                        </div>
+                      </motion.div>
                     </div>
                   </motion.div>
                 </div>

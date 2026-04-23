@@ -29,12 +29,8 @@ export function Login() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const redirectToSpotify = () => {
-    window.location.href = `${apiBaseUrl}${apiRoutes.login}`;
-  };
-
   const handleSpotifyLogin = () => {
-    redirectToSpotify();
+    window.location.href = `${apiBaseUrl}${apiRoutes.login}`;
   };
 
   return (
@@ -45,7 +41,7 @@ export function Login() {
       {/* Animated background gradients with parallax */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-1/4 -left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl"
+          className="absolute top-1/4 -left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             x: mousePosition.x,
@@ -62,7 +58,7 @@ export function Login() {
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl"
+          className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.3, 1],
             x: -mousePosition.x * 0.5,
@@ -78,66 +74,29 @@ export function Login() {
             y: { duration: 0.5, ease: "easeOut" },
           }}
         />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.5, 1],
-            rotate: [0, 180, 360],
-            x: mousePosition.x * 0.3,
-            y: mousePosition.y * 0.3,
-          }}
-          transition={{
-            scale: {
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
-            },
-            rotate: {
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear",
-            },
-            x: { duration: 0.5, ease: "easeOut" },
-            y: { duration: 0.5, ease: "easeOut" },
-          }}
-        />
       </div>
 
-      {/* Gradient grid overlay */}
-      <div className="absolute inset-0" style={{
-        backgroundImage: `
-          linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px)
-        `,
-        backgroundSize: '50px 50px'
-      }}></div>
-
       <motion.div
-        className="relative z-10 w-full max-w-lg"
+        className="relative z-10 w-full max-w-md"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         {/* Main Content Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gray-900/40 backdrop-blur-2xl border border-gray-800/50 shadow-2xl">
-          {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-black"></div>
-
-          <div className="absolute inset-[1px] bg-gray-900/90 backdrop-blur-2xl rounded-3xl"></div>
-
+        <div className="relative overflow-hidden rounded-3xl bg-[#0D1421] border border-[#1E293B]">
           <div className="relative p-12">
             {/* Logo Section */}
-            <div className="flex flex-col items-center mb-12">
+            <div className="flex flex-col items-center mb-10">
               <motion.div
                 className="relative mb-6"
                 whileHover={{ scale: 1.1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full blur-xl opacity-50"
+                  className="absolute inset-0 bg-[#1DB954] rounded-full blur-xl opacity-30"
                   animate={{
                     scale: [1, 1.2, 1],
-                    opacity: [0.5, 0.7, 0.5],
+                    opacity: [0.3, 0.5, 0.3],
                   }}
                   transition={{
                     duration: 3,
@@ -148,23 +107,23 @@ export function Login() {
                 <SpoticsLogo className="relative h-20 w-20" />
               </motion.div>
 
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent mb-3 text-center">
+              <h1 className="text-4xl font-bold text-[#1DB954] mb-3 text-center">
                 Spotics
               </h1>
 
-              <p className="text-gray-400 text-center max-w-sm leading-relaxed">
+              <p className="text-[#94A3B8] text-center max-w-sm leading-relaxed">
                 Your personal music analytics platform. Connect with Spotify to unlock deep insights into your listening habits.
               </p>
             </div>
 
             {/* Decorative Line */}
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-green-500/30 to-transparent mb-12" />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-[#1E293B] to-transparent mb-10" />
 
             {/* Spotify Login Button */}
             <div>
               <Button
                 onClick={handleSpotifyLogin}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-7 rounded-2xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 text-lg group relative overflow-hidden"
+                className="w-full bg-gradient-to-r from-[#1DB954] to-[#159947] hover:from-[#1ed760] hover:to-[#1DB954] text-white font-semibold py-7 rounded-xl shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/35 transition-all duration-300 text-lg group relative overflow-hidden"
               >
                 <span className="relative flex items-center justify-center gap-3">
                   <svg
@@ -180,8 +139,8 @@ export function Login() {
             </div>
 
             {/* Info Section */}
-            <div className="mt-10 text-center space-y-4">
-              <p className="text-xs text-gray-500">
+            <div className="mt-8 text-center space-y-4">
+              <p className="text-xs text-[#64748B]">
                 By connecting, you agree to share your Spotify listening data
               </p>
 
@@ -195,10 +154,10 @@ export function Login() {
                 ].map((feature) => (
                   <div
                     key={feature.label}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800/50 border border-gray-700/50 backdrop-blur-sm hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-colors duration-300"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(30,41,59,0.5)] border border-[#1E293B]"
                   >
                     <span className="text-lg">{feature.icon}</span>
-                    <span className="text-sm text-gray-300">{feature.label}</span>
+                    <span className="text-sm text-[#CBD5E1]">{feature.label}</span>
                   </div>
                 ))}
               </div>

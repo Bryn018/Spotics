@@ -1,11 +1,10 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Download, Loader2, Clock, Music, Headphones, TrendingUp, Calendar, Play } from 'lucide-react';
+import { Download, Loader2, Clock, Music, Headphones, TrendingUp, Calendar, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { SpoticsLogo } from '../components/SpoticsLogo';
 import { motion } from 'motion/react';
-import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 type ExportTimeRange = 'weekly' | 'monthly' | 'alltime';
 
@@ -19,10 +18,10 @@ export function Export() {
       title: 'Weekly',
       period: 'Last 7 Days',
       stats: [
-        { icon: Clock, label: 'Total Time', value: '23h 15m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '412', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '87', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '198 mins', color: 'from-green-600 to-blue-500' }
+        { icon: Clock, label: 'Total Time', value: '23h 15m', color: '#10B981' },
+        { icon: Music, label: 'Tracks', value: '412', color: '#3B82F6' },
+        { icon: Headphones, label: 'Artists', value: '87', color: '#BE185D' },
+        { icon: TrendingUp, label: 'Avg Daily', value: '198 mins', color: '#10B981' }
       ],
       topTracks: [
         { title: 'Anti-Hero', artist: 'Taylor Swift', plays: 34 },
@@ -46,10 +45,10 @@ export function Export() {
       title: 'Monthly',
       period: 'Last 30 Days',
       stats: [
-        { icon: Clock, label: 'Total Time', value: '87h 42m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '1,523', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '245', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '175 mins', color: 'from-green-600 to-blue-500' }
+        { icon: Clock, label: 'Total Time', value: '87h 42m', color: '#10B981' },
+        { icon: Music, label: 'Tracks', value: '1,523', color: '#3B82F6' },
+        { icon: Headphones, label: 'Artists', value: '245', color: '#BE185D' },
+        { icon: TrendingUp, label: 'Avg Daily', value: '175 mins', color: '#10B981' }
       ],
       topTracks: [
         { title: 'Blinding Lights', artist: 'The Weeknd', plays: 127 },
@@ -73,10 +72,10 @@ export function Export() {
       title: 'All Time',
       period: 'Since You Joined',
       stats: [
-        { icon: Clock, label: 'Total Time', value: '1,247h 56m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '18,923', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '892', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '156 mins', color: 'from-green-600 to-blue-500' }
+        { icon: Clock, label: 'Total Time', value: '1,247h 56m', color: '#10B981' },
+        { icon: Music, label: 'Tracks', value: '18,923', color: '#3B82F6' },
+        { icon: Headphones, label: 'Artists', value: '892', color: '#BE185D' },
+        { icon: TrendingUp, label: 'Avg Daily', value: '156 mins', color: '#10B981' }
       ],
       topTracks: [
         { title: 'Blinding Lights', artist: 'The Weeknd', plays: 1247 },
@@ -110,7 +109,6 @@ export function Export() {
     setIsGenerating(true);
     
     try {
-      // Wait a bit for any animations to complete
       await new Promise(resolve => setTimeout(resolve, 300));
       
       const canvas = await html2canvas(exportRef.current, {
@@ -134,216 +132,225 @@ export function Export() {
 
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
-      {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"></div>
-          <h1 className="text-3xl font-bold text-white">Export Your Insights</h1>
+      {/* Hero Card */}
+      <div className="relative overflow-hidden rounded-3xl bg-[#021108] border border-[#064E3B] p-8 lg:p-10 mb-8">
+        <div className="flex items-start gap-4 mb-8">
+          <div className="h-10 w-10 rounded-lg bg-[#064E3B] flex items-center justify-center">
+            <Share2 className="h-5 w-5 text-[#10B981]" />
+          </div>
+          <div>
+            <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-[#10B981] to-[#3B82F6] bg-clip-text text-transparent mb-2">
+              Export Your Insights
+            </h1>
+            <p className="text-[#D1D5DB]">Create beautiful, shareable snapshots of your music journey</p>
+          </div>
         </div>
-        <p className="text-gray-400">Download a shareable image of your music listening statistics</p>
-      </div>
 
-      {/* Time Range Selector */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Select Time Range</h3>
-        <Tabs value={selectedRange} onValueChange={(value) => setSelectedRange(value as ExportTimeRange)}>
-          <TabsList className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50 p-1">
-            <TabsTrigger
-              value="weekly"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/30 data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:text-white transition-all px-6 py-2 text-sm font-semibold"
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-[#030712] border border-[#1F2937] rounded-2xl p-5"
             >
-              Weekly Stats
-            </TabsTrigger>
-            <TabsTrigger
-              value="monthly"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/30 data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:text-white transition-all px-6 py-2 text-sm font-semibold"
-            >
-              Monthly Stats
-            </TabsTrigger>
-            <TabsTrigger
-              value="alltime"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/30 data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:text-white transition-all px-6 py-2 text-sm font-semibold"
-            >
-              All Time
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Download Button */}
-      <div className="mb-8">
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Button
-            onClick={handleDownload}
-            disabled={isGenerating}
-            className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold px-8 py-6 text-lg rounded-xl shadow-lg"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Download className="mr-2 h-5 w-5" />
-                Download {currentData.title} Stats as PNG
-              </>
-            )}
-          </Button>
-        </motion.div>
-      </div>
-
-      {/* Export Preview */}
-      <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-        <div ref={exportRef} className="bg-black rounded-2xl p-12 max-w-4xl mx-auto">
-          {/* Header with Logo */}
-          <div className="flex items-center justify-between mb-10 pb-6 border-b border-gray-800">
-            <div className="flex items-center gap-4">
-              <SpoticsLogo className="h-12 w-12" />
-              <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                  Spotics
-                </h2>
-                <p className="text-gray-400 text-sm">Music Listening Insights</p>
+              <div 
+                className="h-8 w-8 rounded-full flex items-center justify-center mb-3"
+                style={{ backgroundColor: `${stat.color}20` }}
+              >
+                <stat.icon className="h-4 w-4" style={{ color: stat.color }} />
               </div>
+              <p className="text-xs text-[#9CA3AF] uppercase tracking-wider mb-1">{stat.label}</p>
+              <p className="text-xl font-bold text-white">{stat.value}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Configuration Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Time Range Selector */}
+        <Card className="bg-[#111827] border-[#1F2937] rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Calendar className="h-5 w-5 text-[#10B981]" />
+              <h3 className="text-lg font-semibold text-white">Select Time Range</h3>
             </div>
-            <div className="text-right">
+            
+            <div className="bg-[#1F2937] rounded-xl p-1 flex">
+              {(['weekly', 'monthly', 'alltime'] as const).map((range) => (
+                <button
+                  key={range}
+                  onClick={() => setSelectedRange(range)}
+                  className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all ${
+                    selectedRange === range
+                      ? 'bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-lg shadow-green-500/25'
+                      : 'text-[#9CA3AF] hover:text-white'
+                  }`}
+                >
+                  {range === 'alltime' ? 'All Time' : range.charAt(0).toUpperCase() + range.slice(1)}
+                </button>
+              ))}
+            </div>
+            
+            <p className="text-sm text-[#9CA3AF] mt-4">{currentData.period}</p>
+          </CardContent>
+        </Card>
+
+        {/* Download & Share */}
+        <Card className="bg-[#111827] border-[#1F2937] rounded-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Share2 className="h-5 w-5 text-[#3B82F6]" />
+              <h3 className="text-lg font-semibold text-white">Download & Share</h3>
+            </div>
+            
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={handleDownload}
+                disabled={isGenerating}
+                className="w-full bg-[#10B981] hover:bg-[#1ed760] text-white font-semibold py-6 text-base rounded-xl shadow-lg shadow-green-500/25"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-5 w-5" />
+                    Download as PNG
+                  </>
+                )}
+              </Button>
+            </motion.div>
+            
+            <p className="text-xs text-[#9CA3AF] mt-4 text-center">
+              High-quality 2x resolution • Perfect for social sharing
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Preview Section */}
+      <div className="mb-8">
+        <p className="text-sm text-gray-400 mb-4">Preview</p>
+        <div className="bg-[#0a0a0a] rounded-2xl p-6 border border-[#1F2937]">
+          <div ref={exportRef} className="bg-black rounded-2xl p-10 max-w-3xl mx-auto border border-[#1F2937]">
+            {/* Header with Logo */}
+            <div className="flex items-center justify-between mb-8 pb-6 border-b border-[#1F2937]">
+              <div className="flex items-center gap-3">
+                <SpoticsLogo className="h-10 w-10" />
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Spotics</h2>
+                  <p className="text-gray-400 text-sm">Music Listening Insights</p>
+                </div>
+              </div>
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <Calendar className="h-4 w-4" />
                 <span>{currentData.period}</span>
               </div>
             </div>
-          </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-800"
-              >
-                <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20 flex items-center justify-center mb-4`}>
-                  <stat.icon className="h-5 w-5 text-white" />
-                </div>
-                <p className="text-gray-400 text-sm mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-white">{stat.value}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-            {/* Top Tracks */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-800">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                  <Play className="h-4 w-4 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Top Tracks</h3>
-              </div>
-              <div className="space-y-4">
-                {topTracks.map((track, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-medium">{track.title}</p>
-                      <p className="text-gray-400 text-sm">{track.artist}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-green-400 font-semibold">{track.plays}</p>
-                      <p className="text-gray-500 text-xs">plays</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Top Artists */}
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-800">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                  <Headphones className="h-4 w-4 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Top Artists</h3>
-              </div>
-              <div className="space-y-4">
-                {topArtists.map((artist, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500/20 to-rose-900/20 flex items-center justify-center text-blue-400 font-bold">
-                        {index + 1}
-                      </div>
-                      <p className="text-white font-medium">{artist.name}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-blue-400 font-semibold">{artist.plays}</p>
-                      <p className="text-gray-500 text-xs">plays</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Genre Distribution */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-800">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-rose-800 to-rose-900 flex items-center justify-center">
-                <Music className="h-4 w-4 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Top Genres</h3>
-            </div>
-            <div className="space-y-3">
-              {genres.map((genre, index) => (
-                <div key={index}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white font-medium">{genre.name}</span>
-                    <span className="text-gray-400 text-sm">{genre.value}%</span>
-                  </div>
-                  <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${genre.value * 3.125}%`,
-                        backgroundColor: genre.color
-                      }}
-                    />
-                  </div>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+              {stats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="bg-[#030712] rounded-xl p-4 border border-[#1F2937]"
+                >
+                  <p className="text-xs text-[#9CA3AF] uppercase mb-1">{stat.label}</p>
+                  <p className="text-lg font-bold text-white">{stat.value}</p>
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Footer */}
-          <div className="mt-10 pt-6 border-t border-gray-800 text-center">
-            <p className="text-gray-500 text-sm">
-              Generated with ❤️ by Spotics • {new Date().toLocaleDateString()}
-            </p>
+            {/* Top Tracks & Artists */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-4">Top Tracks</h3>
+                <div className="space-y-3">
+                  {topTracks.map((track, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-[#9CA3AF]">#{index + 1}</span>
+                        <div>
+                          <p className="text-white text-sm font-medium">{track.title}</p>
+                          <p className="text-gray-500 text-xs">{track.artist}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white text-sm font-semibold">{track.plays}</p>
+                        <p className="text-gray-500 text-xs">plays</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold text-white mb-4">Top Artists</h3>
+                <div className="space-y-3">
+                  {topArtists.map((artist, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-[#9CA3AF]">{index + 1}</span>
+                        <p className="text-white text-sm font-medium">{artist.name}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-white text-sm font-semibold">{artist.plays}</p>
+                        <p className="text-gray-500 text-xs">plays</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Genre Distribution */}
+            <div className="mb-8">
+              <h3 className="text-sm font-semibold text-white mb-4">Top Genres</h3>
+              <div className="flex flex-wrap gap-2">
+                {genres.map((genre, index) => (
+                  <span key={index} className="text-sm text-[#9CA3AF]">
+                    {genre.name} {genre.value}%
+                    {index < genres.length - 1 && <span className="ml-2">•</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="pt-6 border-t border-[#1F2937] text-center">
+              <p className="text-gray-500 text-sm">
+                Generated with ❤️ by Spotics • {new Date().toLocaleDateString()}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Instructions */}
-      <Card className="mt-8 bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800">
+      {/* How to Use */}
+      <Card className="bg-[#111827] border-[#1F2937] rounded-2xl">
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">How to use</h3>
-          <ul className="space-y-2 text-gray-400">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-1">•</span>
-              <span>Select your preferred time range: Weekly, Monthly, or All Time stats</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-1">•</span>
-              <span>Click the "Download as PNG" button to generate a high-quality image of your insights</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-rose-800 mt-1">•</span>
-              <span>Share your music taste on social media with friends</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-600 mt-1">•</span>
-              <span>The image includes your top stats, tracks, artists, and genre distribution for the selected period</span>
-            </li>
-          </ul>
+          <h3 className="text-lg font-semibold text-white mb-6">How to Use</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              'Select your preferred time range: Weekly, Monthly, or All Time stats',
+              'Click the "Download as PNG" button to generate a high-quality image',
+              'Share your music taste on social media with friends and followers',
+              'Image includes stats, top tracks, artists, and genre distribution'
+            ].map((step, index) => (
+              <div key={index} className="flex items-start gap-4">
+                <div className="h-8 w-8 rounded-full bg-[#1F2937] flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-[#10B981]">{index + 1}</span>
+                </div>
+                <p className="text-[#9CA3AF] text-sm pt-1">{step}</p>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </main>

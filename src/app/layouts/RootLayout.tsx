@@ -11,13 +11,13 @@ export function RootLayout() {
       <TimeRangeProvider>
         <DashboardProvider>
           <AutoSync />
-          <div className="min-h-screen bg-gradient-to-b from-black via-gray-950 to-black">
+          <div className="min-h-screen bg-black">
             <Header />
             <Outlet />
-            <footer className="relative border-t border-gray-800/50 bg-gradient-to-b from-transparent to-black/50 backdrop-blur-sm mt-20 py-12">
+            <footer className="border-t border-[#111827] bg-black py-8">
               <div className="container mx-auto px-4 max-w-[1600px]">
                 <div className="text-center">
-                  <p className="text-gray-400 text-sm">© 2026 Spotics</p>
+                  <p className="text-gray-500 text-sm">© 2026 Insights</p>
                 </div>
               </div>
             </footer>
