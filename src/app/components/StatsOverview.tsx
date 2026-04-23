@@ -1,6 +1,5 @@
 import { Card, CardContent } from './ui/card';
 import { Clock, Music, Headphones, TrendingUp } from 'lucide-react';
-import { useTimeRange } from '../contexts/TimeRangeContext';
 import type { DashboardPayload } from '../types';
 
 const formatMinutes = (mins: number) => {
@@ -9,62 +8,63 @@ const formatMinutes = (mins: number) => {
   return `${hours}h ${minutes}m`;
 };
 
-export function StatsOverview({ stats }: { stats?: DashboardPayload['stats'] }) {
-  const { timeRange } = useTimeRange();
+interface StatsOverviewProps {
+  stats?: DashboardPayload['stats'] | null;
+}
 
-  const statsToShow = stats ? [
+export function StatsOverview({ stats }: StatsOverviewProps) {
+  const statItems = [
     {
       icon: Clock,
       label: 'Total Listening Time',
-      value: formatMinutes(stats.totalMinutes),
+      value: stats?.totalMinutes ? formatMinutes(stats.totalMinutes) : '0h 0m',
       change: '+12%',
-      trend: 'up'
+      trend: 'up' as const,
     },
     {
       icon: Music,
       label: 'Tracks Played',
-      value: (Number(stats.totalTracks) || 0).toLocaleString(),
+      value: stats?.totalTracks ? stats.totalTracks.toLocaleString() : '0',
       change: '+23%',
-      trend: 'up'
+      trend: 'up' as const,
     },
     {
       icon: Headphones,
       label: 'Unique Artists',
-      value: String(Number(stats.totalArtists) || 0),
+      value: stats?.totalArtists ? stats.totalArtists.toLocaleString() : '0',
       change: '+8%',
-      trend: 'up'
+      trend: 'up' as const,
     },
     {
       icon: TrendingUp,
       label: 'Avg. Daily Mins',
-      value: String(Number(stats.averageDailyMinutes) || 0),
+      value: stats?.averageDailyMinutes ? Math.round(stats.averageDailyMinutes).toString() : '0',
       change: '+5%',
-      trend: 'up'
-    }
-  ] : [];
+      trend: 'up' as const,
+    },
+  ];
 
   return (
-    <div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        {statsToShow.map((stat, index) => (
-          <Card key={index} className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 overflow-hidden relative group hover:border-green-500/30 transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <CardContent className="p-6 relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-blue-500/20">
-                  <stat.icon className="h-6 w-6 text-green-400" />
-                </div>
-                <div className="flex items-center gap-1 text-green-400 text-sm font-medium">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>{stat.change}</span>
-                </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {statItems.map((stat, index) => (
+        <Card
+          key={index}
+          className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 hover:border-purple-500/50 transition-all hover:scale-[1.01] shadow-xl"
+        >
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold text-white">{stat.value}</p>
+                <p className="text-sm text-green-400 mt-2">{stat.change} from last month</p>
               </div>
-              <p className="text-gray-400 text-sm mb-1">{stat.label}</p>
-              <p className="text-2xl font-bold text-white">{stat.value}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/20">
+                <stat.icon className="h-6 w-6 text-purple-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

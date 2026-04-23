@@ -13,7 +13,23 @@ import { env } from './config/env';
 const app = express();
 
 // Security & parsing
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      fontSrc: ["'self'", "https:", "data:"],
+      formAction: ["'self'"],
+      frameAncestors: ["'self'"],
+      imgSrc: ["'self'", "data:", "https://i.scdn.co", "https://*.scdn.co", "https://images.unsplash.com"],
+      objectSrc: ["'none'"],
+      scriptSrc: ["'self'"],
+      scriptSrcAttr: ["'none'"],
+      styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+}));
 app.use(cors({ origin: env.clientUrl, credentials: true }));
 app.use(cookieParser());
 app.use(express.json({ limit: '100kb' }));

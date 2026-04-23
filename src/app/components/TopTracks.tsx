@@ -6,52 +6,86 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 
 export function TopTracks({ tracks }: { tracks?: TrackStat[] }) {
   const tracksToShow = tracks ?? [];
+  const maxPlays = Math.max(...tracksToShow.map((t) => t.plays || 0), 1);
 
   return (
-    <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl text-white">Top Tracks</CardTitle>
-          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-            View All
-          </Button>
-        </div>
+    <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
+        <CardTitle className="text-xl font-bold text-white">Top Tracks</CardTitle>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-400 hover:text-white hover:bg-white/5"
+        >
+          View All
+        </Button>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {tracksToShow.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              <p>No tracks yet. Start listening on Spotify!</p>
-            </div>
-          )}
-          {tracksToShow.map((track, index) => (
+      <CardContent className="p-0">
+        <div className="space-y-1">
+          {tracksToShow.slice(0, 10).map((track, index) => (
             <div
               key={track.id}
-              className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+              className="group flex items-center gap-4 px-6 py-3 hover:bg-gradient-to-r hover:from-purple-900/20 hover:to-pink-900/20 transition-all cursor-pointer border-l-2 border-transparent hover:border-purple-500"
             >
-              <span className="text-lg font-bold text-gray-500 w-6 text-center group-hover:text-green-400 transition-colors">
+              {/* Rank */}
+              <span className="text-sm font-bold text-gray-500 w-6 text-center group-hover:text-purple-400 transition-colors">
                 {index + 1}
               </span>
-              <ImageWithFallback
-                src={track.image ?? ''}
-                alt={track.title}
-                gradientSeed={track.id}
-                trackId={track.id}
-                className="w-12 h-12 rounded-lg object-cover"
-              />
+
+              {/* Album Art */}
+              <div className="relative flex-shrink-0">
+                <ImageWithFallback
+                  src={track.image ?? undefined}
+                  alt={track.title}
+                  gradientSeed={track.id}
+                  trackId={track.id}
+                  className="h-14 w-14 rounded-lg object-cover shadow-lg ring-2 ring-gray-800 group-hover:ring-purple-500/30 transition-all"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                  <Play className="h-6 w-6 text-white fill-white" />
+                </div>
+              </div>
+
+              {/* Track Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-white font-medium truncate">{track.title}</p>
-                <p className="text-gray-400 text-sm truncate">{track.artist}</p>
+                <p className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
+                  {track.title}
+                </p>
+                <p className="text-sm text-gray-400 truncate">{track.artist}</p>
               </div>
-              <div className="text-right hidden sm:block">
-                <p className="text-gray-400 text-sm">{track.plays} plays</p>
-                <p className="text-gray-500 text-xs">{track.durationLabel ?? ''}</p>
+
+              {/* Album */}
+              <div className="hidden md:block w-32 min-w-0">
+                <p className="text-sm text-gray-500 truncate">{track.album}</p>
               </div>
-              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <Play className="h-4 w-4 text-green-400" />
+
+              {/* Plays Bar */}
+              <div className="hidden sm:flex items-center gap-3 w-32">
+                <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                    style={{ width: `${(track.plays / maxPlays) * 100}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-500 w-8 text-right">{track.plays}</span>
+              </div>
+
+              {/* Duration */}
+              <span className="text-sm text-gray-500 w-12 text-right">{track.durationLabel}</span>
+
+              {/* Menu */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-white"
+              >
+                <MoreVertical className="h-4 w-4" />
               </Button>
             </div>
           ))}
+          {tracksToShow.length === 0 && (
+            <div className="px-6 py-12 text-center text-gray-500">No tracks available</div>
+          )}
         </div>
       </CardContent>
     </Card>
