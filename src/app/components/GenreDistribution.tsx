@@ -1,21 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import type { GenreStat } from '../types';
 
-const demoGenres = [
-  { name: 'Pop', percentage: 32, hours: 142, color: '#22c55e' },
-  { name: 'Hip Hop', percentage: 24, hours: 106, color: '#3b82f6' },
-  { name: 'Rock', percentage: 18, hours: 80, color: '#f43f5e' },
-  { name: 'Electronic', percentage: 14, hours: 62, color: '#a855f7' },
-  { name: 'Indie', percentage: 12, hours: 53, color: '#06b6d4' },
-];
-
 const colors = ['#22c55e', '#3b82f6', '#f43f5e', '#a855f7', '#06b6d4', '#f59e0b', '#ec4899', '#14b8a6', '#8b5cf6', '#ef4444'];
 
 export function GenreDistribution({ genres }: { genres?: GenreStat[] }) {
   const genresToShow = genres?.length ? genres.map((g, i) => ({
     ...g,
     color: colors[i % colors.length]
-  })) : demoGenres;
+  })) : [];
   
   const totalPlays = genresToShow.reduce((sum, g) => sum + (g.hours * 60), 0);
 
@@ -30,6 +22,13 @@ export function GenreDistribution({ genres }: { genres?: GenreStat[] }) {
         </div>
       </CardHeader>
       <CardContent>
+        {genresToShow.length === 0 && (
+          <div className="p-8 text-center text-gray-500">
+            <p>No genre data yet. Start listening on Spotify!</p>
+          </div>
+        )}
+        {genresToShow.length > 0 && (
+        <>
         {/* Top Genre Highlight */}
         <div className="mb-6 p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-blue-500/10 border border-green-500/20">
           <p className="text-gray-400 text-xs mb-1">Top Genre</p>
@@ -80,6 +79,8 @@ export function GenreDistribution({ genres }: { genres?: GenreStat[] }) {
           <p className="text-gray-400 text-xs">Total Plays</p>
           <p className="text-white font-semibold">{totalPlays.toLocaleString()}</p>
         </div>
+        </>
+        )}
       </CardContent>
     </Card>
   );

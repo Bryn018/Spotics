@@ -3,18 +3,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { TrendingUp } from 'lucide-react';
 import type { ListeningChartPoint } from '../types';
 
-const demoData = [
-  { label: 'Mon', minutes: 142 },
-  { label: 'Tue', minutes: 189 },
-  { label: 'Wed', minutes: 167 },
-  { label: 'Thu', minutes: 203 },
-  { label: 'Fri', minutes: 245 },
-  { label: 'Sat', minutes: 312 },
-  { label: 'Sun', minutes: 278 },
-];
-
 export function ListeningChart({ chartData }: { chartData?: ListeningChartPoint[] }) {
-  const data = chartData?.length ? chartData : demoData;
+  const data = chartData ?? [];
   const totalMinutes = data.reduce((sum, d) => sum + d.minutes, 0);
   const avgMinutes = Math.round(totalMinutes / data.length);
   const peakEntry = data.reduce((max, d) => d.minutes > max.minutes ? d : max, data[0]);
@@ -34,6 +24,12 @@ export function ListeningChart({ chartData }: { chartData?: ListeningChartPoint[
         </div>
       </CardHeader>
       <CardContent>
+        {data.length === 0 && (
+          <div className="p-8 text-center text-gray-500">
+            <p>No listening data yet. Start listening on Spotify!</p>
+          </div>
+        )}
+        {data.length > 0 && (
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.3} vertical={false} />
@@ -59,6 +55,7 @@ export function ListeningChart({ chartData }: { chartData?: ListeningChartPoint[
             </defs>
           </BarChart>
         </ResponsiveContainer>
+        )}
         <div className="mt-4 pt-4 border-t border-gray-800">
           <div className="grid grid-cols-3 gap-4">
             <div>

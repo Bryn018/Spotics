@@ -135,8 +135,8 @@ async function buildDashboardPayload(client: SpotifyWebApi, timeframe: TimeRange
   };
 }
 
-async function syncRecentActivity(client: SpotifyWebApi, userId: string) {
-  const recent = await client.getMyRecentlyPlayedTracks({ limit: 25 });
+export async function syncRecentActivity(client: SpotifyWebApi, userId: string) {
+  const recent = await client.getMyRecentlyPlayedTracks({ limit: 50 });
   const activities = recent.body.items.map((item: RecentItem) => ({
     user_id: userId,
     activity_type: 'listened',
@@ -153,14 +153,22 @@ async function syncRecentActivity(client: SpotifyWebApi, userId: string) {
 
   if (activities.length === 0) return;
 
-  await pool.query('DELETE FROM activities WHERE user_id = $1', [userId]);
+  // Get existing activity occurred_at timestamps for this user to deduplicate
+  const existingResult = await pool.query(
+    'SELECT occurred_at FROM activities WHERE user_id = $1',
+    [userId],
+  );
+  const existingTimestamps = new Set(existingResult.rows.map((r) => r.occurred_at.toISOString()));
 
-  // Bulk insert
-  const values = activities.map((_, i) => {
+  const newActivities = activities.filter((a) => !existingTimestamps.has(a.occurred_at));
+  if (newActivities.length === 0) return;
+
+  // Bulk insert only new activities
+  const values = newActivities.map((_, i) => {
     const base = i * 6;
     return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6})`;
   });
-  const flat = activities.flatMap((a) => [
+  const flat = newActivities.flatMap((a) => [
     a.user_id,
     a.activity_type,
     a.title,
@@ -236,7 +244,7 @@ function buildListeningChart(tracks: TrackStat[]): ListeningChartPoint[] {
     const minutes = chunk.reduce((sum, track) => sum + track.durationMs, 0) / 60000;
     return {
       label,
-      minutes: Number(minutes.toFixed(1)) || Math.round(Math.random() * 60) + 30,
+      minutes: Number(minutes.toFixed(1)) || 0,
     };
   });
 }

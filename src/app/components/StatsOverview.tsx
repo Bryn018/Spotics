@@ -12,8 +12,7 @@ const formatMinutes = (mins: number) => {
 export function StatsOverview({ stats }: { stats?: DashboardPayload['stats'] }) {
   const { timeRange } = useTimeRange();
 
-  // Use real data if available, otherwise demo data
-  const realStats = stats ? [
+  const statsToShow = stats ? [
     {
       icon: Clock,
       label: 'Total Listening Time',
@@ -42,30 +41,7 @@ export function StatsOverview({ stats }: { stats?: DashboardPayload['stats'] }) 
       change: '+5%',
       trend: 'up'
     }
-  ] : null;
-
-  const demoStats = {
-    '4weeks': [
-      { icon: Clock, label: 'Total Listening Time', value: '87h 32m', change: '+12%', trend: 'up' },
-      { icon: Music, label: 'Tracks Played', value: '1,247', change: '+23%', trend: 'up' },
-      { icon: Headphones, label: 'Unique Artists', value: '156', change: '+8%', trend: 'up' },
-      { icon: TrendingUp, label: 'Avg. Daily Mins', value: '156', change: '+5%', trend: 'up' }
-    ],
-    '6months': [
-      { icon: Clock, label: 'Total Listening Time', value: '487h 12m', change: '+18%', trend: 'up' },
-      { icon: Music, label: 'Tracks Played', value: '6,234', change: '+15%', trend: 'up' },
-      { icon: Headphones, label: 'Unique Artists', value: '423', change: '+12%', trend: 'up' },
-      { icon: TrendingUp, label: 'Avg. Daily Mins', value: '134', change: '+7%', trend: 'up' }
-    ],
-    alltime: [
-      { icon: Clock, label: 'Total Listening Time', value: '1,247h', change: '+22%', trend: 'up' },
-      { icon: Music, label: 'Tracks Played', value: '18,923', change: '+20%', trend: 'up' },
-      { icon: Headphones, label: 'Unique Artists', value: '892', change: '+15%', trend: 'up' },
-      { icon: TrendingUp, label: 'Avg. Daily Mins', value: '142', change: '+10%', trend: 'up' }
-    ]
-  };
-
-  const statsToShow = realStats ?? (demoStats[timeRange as keyof typeof demoStats] || demoStats['4weeks']);
+  ] : [];
 
   return (
     <div>

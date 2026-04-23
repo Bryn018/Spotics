@@ -4,16 +4,8 @@ import { Button } from './ui/button';
 import type { TrackStat } from '../types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
-const demoTracks = [
-  { id: '1', title: 'Blinding Lights', artist: 'The Weeknd', album: 'After Hours', plays: 247, durationLabel: '3:20', image: 'https://images.unsplash.com/photo-1616663395403-2e0052b8e595?w=400' },
-  { id: '2', title: 'Stay', artist: 'The Kid LAROI, Justin Bieber', album: 'Stay', plays: 198, durationLabel: '2:21', image: 'https://images.unsplash.com/photo-1563681543778-002ee8f3cd8a?w=400' },
-  { id: '3', title: 'As It Was', artist: 'Harry Styles', album: "Harry's House", plays: 176, durationLabel: '2:47', image: 'https://images.unsplash.com/photo-1718217028088-a23cb3b277c4?w=400' },
-  { id: '4', title: 'Heat Waves', artist: 'Glass Animals', album: 'Dreamland', plays: 154, durationLabel: '3:59', image: 'https://images.unsplash.com/photo-1770287329282-1fabdc26248b?w=400' },
-  { id: '5', title: 'Levitating', artist: 'Dua Lipa', album: 'Future Nostalgia', plays: 143, durationLabel: '3:23', image: 'https://images.unsplash.com/photo-1672841821756-fc04525771c2?w=400' },
-];
-
 export function TopTracks({ tracks }: { tracks?: TrackStat[] }) {
-  const tracksToShow = tracks?.length ? tracks : demoTracks;
+  const tracksToShow = tracks ?? [];
 
   return (
     <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50">
@@ -27,6 +19,11 @@ export function TopTracks({ tracks }: { tracks?: TrackStat[] }) {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
+          {tracksToShow.length === 0 && (
+            <div className="p-8 text-center text-gray-500">
+              <p>No tracks yet. Start listening on Spotify!</p>
+            </div>
+          )}
           {tracksToShow.map((track, index) => (
             <div
               key={track.id}

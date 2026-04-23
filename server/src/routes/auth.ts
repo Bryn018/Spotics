@@ -6,6 +6,7 @@ import { pool } from '../lib/db';
 import { HttpError } from '../middleware/errorHandler';
 import { signSession, verifySession } from '../lib/jwt';
 import { env } from '../config/env';
+import { syncUserListeningData } from '../services/spotifySync';
 
 const router = Router();
 const STATE_COOKIE = 'spotify_auth_state';
@@ -100,6 +101,11 @@ router.get(
       ...cookieOptions,
       maxAge: 12 * 60 * 60 * 1000,
       signed: false,
+    });
+
+    // Trigger initial sync in the background (don't await, let user redirect immediately)
+    syncUserListeningData(user.id).catch((err) => {
+      console.error('Background sync failed for user', user.id, err);
     });
 
     // Redirect back to dashboard or home

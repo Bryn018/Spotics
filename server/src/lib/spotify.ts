@@ -15,6 +15,7 @@ export const scopes = [
   'user-read-currently-playing',
   'user-library-read',
   'user-top-read',
+  'user-read-recently-played',
 ].join(' ');
 
 // Helper to create authorize URL (spotify doesn't have this built-in)

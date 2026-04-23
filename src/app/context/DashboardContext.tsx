@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState, type PropsWithChildren } from 'react';
-import { useDashboard, useSyncDashboard } from '../hooks/useDashboard';
+import { useDashboard, useSyncDashboard, useRealtimeSync } from '../hooks/useDashboard';
+import { useSession } from '../context/SessionContext';
 import type { DashboardResponse, TimeRange } from '../types';
 
 interface DashboardContextValue {
@@ -22,8 +23,12 @@ interface DashboardProviderProps extends PropsWithChildren {
 
 export function DashboardProvider({ children, initialTimeframe = 'medium_term' }: DashboardProviderProps) {
   const [timeframe, setTimeframe] = useState<TimeRange>(initialTimeframe);
+  const { authenticated } = useSession();
   const dashboardQuery = useDashboard(timeframe);
   const syncMutation = useSyncDashboard();
+
+  // Real-time sync: poll every 30s when authenticated
+  useRealtimeSync(authenticated);
 
   const sync = async () => {
     await syncMutation.mutateAsync();

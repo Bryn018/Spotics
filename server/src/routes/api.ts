@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { requireAuth, type AuthedRequest } from '../middleware/requireAuth';
 import { pool } from '../lib/db';
-import { syncUserListeningData } from '../services/spotifySync';
+import { syncUserListeningData, syncRecentActivity } from '../services/spotifySync';
+import { getSpotifyClientForUser } from '../lib/spotifyClient';
 import { generateWrapReports, getWrapReportForUser } from '../services/wrapReports';
 import type {
   Activity,
@@ -68,6 +69,16 @@ router.post(
   '/summaries/sync',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     await syncUserListeningData(req.auth!.userId);
+    res.status(202).json({ success: true });
+  }),
+);
+
+// Lightweight endpoint for real-time recent activity sync
+router.post(
+  '/activities/sync',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const client = await getSpotifyClientForUser(req.auth!.userId);
+    await syncRecentActivity(client, req.auth!.userId);
     res.status(202).json({ success: true });
   }),
 );
