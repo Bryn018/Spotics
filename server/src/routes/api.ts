@@ -200,8 +200,8 @@ router.get(
   '/tracks/:id/image',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     const client = await getSpotifyClientForUser(req.auth!.userId);
-    const trackId = req.params.id;
-    const response = await client.getTrack(trackId);
+    const trackId = req.params.id as string;
+    const response = await client.getTrack(trackId) as any;
     const images = response.body?.album?.images ?? [];
     const imageUrl = images[0]?.url ?? null;
     res.json({ success: true, data: { imageUrl } });
@@ -212,8 +212,8 @@ router.get(
   '/artists/:id/image',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     const client = await getSpotifyClientForUser(req.auth!.userId);
-    const artistId = req.params.id;
-    const response = await client.getArtist(artistId);
+    const artistId = req.params.id as string;
+    const response = await client.getArtist(artistId) as any;
     const images = response.body?.images ?? [];
     const imageUrl = images[0]?.url ?? null;
     res.json({ success: true, data: { imageUrl } });

@@ -330,7 +330,7 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
         songsPerDay: totalTracks ? Math.round(totalTracks / 365) : 0,
         longestStreak: Math.max(1, computeStreak(activities, now)),
         favoriteTime: personality.favoriteTime,
-        topMonth: timeline.reduce((max, m) => m.plays > max.plays ? m : max, timeline[0])?.month ?? 'Jun',
+        topMonth: timeline.length > 0 ? timeline.reduce((max: (typeof timeline)[0], m) => m.plays > max.plays ? m : max, timeline[0]!).month : 'Jun',
         uniquePlays: totalTracks,
       },
     },
@@ -458,7 +458,7 @@ function buildYearTimelineFromActivities(activities: Activity[], genres: Summary
 
   activities.forEach((activity) => {
     const date = new Date(activity.occurred_at);
-    const month = monthLabels[date.getMonth()];
+    const month = monthLabels[date.getMonth()]!;
     const existing = monthData.get(month) ?? { plays: 0, durationMs: 0, tracks: new Set<string>() };
     existing.plays += 1;
     existing.durationMs += Number(activity.metadata?.durationMs) || 0;
@@ -485,26 +485,37 @@ function buildYearTimelineFromActivities(activities: Activity[], genres: Summary
   ];
 
   // Select 5 representative months (spaced out)
-  const selectedMonths = hasRealData
-    ? Array.from(monthData.keys()).sort((a, b) => monthLabels.indexOf(a) - monthLabels.indexOf(b))
-    : ['Jan', 'Mar', 'May', 'Aug', 'Nov'];
+  let selectedMonths: string[];
+  if (hasRealData) {
+    selectedMonths = Array.from(monthData.keys()).sort((a, b) => monthLabels.indexOf(a) - monthLabels.indexOf(b));
+  } else {
+    selectedMonths = ['Jan', 'Mar', 'May', 'Aug', 'Nov'];
+  }
 
   // If we have more than 5 months, pick the most active ones spaced out
-  const finalMonths = selectedMonths.length > 5
-    ? [selectedMonths[0], selectedMonths[Math.floor(selectedMonths.length * 0.25)], selectedMonths[Math.floor(selectedMonths.length * 0.5)], selectedMonths[Math.floor(selectedMonths.length * 0.75)], selectedMonths[selectedMonths.length - 1]]
+  const finalMonths: string[] = selectedMonths.length > 5
+    ? [
+        selectedMonths[0]!,
+        selectedMonths[Math.floor(selectedMonths.length * 0.25)]!,
+        selectedMonths[Math.floor(selectedMonths.length * 0.5)]!,
+        selectedMonths[Math.floor(selectedMonths.length * 0.75)]!,
+        selectedMonths[selectedMonths.length - 1]!,
+      ]
     : selectedMonths;
 
   return finalMonths.map((month, index) => {
     const data = monthData.get(month);
     const plays = data?.plays ?? Math.max(50, Math.round(totalTracks / 12));
     const topGenre = genres[index % genres.length]?.name ?? 'Pop';
+    const highlight = data
+      ? `${highlights[monthLabels.indexOf(month) % highlights.length]} with ${plays} plays`
+      : `${highlights[index]} with ${topGenre}`;
+    const mood = moods[monthLabels.indexOf(month) % moods.length] ?? 'Chill';
     return {
       month,
-      highlight: data
-        ? `${highlights[monthLabels.indexOf(month) % highlights.length]} with ${plays} plays`
-        : `${highlights[index]} with ${topGenre}`,
+      highlight,
       plays,
-      mood: moods[monthLabels.indexOf(month) % moods.length],
+      mood,
     };
   });
 }
@@ -576,7 +587,7 @@ function calculateFavoriteTime(activities: Activity[]): string {
   ];
 
   let maxCount = 0;
-  let favoriteRange = ranges[2]; // default evening
+  let favoriteRange = ranges[2]!; // default evening
 
   for (const range of ranges) {
     const count = range.hours.reduce((sum, h) => sum + (hourBuckets.get(h) ?? 0), 0);
@@ -587,7 +598,7 @@ function calculateFavoriteTime(activities: Activity[]): string {
   }
 
   // Find peak hour within favorite range
-  let peakHour = favoriteRange.hours[0];
+  let peakHour = favoriteRange.hours[0]!;
   let peakCount = 0;
   for (const hour of favoriteRange.hours) {
     const count = hourBuckets.get(hour) ?? 0;
