@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { api, apiRoutes } from '../lib/api';
-import type { DashboardResponse, TimeRange } from '../types';
+import type { DashboardResponse, TimeRange, NowPlayingResponse } from '../types';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -59,4 +59,19 @@ export function useRealtimeSync(enabled: boolean) {
   }, [query.isSuccess, query.dataUpdatedAt, queryClient]);
 
   return query;
+}
+
+// Poll for currently playing track every 10 seconds
+export function useNowPlaying(enabled: boolean) {
+  return useQuery({
+    queryKey: ['now-playing'],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<NowPlayingResponse>>(apiRoutes.nowPlaying);
+      return data.data;
+    },
+    enabled,
+    refetchInterval: 10 * 1000, // 10 seconds
+    staleTime: 0,
+    retry: 1,
+  });
 }

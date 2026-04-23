@@ -104,4 +104,5 @@ export const apiRoutes = {
   activitiesSync: '/api/activities/sync',
   wraps: '/api/wraps',
   wrapSync: '/api/wraps/sync',
+  nowPlaying: '/api/now-playing',
 };

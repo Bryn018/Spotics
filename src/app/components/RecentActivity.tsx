@@ -1,7 +1,8 @@
-import { Card, CardContent } from './ui/card';
-import { Music, Heart, ListPlus, UserPlus, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Music, Heart, ListPlus, UserPlus, Clock, ChevronRight } from 'lucide-react';
 import type { Activity } from '../types';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Button } from './ui/button';
 
 const activityIcons: Record<string, typeof Music> = {
   listen: Music,
@@ -21,12 +22,26 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-export function RecentActivity({ activities }: { activities?: Activity[] }) {
+export function RecentActivity({ activities, onViewAll }: { activities?: Activity[]; onViewAll?: () => void }) {
   const activitiesToShow = activities ?? [];
 
   return (
     <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50">
-      <CardContent className="p-4">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg text-white">Recent Activity</CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onViewAll}
+            className="text-gray-400 hover:text-white group"
+          >
+            View All
+            <ChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
         <div className="space-y-1">
           {activitiesToShow.length === 0 && (
             <div className="p-8 text-center text-gray-500">
@@ -36,30 +51,25 @@ export function RecentActivity({ activities }: { activities?: Activity[] }) {
           {activitiesToShow.map((activity) => {
             const Icon = activityIcons[activity.activity_type] ?? Music;
             const image = (activity.metadata as any)?.image;
-            const artist = (activity.metadata as any)?.artist ?? activity.subtitle;
+            const album = (activity.metadata as any)?.album;
 
             return (
               <div
                 key={activity.id}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors"
               >
-                {image ? (
-                  <ImageWithFallback
-                    src={image}
-                    alt={activity.subtitle ?? ''}
-                    className="w-10 h-10 rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-blue-500/20 flex items-center justify-center">
-                    <Icon className="h-5 w-5 text-green-400" />
-                  </div>
-                )}
+                <ImageWithFallback
+                  src={image}
+                  alt={activity.title}
+                  gradientSeed={activity.title}
+                  className="w-10 h-10 rounded-lg object-cover shrink-0"
+                />
                 <div className="flex-1 min-w-0">
-                  <p className="text-gray-400 text-xs">{activity.title}</p>
-                  <p className="text-white text-sm font-medium truncate">{activity.subtitle}</p>
-                  <p className="text-gray-500 text-xs truncate">{artist}</p>
+                  <p className="text-white text-sm font-medium truncate">{activity.title}</p>
+                  <p className="text-gray-400 text-xs truncate">{activity.subtitle}</p>
+                  {album && <p className="text-gray-500 text-xs truncate">{album}</p>}
                 </div>
-                <div className="flex items-center gap-1 text-gray-500 text-xs">
+                <div className="flex items-center gap-1 text-gray-500 text-xs shrink-0">
                   <Clock className="h-3 w-3" />
                   <span>{timeAgo(activity.occurred_at)}</span>
                 </div>

@@ -72,7 +72,7 @@ export async function syncUserListeningData(userId: string) {
           Math.round(payload.stats.totalMinutes),
           payload.stats.totalTracks,
           payload.stats.totalArtists,
-          JSON.stringify(payload),
+          payload,
           new Date().toISOString(),
         ],
       );
@@ -163,7 +163,7 @@ export async function syncRecentActivity(client: SpotifyWebApi, userId: string) 
     activity_type: string;
     title: string;
     subtitle: string;
-    metadata: string;
+    metadata: Record<string, any>;
     occurred_at: string;
   }> = [];
 
@@ -196,12 +196,12 @@ export async function syncRecentActivity(client: SpotifyWebApi, userId: string) 
         activity_type: 'listened',
         title: item.track.name,
         subtitle: item.track.artists.map((artist) => artist.name).join(', '),
-        metadata: JSON.stringify({
+        metadata: {
           image: item.track.album.images?.[0]?.url ?? null,
           album: item.track.album.name,
           durationMs: item.track.duration_ms,
           previewUrl: item.track.preview_url,
-        }),
+        },
         occurred_at: item.played_at,
       });
 

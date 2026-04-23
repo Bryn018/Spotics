@@ -148,7 +148,7 @@ export interface WrapReport<TPayload> {
   payload: TPayload;
 }
 
-type IconName = 'trophy' | 'star' | 'flame' | 'crown' | 'sparkles' | 'heart' | 'award' | 'zap';
+export type IconName = 'trophy' | 'star' | 'flame' | 'crown' | 'sparkles' | 'heart' | 'award' | 'zap';
 
 export interface DailyWrapPayload {
   slides: DailyWrapSlide[];

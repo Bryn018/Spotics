@@ -2,6 +2,7 @@ import { pool } from '../lib/db';
 import type {
   Activity,
   DailyWrapPayload,
+  IconName,
   ListeningSummary,
   NormalizedListeningSummary,
   WeeklyWrapPayload,
@@ -50,7 +51,7 @@ export async function generateWrapReports(userId: string) {
   const [summaryResult, activityResult] = await Promise.all([
     pool.query('SELECT * FROM listening_summaries WHERE user_id = $1', [userId]),
     pool.query(
-      'SELECT * FROM activities WHERE user_id = $1 ORDER BY occurred_at DESC LIMIT 200',
+      'SELECT * FROM activities WHERE user_id = $1 ORDER BY occurred_at DESC LIMIT 500',
       [userId],
     ),
   ]);
@@ -77,14 +78,14 @@ export async function generateWrapReports(userId: string) {
              period_end   = EXCLUDED.period_end,
              payload      = EXCLUDED.payload,
              generated_at = EXCLUDED.generated_at`,
-      [
-        userId,
-        timeframe,
-        result.periodStart,
-        result.periodEnd,
-        JSON.stringify(result.payload),
-        new Date().toISOString(),
-      ],
+        [
+          userId,
+          timeframe,
+          result.periodStart,
+          result.periodEnd,
+          result.payload,
+          new Date().toISOString(),
+        ],
     );
   }
 }
@@ -122,7 +123,7 @@ function normalizeSummary(summary: ListeningSummary): NormalizedListeningSummary
       tracks: summary.total_tracks ?? 0,
       artists: summary.total_artists ?? 0,
     },
-    payload: (summary.payload as NormalizedListeningSummary['payload']) ?? null,
+    payload: ((summary.payload as unknown) as NormalizedListeningSummary['payload']) ?? null,
     fetchedAt: summary.fetched_at,
   };
 }
@@ -138,7 +139,7 @@ function buildDailyPayload({ summaries, activities, now }: BuildContext): BuildR
   const topTrack = todayActivities[0] ?? summary?.payload?.topTracks?.[0];
   const secondTrack = todayActivities[1] ?? summary?.payload?.topTracks?.[1] ?? topTrack;
   const topGenre = summary?.payload?.genreDistribution?.[0]?.name ?? 'Pop';
-  const mood = determineMood(totalMinutes, totalTracks);
+  const mood = determineMood(totalMinutes, totalTracks, topGenre);
   const comparison = buildComparisonLabel(totalMinutes, summary?.payload?.stats.averageDailyMinutes ?? totalMinutes);
   const peakHour = findPeakHour(todayActivities);
   const streak = computeStreak(activities, now);
@@ -220,7 +221,7 @@ function buildWeeklyPayload({ summaries, activities, now }: BuildContext): Build
   const longestSession = buildLongestSessionLabel(totalMinutes);
   const discoveries = Math.max(1, Math.round(uniqueArtists * 0.15));
   const streak = computeStreak(activities, now);
-  const achievements = buildWeeklyAchievements(totalMinutes, uniqueArtists, streak);
+  const achievements = buildWeeklyAchievements(totalMinutes, uniqueArtists, streak, totalTracks);
 
   const slides = [
     {
@@ -273,16 +274,17 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
     image: track.image,
   }));
 
-  const timeline = buildYearTimeline(genres, totalTracks);
-  const achievements = buildYearlyAchievements(totalMinutes, totalTracks, genres.length);
-  const personality = determinePersonality(summary);
-  const insights = buildYearlyInsights(summary, activities.length);
+  // Build timeline from actual monthly activity data
+  const timeline = buildYearTimelineFromActivities(activities, genres, totalTracks);
+  const achievements = buildYearlyAchievements(totalMinutes, totalTracks, genres.length, activities.length);
+  const personality = determinePersonality(summary, activities);
+  const insights = buildYearlyInsights(summary, activities);
 
   const slides = [
     {
       id: 'yearly-intro',
       type: 'intro' as const,
-      title: 'Your 2026 Wrapped',
+      title: `Your ${now.getFullYear()} Wrapped`,
       subtitle: 'A Year in Music',
       content: { totalTracks, totalHours: Math.round(totalMinutes / 60), totalArtists, totalGenres: genres.length },
     },
@@ -318,7 +320,7 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
       content: { personality: personality.title, description: personality.description, traits: personality.traits, insights },
     },
     { id: 'yearly-timeline', type: 'timeline' as const, title: 'Year in Review', content: timeline },
-    { id: 'yearly-achievements', type: 'achievements' as const, title: 'Your 2026 Achievements', content: achievements },
+    { id: 'yearly-achievements', type: 'achievements' as const, title: `Your ${now.getFullYear()} Achievements`, content: achievements },
     {
       id: 'yearly-stats',
       type: 'stats' as const,
@@ -328,7 +330,7 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
         songsPerDay: totalTracks ? Math.round(totalTracks / 365) : 0,
         longestStreak: Math.max(1, computeStreak(activities, now)),
         favoriteTime: personality.favoriteTime,
-        topMonth: timeline[2]?.month ?? 'Jun',
+        topMonth: timeline.reduce((max, m) => m.plays > max.plays ? m : max, timeline[0])?.month ?? 'Jun',
         uniquePlays: totalTracks,
       },
     },
@@ -337,7 +339,7 @@ function buildYearlyPayload({ summaries, activities, now }: BuildContext): Build
       type: 'thank-you' as const,
       title: 'Thank You for Listening',
       subtitle: "Here's to another year of great music!",
-      content: { yearlyRank: formatYearlyRank(totalTracks), totalListeners: '10M+', shareMessage: 'Share your 2026 Wrapped' },
+      content: { yearlyRank: formatYearlyRank(totalTracks), totalListeners: '10M+', shareMessage: `Share your ${now.getFullYear()} Wrapped` },
     },
   ];
 
@@ -353,7 +355,12 @@ function sumActivityMinutes(activities: Activity[]) {
   }, 0);
 }
 
-function determineMood(totalMinutes: number, totalTracks: number) {
+function determineMood(totalMinutes: number, totalTracks: number, topGenre: string = '') {
+  const genre = topGenre.toLowerCase();
+  if (genre.includes('metal') || genre.includes('rock') || genre.includes('punk')) return 'Energetic';
+  if (genre.includes('jazz') || genre.includes('classical') || genre.includes('ambient')) return 'Relaxed';
+  if (genre.includes('electronic') || genre.includes('dance') || genre.includes('edm')) return 'Energized';
+  if (genre.includes('r&b') || genre.includes('soul')) return 'Chill';
   if (totalMinutes > 150 || totalTracks > 40) return 'Energized';
   if (totalMinutes > 90) return 'Focused';
   if (totalTracks > 20) return 'Vibrant';
@@ -361,7 +368,7 @@ function determineMood(totalMinutes: number, totalTracks: number) {
 }
 
 function buildComparisonLabel(today: number, average: number) {
-  if (!average) return 'on par with yesterday';
+  if (!average || average === 0) return 'on par with yesterday';
   const delta = ((today - average) / average) * 100;
   const sign = delta >= 0 ? '+' : '';
   return `${sign}${delta.toFixed(0)}% from yesterday`;
@@ -432,74 +439,229 @@ function buildLongestSessionLabel(totalMinutes: number) {
   const minutes = sessionMinutes % 60;
   return hours === 0 ? `${minutes}m` : `${hours}h ${minutes}m`;
 }
-function buildWeeklyAchievements(totalMinutes: number, uniqueArtists: number, streak: number) {
-  return [
-    { icon: 'trophy' as const, title: 'Music Marathon', desc: `Listened for ${Math.round(totalMinutes)} minutes`, color: 'from-yellow-500 to-orange-500' },
-    { icon: 'star' as const, title: 'Variety King', desc: `Explored ${uniqueArtists} artists`, color: 'from-purple-500 to-pink-500' },
-    { icon: 'flame' as const, title: 'Perfect Week', desc: `${streak}-day listening streak`, color: 'from-red-500 to-orange-500' },
+function buildWeeklyAchievements(totalMinutes: number, uniqueArtists: number, streak: number, totalTracks: number) {
+  const achievements: Array<{ icon: IconName; title: string; desc: string; color: string }> = [
+    { icon: 'trophy', title: 'Music Marathon', desc: `Listened for ${Math.round(totalMinutes)} minutes`, color: 'from-yellow-500 to-orange-500' },
+    { icon: 'star', title: 'Variety King', desc: `Explored ${uniqueArtists} artists`, color: 'from-purple-500 to-pink-500' },
+    { icon: 'flame', title: 'Perfect Week', desc: `${streak}-day listening streak`, color: 'from-red-500 to-orange-500' },
   ];
+  if (totalTracks > 50) {
+    achievements.push({ icon: 'zap', title: 'Binge Listener', desc: `${totalTracks} tracks this week`, color: 'from-blue-500 to-cyan-500' });
+  }
+  return achievements;
 }
-function buildYearTimeline(genres: SummaryGenre[], totalTracks: number) {
-  const templateMonths = ['Jan', 'Mar', 'Jun', 'Sep', 'Dec'];
-  const moods = ['Chill', 'Energetic', 'Upbeat', 'Intense', 'Festive'];
-  const highlights = ['Started the year strong', 'Pop took over', 'Summer vibes', 'Rock comeback', 'Holiday classics'];
-  return templateMonths.map((month, index) => ({
-    month,
-    highlight: `${highlights[index]} with ${genres[index % genres.length]?.name ?? 'Pop'}`,
-    plays: Math.max(100, Math.round(totalTracks / templateMonths.length) + index * 57),
-    mood: moods[index] ?? 'Vibe',
-  }));
-}
-function buildYearlyAchievements(totalMinutes: number, totalTracks: number, totalGenres: number) {
-  return [
-    { icon: 'crown' as const, title: 'Top Listener', desc: `Logged ${Math.round(totalMinutes / 60)} hours`, color: 'from-yellow-500 to-orange-500' },
-    { icon: 'trophy' as const, title: 'Music Marathon', desc: `${totalTracks} tracks this year`, color: 'from-purple-500 to-pink-500' },
-    { icon: 'sparkles' as const, title: 'Explorer Badge', desc: `Dove into ${totalGenres} genres`, color: 'from-blue-500 to-cyan-500' },
-    { icon: 'heart' as const, title: 'Collector', desc: 'Saved your favorites all year', color: 'from-red-500 to-pink-500' },
+
+function buildYearTimelineFromActivities(activities: Activity[], genres: SummaryGenre[], totalTracks: number) {
+  // Group activities by month and calculate actual stats
+  const monthData = new Map<string, { plays: number; durationMs: number; tracks: Set<string> }>();
+  const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  activities.forEach((activity) => {
+    const date = new Date(activity.occurred_at);
+    const month = monthLabels[date.getMonth()];
+    const existing = monthData.get(month) ?? { plays: 0, durationMs: 0, tracks: new Set<string>() };
+    existing.plays += 1;
+    existing.durationMs += Number(activity.metadata?.durationMs) || 0;
+    existing.tracks.add(activity.title);
+    monthData.set(month, existing);
+  });
+
+  // If we have actual monthly data, use it; otherwise fall back to summary-based estimates
+  const hasRealData = monthData.size > 0;
+  const moods = ['Chill', 'Energetic', 'Upbeat', 'Intense', 'Festive', 'Focused', 'Relaxed', 'Vibrant'];
+  const highlights = [
+    'Started the year strong',
+    'Deep dive into new sounds',
+    'Spring vibes took over',
+    'Summer anthems on repeat',
+    'Autumn reflections',
+    'Holiday classics',
+    'Mid-year discovery phase',
+    'Late night sessions',
+    'Genre exploration month',
+    'Peak listening energy',
+    'Cozy indoor tunes',
+    'Year-end favorites',
   ];
+
+  // Select 5 representative months (spaced out)
+  const selectedMonths = hasRealData
+    ? Array.from(monthData.keys()).sort((a, b) => monthLabels.indexOf(a) - monthLabels.indexOf(b))
+    : ['Jan', 'Mar', 'May', 'Aug', 'Nov'];
+
+  // If we have more than 5 months, pick the most active ones spaced out
+  const finalMonths = selectedMonths.length > 5
+    ? [selectedMonths[0], selectedMonths[Math.floor(selectedMonths.length * 0.25)], selectedMonths[Math.floor(selectedMonths.length * 0.5)], selectedMonths[Math.floor(selectedMonths.length * 0.75)], selectedMonths[selectedMonths.length - 1]]
+    : selectedMonths;
+
+  return finalMonths.map((month, index) => {
+    const data = monthData.get(month);
+    const plays = data?.plays ?? Math.max(50, Math.round(totalTracks / 12));
+    const topGenre = genres[index % genres.length]?.name ?? 'Pop';
+    return {
+      month,
+      highlight: data
+        ? `${highlights[monthLabels.indexOf(month) % highlights.length]} with ${plays} plays`
+        : `${highlights[index]} with ${topGenre}`,
+      plays,
+      mood: moods[monthLabels.indexOf(month) % moods.length],
+    };
+  });
 }
-function determinePersonality(summary?: NormalizedListeningSummary) {
+
+function buildYearlyAchievements(totalMinutes: number, totalTracks: number, totalGenres: number, activityCount: number) {
+  const achievements: Array<{ icon: IconName; title: string; desc: string; color: string }> = [
+    { icon: 'crown', title: 'Top Listener', desc: `Logged ${Math.round(totalMinutes / 60)} hours`, color: 'from-yellow-500 to-orange-500' },
+    { icon: 'trophy', title: 'Music Marathon', desc: `${totalTracks} tracks this year`, color: 'from-purple-500 to-pink-500' },
+  ];
+
+  if (totalGenres > 3) {
+    achievements.push({ icon: 'sparkles', title: 'Explorer Badge', desc: `Dove into ${totalGenres} genres`, color: 'from-blue-500 to-cyan-500' });
+  }
+  if (activityCount > 100) {
+    achievements.push({ icon: 'heart', title: 'Collector', desc: `${activityCount} listening sessions`, color: 'from-red-500 to-pink-500' });
+  }
+  if (totalMinutes > 1000) {
+    achievements.push({ icon: 'zap', title: 'Power User', desc: 'Over 1,000 minutes of music', color: 'from-emerald-500 to-green-500' });
+  }
+
+  return achievements;
+}
+
+function determinePersonality(summary?: NormalizedListeningSummary, activities?: Activity[]) {
   const variety = summary?.payload?.genreDistribution?.length ?? 0;
+  const avgDailyMinutes = summary?.payload?.stats.averageDailyMinutes ?? 0;
+  const totalTracks = summary?.payload?.stats.totalTracks ?? 0;
+
+  // Calculate actual favorite listening time from activities
+  const favoriteTime = calculateFavoriteTime(activities ?? []);
+
   const traits = [
-    { label: 'Variety', value: Math.min(100, variety * 8), icon: 'star' as const },
-    { label: 'Discovery', value: Math.min(100, (summary?.payload?.topArtists?.length ?? 0) * 6), icon: 'zap' as const },
-    { label: 'Consistency', value: Math.min(100, Math.round((summary?.payload?.stats.averageDailyMinutes ?? 0) * 2)), icon: 'award' as const },
+    { label: 'Variety', value: Math.min(100, variety * 10), icon: 'star' as const },
+    { label: 'Discovery', value: Math.min(100, (summary?.payload?.topArtists?.length ?? 0) * 5), icon: 'zap' as const },
+    { label: 'Consistency', value: Math.min(100, Math.round(avgDailyMinutes * 2)), icon: 'award' as const },
   ];
-  if (variety > 10) return { title: 'The Explorer', description: 'You love discovering new music and artists', traits, favoriteTime: '8 PM - 11 PM' };
-  return { title: 'The Curator', description: 'You perfect playlists and return to trusted sounds', traits, favoriteTime: '5 PM - 8 PM' };
+
+  // Determine personality based on actual listening patterns
+  if (variety > 8 && totalTracks > 100) {
+    return { title: 'The Explorer', description: 'You love discovering new music across many genres and artists', traits, favoriteTime };
+  }
+  if (avgDailyMinutes > 60) {
+    return { title: 'The Devotee', description: 'Music is a constant companion in your daily life', traits, favoriteTime };
+  }
+  if (variety < 4 && totalTracks > 50) {
+    return { title: 'The Curator', description: 'You perfect playlists and return to trusted sounds', traits, favoriteTime };
+  }
+  if (avgDailyMinutes < 20 && totalTracks > 30) {
+    return { title: 'The Casual', description: 'You enjoy music in bursts with focused listening', traits, favoriteTime };
+  }
+  return { title: 'The Enthusiast', description: 'You have a healthy appetite for music across different moods', traits, favoriteTime };
 }
-function buildYearlyInsights(summary: NormalizedListeningSummary | undefined, activityCount: number) {
-  return [
-    `Discovered ${summary?.payload?.topArtists?.length ?? 0} artists`,
-    `Explored ${summary?.payload?.genreDistribution?.length ?? 0} genres`,
-    `Logged ${activityCount} listening sessions`,
+
+function calculateFavoriteTime(activities: Activity[]): string {
+  if (!activities.length) return '6 PM - 9 PM';
+
+  const hourBuckets = new Map<number, number>();
+  activities.forEach((activity) => {
+    const hour = new Date(activity.occurred_at).getHours();
+    hourBuckets.set(hour, (hourBuckets.get(hour) ?? 0) + 1);
+  });
+
+  // Group into time ranges
+  const ranges = [
+    { label: 'Morning (6AM - 12PM)', hours: [6, 7, 8, 9, 10, 11] },
+    { label: 'Afternoon (12PM - 6PM)', hours: [12, 13, 14, 15, 16, 17] },
+    { label: 'Evening (6PM - 12AM)', hours: [18, 19, 20, 21, 22, 23] },
+    { label: 'Late Night (12AM - 6AM)', hours: [0, 1, 2, 3, 4, 5] },
   ];
+
+  let maxCount = 0;
+  let favoriteRange = ranges[2]; // default evening
+
+  for (const range of ranges) {
+    const count = range.hours.reduce((sum, h) => sum + (hourBuckets.get(h) ?? 0), 0);
+    if (count > maxCount) {
+      maxCount = count;
+      favoriteRange = range;
+    }
+  }
+
+  // Find peak hour within favorite range
+  let peakHour = favoriteRange.hours[0];
+  let peakCount = 0;
+  for (const hour of favoriteRange.hours) {
+    const count = hourBuckets.get(hour) ?? 0;
+    if (count > peakCount) {
+      peakCount = count;
+      peakHour = hour;
+    }
+  }
+
+  return `${formatHour(peakHour)} - ${formatHour((peakHour + 2) % 24)}`;
 }
+
+function buildYearlyInsights(summary: NormalizedListeningSummary | undefined, activities: Activity[]) {
+  const insights: string[] = [];
+
+  const artistCount = summary?.payload?.topArtists?.length ?? 0;
+  const genreCount = summary?.payload?.genreDistribution?.length ?? 0;
+  const totalMinutes = summary?.payload?.stats.totalMinutes ?? 0;
+
+  if (artistCount > 0) {
+    insights.push(`Discovered ${artistCount} top artists`);
+  }
+  if (genreCount > 0) {
+    insights.push(`Explored ${genreCount} different genres`);
+  }
+  if (activities.length > 0) {
+    insights.push(`Logged ${activities.length} listening sessions`);
+  }
+  if (totalMinutes > 60) {
+    insights.push(`Spent ${Math.round(totalMinutes / 60)} hours with your favorite music`);
+  }
+  const topArtist = summary?.payload?.topArtists?.[0];
+  if (topArtist) {
+    insights.push(`Your top artist was ${topArtist.name}`);
+  }
+
+  return insights.length > 0 ? insights : ['Keep listening to build your insights!'];
+}
+
 function pickGenreColor(name: string) {
   const n = name.toLowerCase();
   if (n.includes('pop')) return 'from-purple-500 to-purple-600';
-  if (n.includes('hip')) return 'from-pink-500 to-pink-600';
+  if (n.includes('hip') || n.includes('rap')) return 'from-pink-500 to-pink-600';
   if (n.includes('rock')) return 'from-blue-500 to-blue-600';
-  if (n.includes('elect')) return 'from-cyan-500 to-cyan-600';
+  if (n.includes('elect') || n.includes('house') || n.includes('techno')) return 'from-cyan-500 to-cyan-600';
   if (n.includes('indie')) return 'from-green-500 to-green-600';
+  if (n.includes('r&b') || n.includes('soul')) return 'from-amber-500 to-orange-600';
+  if (n.includes('jazz')) return 'from-yellow-500 to-amber-600';
+  if (n.includes('classical')) return 'from-rose-500 to-pink-600';
+  if (n.includes('country')) return 'from-emerald-500 to-teal-600';
+  if (n.includes('metal')) return 'from-red-600 to-rose-700';
   return 'from-purple-500 to-pink-500';
 }
+
 function formatPercentile(topArtistPlays: number, totalTracks: number) {
   if (!totalTracks) return 'Top 25%';
   const ratio = Math.min(99, Math.max(1, Math.round((topArtistPlays / totalTracks) * 100)));
   return `Top ${Math.max(1, 100 - ratio)}%`;
 }
+
 function formatGlobalRank(topArtistPlays: number) {
   return `#${Math.max(1, Math.round(20000 - topArtistPlays * 10)).toLocaleString()}`;
 }
+
 function calculateGrowthLabel(plays: number) {
   if (!plays) return 'steady';
   const growth = Math.min(150, Math.max(-50, plays - 50));
   return `${growth >= 0 ? '+' : ''}${growth}%`;
 }
+
 function formatYearlyRank(totalTracks: number) {
   return `#${Math.max(1, 1000 - Math.round(totalTracks / 10))}`;
 }
+
 function formatReadableDate(date: Date) {
   return date.toLocaleDateString('en', { month: 'long', day: 'numeric', year: 'numeric' });
 }

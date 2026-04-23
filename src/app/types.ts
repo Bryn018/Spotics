@@ -105,6 +105,24 @@ export interface ListeningChartPoint {
   minutes: number;
 }
 
+export interface NowPlayingTrack {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  image: string | null;
+  durationMs: number;
+  progressMs: number;
+  previewUrl: string | null;
+  explicit: boolean;
+  spotifyUrl: string | null;
+}
+
+export interface NowPlayingResponse {
+  isPlaying: boolean;
+  track: NowPlayingTrack | null;
+}
+
 export type WrapTimeframe = 'daily' | 'weekly' | 'yearly';
 
 export interface WrapReport<TPayload> {
@@ -116,7 +134,7 @@ export interface WrapReport<TPayload> {
   payload: TPayload;
 }
 
-type IconName = 'trophy' | 'star' | 'flame' | 'crown' | 'sparkles' | 'heart' | 'award' | 'zap';
+export type IconName = 'trophy' | 'star' | 'flame' | 'crown' | 'sparkles' | 'heart' | 'award' | 'zap';
 
 export interface DailyWrapPayload {
   slides: DailyWrapSlide[];

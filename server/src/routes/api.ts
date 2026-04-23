@@ -131,6 +131,48 @@ router.get(
 );
 
 router.get(
+  '/now-playing',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const client = await getSpotifyClientForUser(req.auth!.userId);
+    const response = await client.getMyCurrentPlayingTrack();
+
+    const item = response.body?.item;
+    const isPlaying = response.body?.is_playing ?? false;
+
+    if (!item || item.type !== 'track') {
+      return res.json({
+        success: true,
+        data: {
+          isPlaying: false,
+          track: null,
+        },
+      });
+    }
+
+    const track = item as any;
+
+    return res.json({
+      success: true,
+      data: {
+        isPlaying,
+        track: {
+          id: track.id,
+          title: track.name,
+          artist: track.artists.map((a: any) => a.name).join(', '),
+          album: track.album.name,
+          image: track.album.images[0]?.url ?? null,
+          durationMs: track.duration_ms,
+          progressMs: response.body.progress_ms ?? 0,
+          previewUrl: track.preview_url ?? null,
+          explicit: track.explicit,
+          spotifyUrl: track.external_urls?.spotify ?? null,
+        },
+      },
+    });
+  }),
+);
+
+router.get(
   '/wraps',
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     const timeframe = wrapTimeframeSchema.parse(req.query.timeframe);
@@ -151,6 +193,30 @@ router.post(
   asyncHandler(async (req: AuthedRequest, res: Response) => {
     await generateWrapReports(req.auth!.userId);
     res.status(202).json({ success: true });
+  }),
+);
+
+router.get(
+  '/tracks/:id/image',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const client = await getSpotifyClientForUser(req.auth!.userId);
+    const trackId = req.params.id;
+    const response = await client.getTrack(trackId);
+    const images = response.body?.album?.images ?? [];
+    const imageUrl = images[0]?.url ?? null;
+    res.json({ success: true, data: { imageUrl } });
+  }),
+);
+
+router.get(
+  '/artists/:id/image',
+  asyncHandler(async (req: AuthedRequest, res: Response) => {
+    const client = await getSpotifyClientForUser(req.auth!.userId);
+    const artistId = req.params.id;
+    const response = await client.getArtist(artistId);
+    const images = response.body?.images ?? [];
+    const imageUrl = images[0]?.url ?? null;
+    res.json({ success: true, data: { imageUrl } });
   }),
 );
 

@@ -35,6 +35,8 @@ export function TopTracks({ tracks }: { tracks?: TrackStat[] }) {
               <ImageWithFallback
                 src={track.image ?? ''}
                 alt={track.title}
+                gradientSeed={track.id}
+                trackId={track.id}
                 className="w-12 h-12 rounded-lg object-cover"
               />
               <div className="flex-1 min-w-0">

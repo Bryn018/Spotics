@@ -7,17 +7,23 @@ import { TopAlbums } from '../components/TopAlbums';
 import { ListeningChart } from '../components/ListeningChart';
 import { GenreDistribution } from '../components/GenreDistribution';
 import { RecentActivity } from '../components/RecentActivity';
+import { NowPlaying } from '../components/NowPlaying';
 import { useDashboardData } from '../context/DashboardContext';
 import { useSession } from '../context/SessionContext';
+import { useNowPlaying } from '../hooks/useDashboard';
 import { Loader2, RefreshCw, LogIn, Music2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { apiBaseUrl, apiRoutes } from '../lib/api';
+import { ActivityDialog } from '../components/ActivityDialog';
+import { useState } from 'react';
 
 export function Home() {
   const { data, isLoading, syncing, sync, isError } = useDashboardData();
   const { authenticated, isLoading: sessionLoading } = useSession();
+  const nowPlayingQuery = useNowPlaying(authenticated && !sessionLoading);
   const payload = data?.summary?.payload;
   const activities = data?.activities ?? [];
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
 
   // Loading state
   if (isLoading || sessionLoading) {
@@ -104,6 +110,11 @@ export function Home() {
       <div className="mb-10">
         <WrappedSelector heroData={payload?.hero} />
       </div>
+
+      {/* Now Playing */}
+      <div className="mb-8">
+        <NowPlaying nowPlaying={nowPlayingQuery.data} />
+      </div>
       
       {/* Time Range Selector */}
       <div className="mb-8">
@@ -150,7 +161,7 @@ export function Home() {
             <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
           </div>
           <div className="xl:sticky xl:top-24">
-            <RecentActivity activities={activities} />
+            <RecentActivity activities={activities} onViewAll={() => setActivityDialogOpen(true)} />
           </div>
         </div>
       </div>
@@ -166,6 +177,12 @@ export function Home() {
           <GenreDistribution genres={payload?.genreDistribution} />
         </div>
       </div>
+
+      <ActivityDialog
+        open={activityDialogOpen}
+        onOpenChange={setActivityDialogOpen}
+        activities={activities}
+      />
     </main>
   );
 }

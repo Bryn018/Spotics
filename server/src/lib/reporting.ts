@@ -23,7 +23,7 @@ export async function generateListeningSummary(userId: string, timeframe: 'short
        total_artists = EXCLUDED.total_artists,
        payload = EXCLUDED.payload,
        fetched_at = now()`,
-    [userId, timeframe, totalMinutes, totalTracks, totalArtists, JSON.stringify(data)],
+    [userId, timeframe, totalMinutes, totalTracks, totalArtists, data],
   );
 
   return { totalMinutes, totalTracks, totalArtists };
@@ -47,7 +47,7 @@ export async function generateWrapReport(userId: string, timeframe: 'daily' | 'w
      ON CONFLICT (user_id, timeframe, period_start, period_end) DO UPDATE SET
        payload = EXCLUDED.payload,
        generated_at = now()`,
-    [userId, timeframe, periodStart, periodEnd, JSON.stringify(payload)],
+    [userId, timeframe, periodStart, periodEnd, payload],
   );
 
   return payload;

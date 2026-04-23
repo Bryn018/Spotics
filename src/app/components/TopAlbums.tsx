@@ -24,6 +24,7 @@ export function TopAlbums({ albums }: { albums?: AlbumStat[] }) {
             <ImageWithFallback
               src={album.image ?? ''}
               alt={album.name}
+              gradientSeed={album.id}
               className="w-full aspect-square rounded-xl object-cover shadow-lg group-hover:shadow-green-500/20 transition-all duration-300 group-hover:scale-105"
             />
           </div>

@@ -30,6 +30,8 @@ export function TopArtists({ artists }: { artists?: ArtistStat[] }) {
               <ImageWithFallback
                 src={artist.image ?? ''}
                 alt={artist.name}
+                gradientSeed={artist.id}
+                artistId={artist.id}
                 className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-800 group-hover:ring-blue-500/50 transition-all"
               />
               <div className="flex-1 min-w-0">
