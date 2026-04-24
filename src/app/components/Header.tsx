@@ -9,9 +9,11 @@ import { SettingsDialog } from './SettingsDialog';
 import { NotificationsDialog } from './NotificationsDialog';
 import { AccountDialog } from './AccountDialog';
 import { motion } from 'framer-motion';
+import { useSession } from '../context/SessionContext';
 
 export function Header() {
   const location = useLocation();
+  const { user } = useSession();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -92,8 +94,8 @@ export function Header() {
                 className="h-9 w-9 hidden sm:flex cursor-pointer ring-2 ring-transparent hover:ring-purple-500/50 transition-all" 
                 onClick={() => setAccountOpen(true)}
               >
-                <AvatarImage src="https://images.unsplash.com/photo-1541293590517-e76751af59f1?w=100" />
-                <AvatarFallback>ME</AvatarFallback>
+                <AvatarImage src={user?.avatar_url || undefined} />
+                <AvatarFallback>{user?.display_name?.charAt(0)?.toUpperCase() || 'ME'}</AvatarFallback>
               </Avatar>
             </motion.div>
 
