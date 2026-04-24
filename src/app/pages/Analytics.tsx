@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { TrendingUp, TrendingDown, Clock, Music, Calendar, Award, Target, Zap, Users, Globe, Crown, Trophy, Star, Sparkles, Flame, Heart, Headphones } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useId, useMemo } from 'react';
 
 export function Analytics() {
@@ -188,10 +188,10 @@ export function Analytics() {
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-1 w-8 bg-[#1DB954] rounded-full"></div>
-          <h1 className="text-[40px] font-extrabold text-white">Analytics</h1>
+          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+          <h1 className="text-4xl font-bold text-white">Analytics</h1>
         </div>
-        <p className="text-[#9CA3AF]">Deep dive into your listening patterns and music preferences</p>
+        <p className="text-gray-400">Deep dive into your listening patterns and music preferences</p>
       </div>
 
       {/* Key Stats */}
@@ -199,21 +199,22 @@ export function Analytics() {
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={index} className="bg-[#0B0E14] border-[#1F2937] overflow-hidden relative group hover:border-[#374151] transition-all">
+            <Card key={index} className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 overflow-hidden relative group hover:border-purple-500/30 transition-all">
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
               <CardContent className="p-6 relative z-10">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="h-11 w-11 rounded-lg bg-[#06201E] flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-[#1DB954]" />
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor}`}>
+                    <Icon className="h-6 w-6 text-white" />
                   </div>
                   {stat.trend !== 'same' && (
-                    <div className="flex items-center gap-1 text-xs font-bold text-[#1DB954]">
+                    <div className={`flex items-center gap-1 text-sm font-medium ${stat.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
                       {stat.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                       <span>{stat.change}</span>
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-[#9CA3AF] mb-1">{stat.label}</p>
-                <p className="text-[32px] font-bold text-white">{stat.value}</p>
+                <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold text-white">{stat.value}</p>
               </CardContent>
             </Card>
           );
@@ -249,8 +250,8 @@ export function Analytics() {
               <LineChart data={monthlyData} id={`monthly-chart-${uniqueId}`}>
                 <defs>
                   <linearGradient id={`analyticsMonthlyGradient-${uniqueId}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop key="monthly-stop1" offset="0%" stopColor="#a855f7" stopOpacity={0.8}/>
-                    <stop key="monthly-stop2" offset="100%" stopColor="#ec4899" stopOpacity={0.2}/>
+                    <stop key={`analytics-monthly-stop1-${uniqueId}`} offset="0%" stopColor="#a855f7" stopOpacity={0.8}/>
+                    <stop key={`analytics-monthly-stop2-${uniqueId}`} offset="100%" stopColor="#ec4899" stopOpacity={0.2}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.3} vertical={false} />
@@ -342,8 +343,8 @@ export function Analytics() {
               <BarChart data={hourlyData} id={`hourly-chart-${uniqueId}`}>
                 <defs>
                   <linearGradient id={`analyticsBarGradient-${uniqueId}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop key="bar-stop1" offset="0%" stopColor="#3b82f6" stopOpacity={1}/>
-                    <stop key="bar-stop2" offset="100%" stopColor="#06b6d4" stopOpacity={0.6}/>
+                    <stop key={`analytics-bar-stop1-${uniqueId}`} offset="0%" stopColor="#3b82f6" stopOpacity={1}/>
+                    <stop key={`analytics-bar-stop2-${uniqueId}`} offset="100%" stopColor="#06b6d4" stopOpacity={0.6}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.3} vertical={false} />
@@ -439,8 +440,8 @@ export function Analytics() {
               <RadarChart data={musicTasteData} id={`radar-chart-${uniqueId}`}>
                 <defs>
                   <linearGradient id={`analyticsRadarGradient-${uniqueId}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop key="radar-stop1" offset="0%" stopColor="#10b981" stopOpacity={0.8}/>
-                    <stop key="radar-stop2" offset="100%" stopColor="#059669" stopOpacity={0.2}/>
+                    <stop key={`analytics-radar-stop1-${uniqueId}`} offset="0%" stopColor="#10b981" stopOpacity={0.8}/>
+                    <stop key={`analytics-radar-stop2-${uniqueId}`} offset="100%" stopColor="#059669" stopOpacity={0.2}/>
                   </linearGradient>
                 </defs>
                 <PolarGrid stroke="#374151" />

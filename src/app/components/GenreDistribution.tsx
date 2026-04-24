@@ -1,82 +1,93 @@
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { Music } from 'lucide-react';
 import type { GenreStat } from '../types';
 
-const colors = ['#1DB954', '#3b82f6', '#f43f5e', '#a855f7', '#06b6d4', '#f59e0b', '#ec4899', '#14b8a6', '#8b5cf6', '#ef4444'];
+interface GenreDistributionProps {
+  genres: GenreStat[];
+}
 
-export function GenreDistribution({ genres }: { genres?: GenreStat[] }) {
-  const genresToShow = genres?.length ? genres.map((g, i) => ({
-    ...g,
-    color: colors[i % colors.length]
-  })) : [];
+const COLORS = ['#22c55e', '#3b82f6', '#a855f7', '#f97316', '#ef4444', '#14b8a6', '#f59e0b', '#ec4899'];
 
-  const totalPlays = genresToShow.reduce((sum, g) => sum + (g.hours * 60), 0);
+export function GenreDistribution({ genres }: GenreDistributionProps) {
+  const chartData = genres.length > 0 ? genres.map((g) => ({ name: g.name, value: g.percentage })) : [];
+  const displayGenres = genres.length > 0 ? genres : [];
 
   return (
-    <div className="rounded-2xl bg-[#121212] border border-white/[0.06] p-6">
-      <div className="mb-6">
-        <h3 className="text-lg font-bold text-white">Genre Distribution</h3>
-        <p className="text-gray-500 text-sm mt-0.5">Your most listened genres</p>
-      </div>
-
-      {genresToShow.length === 0 && (
-        <div className="p-8 text-center text-gray-500">
-          <p>No genre data yet. Start listening on Spotify!</p>
+    <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 backdrop-blur-sm">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-pink-500/20 to-purple-500/20">
+            <Music className="h-5 w-5 text-pink-400" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-bold text-white">Genre Distribution</CardTitle>
+            <p className="text-sm text-gray-400">Your musical taste breakdown</p>
+          </div>
         </div>
-      )}
-
-      {genresToShow.length > 0 && (
-        <>
-          {/* Top Genre Highlight */}
-          <div className="mb-6 p-4 rounded-xl bg-[#1a1a1a] border border-white/[0.06]">
-            <p className="text-gray-500 text-xs mb-1">Top Genre</p>
-            <p className="text-2xl font-bold text-white">{genresToShow[0]?.name ?? 'Pop'}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="h-2 flex-1 bg-gray-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${genresToShow[0]?.percentage ?? 32}%`,
-                    backgroundColor: genresToShow[0]?.color ?? '#1DB954'
+      </CardHeader>
+      <CardContent>
+        <div className="h-[250px] w-full mb-4">
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={4}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#fff',
                   }}
+                  formatter={(value: number) => [`${value}%`, 'Percentage']}
                 />
-              </div>
-              <span className="text-green-400 font-semibold text-sm">{genresToShow[0]?.percentage ?? 32}%</span>
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <p>No genre data available</p>
             </div>
-          </div>
-
-          {/* Genre Breakdown */}
-          <div className="space-y-3">
-            {genresToShow.map((genre, index) => (
-              <div key={`${genre.name}-${index}`} className="flex items-center gap-3">
+          )}
+        </div>
+        <div className="space-y-2">
+          {displayGenres.slice(0, 6).map((genre, index) => (
+            <div key={genre.name} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
                 <div
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: genre.color }}
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
                 />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-white text-sm font-medium">{genre.name}</span>
-                    <span className="text-gray-500 text-xs">{genre.hours}h • {genre.percentage}%</span>
-                  </div>
-                  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${genre.percentage}%`,
-                        backgroundColor: genre.color
-                      }}
-                    />
-                  </div>
-                </div>
+                <span className="text-sm text-gray-300">{genre.name}</span>
               </div>
-            ))}
-          </div>
-
-          {/* Total */}
-          <div className="mt-6 pt-4 border-t border-white/[0.06] text-center">
-            <p className="text-gray-500 text-xs">Total Plays</p>
-            <p className="text-white font-semibold">{totalPlays.toLocaleString()}</p>
-          </div>
-        </>
-      )}
-    </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-24 bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${genre.percentage}%`,
+                      backgroundColor: COLORS[index % COLORS.length],
+                    }}
+                  />
+                </div>
+                <span className="text-xs text-gray-400 w-10 text-right">{genre.percentage}%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

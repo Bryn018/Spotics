@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, PanInfo } from 'motion/react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { X, Music2, Trophy, Star, Flame, Crown, Sparkles, Heart, Award, Zap, TrendingUp, Clock, Headphones, Share2, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import type {

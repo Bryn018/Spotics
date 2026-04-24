@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, ExternalLink, Music2 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import type { NowPlayingResponse } from '../types';

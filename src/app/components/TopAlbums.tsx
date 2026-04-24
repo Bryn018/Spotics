@@ -1,54 +1,60 @@
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Disc3 } from 'lucide-react';
 import type { AlbumStat } from '../types';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 
-export function TopAlbums({ albums }: { albums?: AlbumStat[] }) {
-  const albumsToShow = albums ?? [];
-  const formatPlays = (value: unknown) => {
-    const n = Number(value);
-    return Number.isFinite(n) ? n.toLocaleString() : '0';
-  };
+interface TopAlbumsProps {
+  albums: AlbumStat[];
+}
+
+export function TopAlbums({ albums }: TopAlbumsProps) {
+  const displayAlbums = albums.length > 0 ? albums : [];
 
   return (
-    <div className="rounded-2xl bg-[#121212] border border-white/[0.06] overflow-hidden">
-      <div className="p-6 pb-4">
-        <h2 className="text-xl font-bold text-white">Top Albums</h2>
-      </div>
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {albumsToShow.slice(0, 5).map((album, index) => (
-            <div
-              key={album.id}
-              className="group cursor-pointer"
-            >
-              <div className="relative mb-3 aspect-square">
-                <ImageWithFallback
-                  src={album.image ?? undefined}
-                  alt={album.name}
-                  gradientSeed={album.id}
-                  className="w-full h-full rounded-xl object-cover shadow-xl ring-1 ring-white/[0.06] group-hover:ring-white/20 transition-all"
-                />
-                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded-md">
-                  #{index + 1}
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="font-semibold text-white truncate group-hover:text-green-400 transition-colors text-sm">
-                  {album.name}
-                </h3>
-                <p className="text-xs text-gray-400 truncate">{album.artist}</p>
-                <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-gray-500">{album.totalMinutes} min</span>
-                  <span className="text-[11px] text-green-400 font-medium">{formatPlays(album.plays)} plays</span>
-                </div>
-              </div>
-            </div>
-          ))}
-          {albumsToShow.length === 0 && (
-            <div className="col-span-full text-center text-gray-500 py-12">No albums available</div>
-          )}
+    <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 backdrop-blur-sm">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+            <Disc3 className="h-5 w-5 text-purple-400" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-bold text-white">Top Albums</CardTitle>
+            <p className="text-sm text-gray-400">Your most played albums</p>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {displayAlbums.slice(0, 5).map((album, index) => (
+          <div
+            key={album.id}
+            className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-all"
+          >
+            <span className="text-sm font-bold text-gray-500 w-5 text-center">
+              {index + 1}
+            </span>
+            <img
+              src={album.image || '/placeholder-album.svg'}
+              alt={album.name}
+              className="h-12 w-12 rounded-lg object-cover shadow-md"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/placeholder-album.svg';
+              }}
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white truncate">{album.name}</p>
+              <p className="text-xs text-gray-400 truncate">{album.artist}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-gray-500">{album.plays} plays</p>
+              <p className="text-xs text-gray-600">{album.totalMinutes}m</p>
+            </div>
+          </div>
+        ))}
+        {displayAlbums.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No albums available for this timeframe</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

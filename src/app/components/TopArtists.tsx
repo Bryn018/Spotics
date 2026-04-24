@@ -1,63 +1,62 @@
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Mic2, TrendingUp } from 'lucide-react';
 import type { ArtistStat } from '../types';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 
-export function TopArtists({ artists }: { artists?: ArtistStat[] }) {
-  const artistsToShow = artists ?? [];
+interface TopArtistsProps {
+  artists: ArtistStat[];
+}
+
+export function TopArtists({ artists }: TopArtistsProps) {
+  const displayArtists = artists.length > 0 ? artists : [];
 
   return (
-    <div className="rounded-2xl bg-[#121212] border border-white/[0.06] overflow-hidden">
-      <div className="p-6 pb-4">
-        <h2 className="text-xl font-bold text-white">Top Artists</h2>
-      </div>
-      <div className="px-4 pb-4 space-y-2">
-        {artistsToShow.slice(0, 6).map((artist, index) => (
+    <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 backdrop-blur-sm">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20">
+            <Mic2 className="h-5 w-5 text-green-400" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-bold text-white">Top Artists</CardTitle>
+            <p className="text-sm text-gray-400">Your most played artists</p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {displayArtists.slice(0, 5).map((artist, index) => (
           <div
             key={artist.id}
-            className="group flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/[0.04] transition-all cursor-pointer"
+            className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-all"
           >
-            {/* Rank */}
-            <span className="text-lg font-bold text-gray-600 w-6 text-center group-hover:text-white transition-colors">
+            <span className="text-sm font-bold text-gray-500 w-5 text-center">
               {index + 1}
             </span>
-
-            {/* Artist Image */}
-            <div className="relative flex-shrink-0 w-14 h-14">
-              <ImageWithFallback
-                src={artist.image ?? undefined}
-                alt={artist.name}
-                gradientSeed={artist.id}
-                artistId={artist.id}
-                className="w-full h-full rounded-full object-cover shadow-lg ring-2 ring-transparent group-hover:ring-white/10 transition-all"
-              />
-            </div>
-
-            {/* Artist Info */}
+            <img
+              src={artist.image || '/placeholder-artist.svg'}
+              alt={artist.name}
+              className="h-12 w-12 rounded-full object-cover shadow-md ring-2 ring-gray-700"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/placeholder-artist.svg';
+              }}
+            />
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-white truncate group-hover:text-green-400 transition-colors text-[15px]">
-                {artist.name}
-              </h3>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-sm text-gray-400">{artist.plays} plays</span>
-                <span className="text-gray-600">•</span>
-                <span className="text-sm text-gray-500">{artist.hours}h</span>
+              <p className="text-sm font-semibold text-white truncate">{artist.name}</p>
+              <div className="flex items-center gap-1">
+                <TrendingUp className="h-3 w-3 text-green-400" />
+                <span className="text-xs text-green-400">{artist.plays} plays</span>
               </div>
-              <div className="flex flex-wrap gap-1.5 mt-1.5">
-                {artist.genres?.slice(0, 3).map((genre) => (
-                  <span
-                    key={genre}
-                    className="text-[11px] px-2 py-0.5 rounded-full bg-white/[0.06] text-gray-400 border border-white/[0.06]"
-                  >
-                    {genre}
-                  </span>
-                ))}
-              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-gray-500">{artist.hours}h</p>
             </div>
           </div>
         ))}
-        {artistsToShow.length === 0 && (
-          <div className="text-center text-gray-500 py-12">No artists available</div>
+        {displayArtists.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No artists available for this timeframe</p>
+          </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
