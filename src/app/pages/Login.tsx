@@ -20,7 +20,7 @@ export function Login() {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         {/* Main Content Card - solid dark navy, no glassmorphism */}
-        <div className="relative overflow-hidden rounded-3xl bg-[#121826] border border-[#1F2937] shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl bg-[#0f1620] border border-[#1F2937] shadow-2xl">
 
           <div className="relative p-12">
             {/* Logo Section */}
