@@ -416,7 +416,7 @@ export function Home() {
               </div>
               <h3 className="font-bold text-white text-base truncate mb-1">{artist.name}</h3>
               <p className="text-xs text-[#9ca3af] mb-2">{artist.plays} plays</p>
-              <p className="text-sm text-gray-400">{artist.hours.toFixed(1)}h listening</p>
+              <p className="text-sm text-gray-400">{(artist.hours ?? 0).toFixed(1)}h listening</p>
       <div className="flex flex-wrap gap-1 mt-1">
         {artist.genres?.slice(0, 2).map((genre: string) => {
           const {bg, text} = getGenreColors(genre);
