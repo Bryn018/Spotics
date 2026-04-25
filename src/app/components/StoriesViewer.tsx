@@ -33,14 +33,14 @@ const iconMap: Record<IconName, typeof Trophy> = {
 const SLIDE_DURATION_MS = 6000;
 
 const SLIDE_GRADIENTS = [
-  'from-purple-900 via-indigo-900 to-black',
-  'from-rose-900 via-pink-900 to-black',
-  'from-emerald-900 via-teal-900 to-black',
-  'from-amber-900 via-orange-900 to-black',
-  'from-cyan-900 via-blue-900 to-black',
-  'from-fuchsia-900 via-violet-900 to-black',
-  'from-lime-900 via-green-900 to-black',
-  'from-sky-900 via-cyan-900 to-black',
+  'from-[#062826] via-[#0a3d2e] to-black',
+  'from-[#a6113a] via-[#881337] to-black',
+  'from-[#062826] via-[#0d4a34] to-black',
+  'from-[#a6113a] via-[#be123c] to-black',
+  'from-[#062826] via-[#064e3b] to-black',
+  'from-[#8b5cf6] via-[#7c3aed] to-black',
+  'from-[#062826] via-[#14532d] to-black',
+  'from-[#0ea5e9] via-[#0284c7] to-black',
 ];
 
 function getSlideGradient(index: number) {
@@ -281,9 +281,9 @@ export function StoriesViewer({ open, onClose, timeframe, report, isLoading }: S
       {/* Progress bars - Instagram style thin segmented */}
       <div className="absolute top-3 left-0 right-0 z-30 flex gap-1.5 px-3">
         {Array.from({ length: Math.max(totalSlides, 1) }).map((_, i) => (
-          <div key={i} className="flex-1 h-[3px] bg-white/20 rounded-full overflow-hidden">
+          <div key={i} className="flex-1 h-[3px] bg-white/10 rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-white rounded-full"
+              className="h-full bg-[#1DB954] rounded-full"
               style={{
                 width: i < currentSlide ? '100%' : i === currentSlide ? `${progress}%` : '0%',
               }}
@@ -296,7 +296,7 @@ export function StoriesViewer({ open, onClose, timeframe, report, isLoading }: S
       {/* Header */}
       <div className="absolute top-6 left-0 right-0 z-30 flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center ring-2 ring-white/20">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1DB954] to-[#19E68C] flex items-center justify-center ring-2 ring-white/20">
             <Music2 className="h-4 w-4 text-white" />
           </div>
           <div>
@@ -412,7 +412,7 @@ export function StoriesViewer({ open, onClose, timeframe, report, isLoading }: S
             <span className="text-white text-sm font-medium">Share</span>
           </button>
           <div className="px-3 py-1 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
-            <p className="text-white/50 text-xs font-medium">
+            <p className="text-[#B3B3B3] text-xs font-medium">
               {currentSlide + 1} / {totalSlides}
             </p>
           </div>
@@ -489,10 +489,10 @@ function IntroSlide({ slide }: { slide: any }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 + i * 0.1 }}
-            className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4"
+            className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl p-4"
           >
             <p className="text-2xl font-black text-white drop-shadow">{typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}</p>
-            <p className="text-xs text-white/50 uppercase tracking-wider font-medium">{stat.label}</p>
+            <p className="text-xs text-[#B3B3B3] uppercase tracking-wider font-medium">{stat.label}</p>
           </motion.div>
         ))}
       </div>
@@ -510,7 +510,7 @@ function TopSongSlide({ slide }: { slide: any }) {
         transition={{ type: 'spring', delay: 0.1 }}
       >
         <div className="relative mx-auto w-64 h-64">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-blue-500 rounded-3xl blur-2xl opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954] to-[#19E68C] rounded-2xl blur-2xl opacity-50" />
           <ImageWithFallback
             src={slide.content.image}
             alt={slide.content.track}
@@ -566,7 +566,7 @@ function TopTracksSlide({ slide }: { slide: any }) {
             />
             <div className="flex-1 text-left min-w-0">
               <p className="text-white font-bold truncate text-sm drop-shadow">{track.track}</p>
-              <p className="text-white/50 text-xs">{track.artist}</p>
+              <p className="text-[#B3B3B3] text-xs">{track.artist}</p>
             </div>
             <span className="text-white/60 text-sm font-bold shrink-0">{track.plays}</span>
           </motion.div>
@@ -603,16 +603,16 @@ function TopArtistSlide({ slide }: { slide: any }) {
         <div className="flex items-center justify-center gap-3 mt-4">
           <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-3">
             <p className="text-xl font-black text-white drop-shadow">{slide.content.plays.toLocaleString()}</p>
-            <p className="text-[10px] text-white/50 uppercase tracking-wider">Plays</p>
+            <p className="text-[10px] text-[#B3B3B3] uppercase tracking-wider">Plays</p>
           </div>
           <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-3">
             <p className="text-xl font-black text-white drop-shadow">{slide.content.hours}h</p>
-            <p className="text-[10px] text-white/50 uppercase tracking-wider">Time</p>
+            <p className="text-[10px] text-[#B3B3B3] uppercase tracking-wider">Time</p>
           </div>
           {slide.content.percentile && (
             <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-3">
               <p className="text-xl font-black text-yellow-400 drop-shadow">{slide.content.percentile}</p>
-              <p className="text-[10px] text-white/50 uppercase tracking-wider">Percentile</p>
+              <p className="text-[10px] text-[#B3B3B3] uppercase tracking-wider">Percentile</p>
             </div>
           )}
         </div>
@@ -634,9 +634,9 @@ function ListeningTimeSlide({ slide }: { slide: any }) {
         <Clock className="h-10 w-10 text-green-400 mx-auto mb-4" />
         <div className="flex items-center justify-center gap-1">
           <span className="text-6xl font-black text-white drop-shadow-lg">{slide.content.hours}</span>
-          <span className="text-xl text-white/50 font-medium">h</span>
+          <span className="text-xl text-[#B3B3B3] font-medium">h</span>
           <span className="text-6xl font-black text-white drop-shadow-lg ml-2">{slide.content.minutes}</span>
-          <span className="text-xl text-white/50 font-medium">m</span>
+          <span className="text-xl text-[#B3B3B3] font-medium">m</span>
         </div>
         <p className="text-white/40 text-sm mt-2">Total listening time</p>
       </motion.div>
@@ -677,7 +677,7 @@ function DiscoverySlide({ slide }: { slide: any }) {
           src={slide.content.image}
           alt={slide.content.track}
           gradientSeed={slide.content.track}
-          className="relative w-full h-full rounded-3xl object-cover shadow-2xl ring-2 ring-white/10"
+            className="relative w-full h-full rounded-xl object-cover shadow-2xl ring-2 ring-white/10"
         />
       </div>
       <div>
@@ -689,10 +689,10 @@ function DiscoverySlide({ slide }: { slide: any }) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.3, type: 'spring' }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1DB954]/20 border border-[#1DB954]/30 rounded-full"
         >
-          <Heart className="h-4 w-4 text-green-400 fill-green-400" />
-          <span className="text-green-400 text-sm font-bold">Added to your library</span>
+          <Heart className="h-4 w-4 text-[#1DB954] fill-[#1DB954]" />
+          <span className="text-[#1DB954] text-sm font-bold">Added to your library</span>
         </motion.div>
       )}
     </div>
@@ -719,7 +719,7 @@ function StatsSlide({ slide }: { slide: any }) {
             className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-2xl p-4"
           >
             <p className="text-2xl font-black text-white drop-shadow">{stat.value}</p>
-            <p className="text-[10px] text-white/50 uppercase tracking-wider">{stat.label}</p>
+            <p className="text-[10px] text-[#B3B3B3] uppercase tracking-wider">{stat.label}</p>
           </motion.div>
         ))}
       </div>
@@ -747,7 +747,7 @@ function AchievementsSlide({ slide }: { slide: any }) {
               </div>
               <div className="text-left">
                 <p className="text-white font-bold text-sm drop-shadow">{achievement.title}</p>
-                <p className="text-white/50 text-xs">{achievement.desc}</p>
+                <p className="text-[#B3B3B3] text-xs">{achievement.desc}</p>
               </div>
             </motion.div>
           );
@@ -762,7 +762,7 @@ function GenresSlide({ slide }: { slide: any }) {
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-white/90 uppercase tracking-wider drop-shadow-lg">{slide.title}</h2>
       <div className="text-center mb-4">
-        <p className="text-white/50 text-xs uppercase tracking-wider mb-1">Your top genre</p>
+        <p className="text-[#B3B3B3] text-xs uppercase tracking-wider mb-1">Your top genre</p>
         <p className="text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-lg">
           {slide.content.topGenre}
         </p>
@@ -778,7 +778,7 @@ function GenresSlide({ slide }: { slide: any }) {
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-white text-sm font-medium">{genre.name}</span>
-              <span className="text-white/50 text-sm">{genre.value}%</span>
+              <span className="text-[#B3B3B3] text-sm">{genre.value}%</span>
             </div>
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
               <motion.div
@@ -866,7 +866,7 @@ function TimelineSlide({ slide }: { slide: any }) {
             </div>
             <div className="flex-1 bg-black/20 border border-white/10 rounded-xl p-3 text-left">
               <p className="text-white font-bold text-sm drop-shadow">{item.highlight}</p>
-              <div className="flex items-center gap-2 mt-1 text-xs text-white/50">
+              <div className="flex items-center gap-2 mt-1 text-xs text-[#B3B3B3]">
                 <span>{item.plays.toLocaleString()} plays</span>
                 <span>•</span>
                 <span className="text-purple-400">{item.mood}</span>
@@ -886,16 +886,16 @@ function ThankYouSlide({ slide }: { slide: any }) {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring' }}
-        className="inline-block p-5 rounded-full bg-gradient-to-br from-green-500/30 to-blue-500/30"
+        className="inline-block p-5 rounded-full bg-gradient-to-br from-[#1DB954]/30 to-[#19E68C]/30"
       >
-        <Heart className="h-14 w-14 text-green-400" />
+        <Heart className="h-14 w-14 text-[#1DB954]" />
       </motion.div>
       <div>
         <h2 className="text-4xl font-black text-white mb-2 leading-tight drop-shadow-lg">{slide.title}</h2>
         <p className="text-lg text-white/70 drop-shadow-md">{slide.subtitle}</p>
       </div>
-      <div className="bg-black/20 border border-white/10 rounded-2xl p-6">
-        <p className="text-white/50 text-xs uppercase tracking-wider mb-2">Your yearly rank</p>
+      <div className="bg-black/20 border border-white/10 rounded-xl p-6">
+        <p className="text-[#B3B3B3] text-xs uppercase tracking-wider mb-2">Your yearly rank</p>
         <p className="text-3xl font-black text-white drop-shadow">{slide.content.yearlyRank}</p>
         <p className="text-white/40 text-xs mt-1">out of {slide.content.totalListeners} listeners</p>
       </div>
