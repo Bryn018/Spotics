@@ -416,17 +416,17 @@ export function Home() {
               </div>
               <h3 className="font-bold text-white text-base truncate mb-1">{artist.name}</h3>
               <p className="text-xs text-[#9ca3af] mb-2">{artist.plays} plays</p>
-              <p className="text-sm text-gray-400">{{artist.hours.toFixed(1)}}h listening</p>
-<div className="flex flex-wrap gap-1 mt-1">
-  {artist.genres?.slice(0, 2).map((genre: string) => {
-    const {bg, text} = getGenreColors(genre);
-    return (
-      <span key={genre} className="{`${bg} ${text} px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider`}">
-        {{genre}}
-      </span>
-    );
-  }}
-</div>
+              <p className="text-sm text-gray-400">{artist.hours.toFixed(1)}h listening</p>
+      <div className="flex flex-wrap gap-1 mt-1">
+        {artist.genres?.slice(0, 2).map((genre: string) => {
+          const {bg, text} = getGenreColors(genre);
+          return (
+            <span key={genre} className={`${bg} ${text} px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider`}>
+              {genre}
+            </span>
+          );
+        })}
+      </div>
             </motion.div>
           ))}
           {(payload?.topArtists ?? []).length === 0 && (
