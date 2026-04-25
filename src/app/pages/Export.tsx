@@ -36,7 +36,7 @@ export function Export() {
     stats: [
       { icon: 'Clock', label: 'Total Time', value: '—', color: 'from-[#1DB954] to-[#19E68C]' },
       { icon: 'Music', label: 'Tracks', value: '—', color: 'from-[#3B82F6] to-[#1DB954]' },
-      { icon: 'Headphones', label: 'Artists', value: '—', color: 'from-[#881337] to-[#7F1D1D]' },
+      { icon: 'Headphones', label: 'Artists', value: '—', color: 'from-[#19E68C] to-[#7F1D1D]' },
       { icon: 'TrendingUp', label: 'Avg Daily', value: '—', color: 'from-[#19E68C] to-[#3B82F6]' },
     ],
     topTracks: [],
@@ -83,7 +83,7 @@ export function Export() {
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1400px]">
       {/* Hero Section */}
-      <div className="mb-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1DB954]/10 via-teal-500/10 to-[#3B82F6]/10 border border-[#1DB954]/20 p-8 lg:p-12">
+      <div className="mb-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1DB954]/10 via-#19E68C/10 to-[#3B82F6]/10 border border-[#1DB954]/20 p-8 lg:p-12">
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#1DB954]/20 to-transparent rounded-full blur-3xl"
@@ -175,13 +175,13 @@ export function Export() {
               <TabsList className="bg-[#1F2937]/80 backdrop-blur-sm border border-[#374151]/50 p-1 w-full">
                 <TabsTrigger
                   value="weekly"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#1DB954] data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
+                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#1DB954] data-[state=active]:to-#19E68C data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
                 >
                   Weekly
                 </TabsTrigger>
                 <TabsTrigger
                   value="monthly"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-[#3B82F6] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
+                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-#19E68C data-[state=active]:to-[#3B82F6] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
                 >
                   Monthly
                 </TabsTrigger>
@@ -209,7 +209,7 @@ export function Export() {
               <Button
                 onClick={handleDownload}
                 disabled={isGenerating || isLoading}
-                className="w-full bg-gradient-to-r from-[#19E68C] via-teal-600 to-[#1DB954] hover:from-[#19E68C] hover:via-teal-700 hover:to-[#19E68C] text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
+                className="w-full bg-gradient-to-r from-[#19E68C] via-#19E68C to-[#1DB954] hover:from-[#19E68C] hover:via-#19E68C hover:to-[#19E68C] text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
@@ -245,13 +245,13 @@ export function Export() {
         transition={{ delay: 0.2 }}
         className="relative"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1DB954]/5 via-teal-500/5 to-[#3B82F6]/5 rounded-2xl blur-xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1DB954]/5 via-#19E68C/5 to-[#3B82F6]/5 rounded-2xl blur-xl" />
         <div className="relative bg-gradient-to-br from-[#111827]/90 to-[#1F2937]/90 backdrop-blur-sm rounded-2xl p-4 lg:p-8 border border-[#374151]/50 shadow-2xl">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-[#B3B3B3] text-sm font-medium">Preview</p>
             <div className="flex gap-2">
               <div className="h-3 w-3 rounded-full bg-[#1DB954]/50" />
-              <div className="h-3 w-3 rounded-full bg-yellow-500/50" />
+              <div className="h-3 w-3 rounded-full bg-[#1DB954]/50" />
               <div className="h-3 w-3 rounded-full bg-[#1DB954]/50" />
             </div>
           </div>
@@ -400,7 +400,7 @@ export function Export() {
             {/* Genre Distribution */}
             <div className="relative rounded-2xl p-6 shadow-xl overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
               <div className="relative flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #881337, #9f1239)' }}>
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #19E68C, #9f1239)' }}>
                   <Music className="h-5 w-5" style={{ color: '#ffffff' }} />
                 </div>
                 <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Genres</h3>
@@ -476,13 +476,13 @@ export function Export() {
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-green-500/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-#19E68C flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-green-500/20">
                   1
                 </div>
                 <p className="text-[#B3B3B3] text-sm">Select your preferred time range: Weekly, Monthly, or All Time stats</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-[#3B82F6] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-#19E68C to-[#3B82F6] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
                   2
                 </div>
                 <p className="text-[#B3B3B3] text-sm">Click the "Download as PNG" button to generate a high-quality image</p>
@@ -494,7 +494,7 @@ export function Export() {
                 <p className="text-[#B3B3B3] text-sm">Share your music taste on social media with friends and followers</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-[#881337] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-800/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-[#19E68C] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-800/20">
                   4
                 </div>
                 <p className="text-[#B3B3B3] text-sm">Image includes stats, top tracks, artists, and genre distribution</p>
