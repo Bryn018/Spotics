@@ -48,6 +48,4 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: 46451ed9-f824-4c07-92d5-ab39ac22a0ae
-        run: |
-          railway link $RAILWAY_PROJECT_ID --service spotics --environment production
-          railway up --ci
+        run: railway up --ci --project $RAILWAY_PROJECT_ID --service spotics --environment production
