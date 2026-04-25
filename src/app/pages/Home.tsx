@@ -112,16 +112,16 @@ export function Home() {
         <div className="absolute inset-0 bg-black" />
         <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px]">
           <svg viewBox="0 0 400 400" className="w-full h-full opacity-40">
-            <circle cx="200" cy="200" r="180" fill="none" stroke="#1d4ed8" strokeWidth="1" opacity="0.5" />
-            <circle cx="200" cy="200" r="150" fill="none" stroke="#10b981" strokeWidth="1.5" opacity="0.6" />
-            <circle cx="200" cy="200" r="120" fill="none" stroke="#1d4ed8" strokeWidth="1" opacity="0.4" />
-            <circle cx="200" cy="200" r="90" fill="none" stroke="#10b981" strokeWidth="2" opacity="0.7" />
-            <circle cx="200" cy="200" r="60" fill="none" stroke="#1d4ed8" strokeWidth="1.5" opacity="0.5" />
+            <circle cx="200" cy="200" r="180" fill="none" stroke="#064e3b" strokeWidth="1" opacity="0.5" />
+            <circle cx="200" cy="200" r="150" fill="none" stroke="#1e3a8a" strokeWidth="1.5" opacity="0.6" />
+            <circle cx="200" cy="200" r="120" fill="none" stroke="#064e3b" strokeWidth="1" opacity="0.4" />
+            <circle cx="200" cy="200" r="90" fill="none" stroke="#1e3a8a" strokeWidth="2" opacity="0.7" />
+            <circle cx="200" cy="200" r="60" fill="none" stroke="#064e3b" strokeWidth="1.5" opacity="0.5" />
           </svg>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-20">
-          <div className="bg-[#0B111B] border border-[#1f2937] rounded-3xl p-8 lg:p-12">
+          <div className="bg-[#16212b] border border-[#1f2937] rounded-3xl p-8 lg:p-12">
             <div className="grid lg:grid-cols-12 gap-10 items-center">
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-8">
@@ -129,10 +129,10 @@ export function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-transparent border border-[#1DB954]/30"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#10b981]/10 border border-[#064e3b]"
               >
-                <Sparkles className="h-4 w-4 text-[#1DB954]" />
-                <span className="text-xs font-bold text-[#1DB954] uppercase tracking-wider">Year in Review</span>
+                <Sparkles className="h-4 w-4 text-[#10b981]" />
+                <span className="text-xs font-bold text-[#10b981] uppercase tracking-wider">Year in Review</span>
               </motion.div>
 
               {/* Headline */}
@@ -149,7 +149,7 @@ export function Home() {
                   </span>{' '}
                   Back At It
                 </h1>
-                <p className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-2xl">
+                <p className="text-xl md:text-2xl text-[#9ca3af] leading-relaxed max-w-2xl">
                   An epic year of music awaits.{' '}
                   <strong className="text-white">{wrapStats.tracks.toLocaleString()} songs</strong> from{' '}
                   <strong className="text-white">{wrapStats.artists.toLocaleString()} artists</strong> shaped your soundtrack.
@@ -170,11 +170,11 @@ export function Home() {
                 ].map((stat, i) => (
                   <div
                     key={stat.label}
-                    className="rounded-xl p-6 bg-[#111827]/40 border border-[#374151]"
+                    className="rounded-xl p-6 bg-[#16212b] border border-[#1f2937]"
                   >
-                    <stat.icon className="h-5 w-5 text-[#1DB954] mb-3" />
+                    <stat.icon className="h-5 w-5 text-[#10b981] mb-3" />
                     <p className="text-xs font-bold text-[#9ca3af] uppercase tracking-wider">{stat.label}</p>
-                    <p className="text-[36px] font-black text-[#1DB954] leading-none">{stat.value}</p>
+                    <p className="text-[36px] font-black text-[#10b981] leading-none">{stat.value}</p>
                   </div>
                 ))}
               </motion.div>
@@ -207,9 +207,9 @@ export function Home() {
 
                 <Button
                   onClick={() => setDialogOpen(true)}
-                  className="bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold px-8 py-6 text-lg rounded-lg transition-all"
+                  className="bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#10b981] hover:to-[#059669] text-white font-bold px-8 py-6 text-lg rounded-lg shadow-lg shadow-[#10b981]/40 transition-all"
                 >
-                  <Play className="h-5 w-5 mr-2" fill="black" />
+                  <Play className="h-5 w-5 mr-2" fill="white" />
                   {activeWrap === 'daily' ? 'View Today' : activeWrap === 'weekly' ? 'View This Week' : 'View Your Year'}
                   <Sparkles className="h-5 w-5 ml-2" />
                 </Button>
@@ -225,9 +225,9 @@ export function Home() {
                 className="relative"
               >
                 {/* Floating Top 1% */}
-                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#1F2937] border border-white/10 shadow-xl">
+                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#16212b] border border-white/10 shadow-xl">
                   <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-[#1DB954]" fill="#1DB954" />
+                    <Star className="h-5 w-5 text-[#10b981]" fill="#10b981" />
                     <div>
                       <p className="text-xs text-[#9ca3af]">Top 1%</p>
                       <p className="text-lg font-black text-white">Listener</p>
@@ -236,7 +236,7 @@ export function Home() {
                 </div>
 
                 {/* Floating Active Days */}
-                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#1F2937] border border-white/10 shadow-xl">
+                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#16212b] border border-white/10 shadow-xl">
                   <div className="flex items-center gap-2">
                     <Signal className="h-5 w-5 text-[#60A5FA]" />
                     <div>
@@ -259,14 +259,14 @@ export function Home() {
             <h2 className="text-2xl font-bold text-white">Your Music Stats</h2>
             <p className="text-sm text-[#9ca3af] mt-1">Track your listening habits and discover your musical journey</p>
           </div>
-          <div className="flex bg-[#1f2937] rounded-lg p-1">
+          <div className="flex bg-[#16212b] rounded-lg p-1">
             {(['short_term', 'medium_term', 'long_term'] as TimeRange[]).map((range) => (
               <button
                 key={range}
                 onClick={() => handleTimeRangeChange(range)}
                 className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
                   timeRange === range
-                    ? 'bg-[#374151] text-white'
+                    ? 'bg-[#1f2937] text-white'
                     : 'text-[#9ca3af] hover:text-white'
                 }`}
               >
@@ -275,31 +275,31 @@ export function Home() {
             ))}
           </div>
         </div>
-
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Clock, label: 'Total Listening Time', value: `${Math.floor(stats.totalMinutes / 60)}h ${stats.totalMinutes % 60}m`, change: '+12% from last month' },
-            { icon: Music, label: 'Tracks Played', value: stats.totalTracks.toLocaleString(), change: '+23% from last month' },
-            { icon: Headphones, label: 'Unique Artists', value: stats.totalArtists.toLocaleString(), change: '+8% from last month' },
-            { icon: TrendingUp, label: 'Avg. Daily Mins', value: String(stats.averageDailyMinutes), change: '+5% from last month' },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="rounded-xl p-6 bg-[#111827]/40 border border-[#374151]"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <stat.icon className="h-5 w-5 text-[#1DB954]" />
-              </div>
-              <p className="text-xs text-[#9ca3af] mb-1">{stat.label}</p>
-              <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-              <p className="text-xs text-[#1DB954]">{stat.change}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+          {
+            [
+              { icon: Clock, label: 'Total Listening Time', value: `${Math.floor(stats.totalMinutes / 60)}h ${stats.totalMinutes % 60}m`, change: '+12% from last month' },
+              { icon: Music, label: 'Tracks Played', value: stats.totalTracks.toLocaleString(), change: '+23% from last month' },
+              { icon: Headphones, label: 'Unique Artists', value: stats.totalArtists.toLocaleString(), change: '+8% from last month' },
+              { icon: TrendingUp, label: 'Avg. Daily Mins', value: String(stats.averageDailyMinutes), change: '+5% from last month' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="rounded-xl p-6 bg-[#16212b] border border-[#1f2937]"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <stat.icon className="h-5 w-5 text-[#10b981]" />
+                </div>
+                <p className="text-xs text-[#9ca3af] mb-1">{stat.label}</p>
+                <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
+                <p className="text-xs text-[#10b981]">{stat.change}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
       {/* ── TOP ALBUMS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
@@ -316,7 +316,7 @@ export function Home() {
               transition={{ delay: i * 0.1 }}
               className="group"
             >
-              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#1f2937]">
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#16212b] border border-[#1f2937]">
                 <img
                   src={album.image || '/placeholder-album.svg'}
                   alt={album.name}
@@ -346,11 +346,11 @@ export function Home() {
           <div className="h-1 w-8 bg-gradient-to-r from-[#3b82f6] to-[#1DB954] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Tracks</h2>
         </div>
-        <div className="rounded-2xl bg-[#111827]/40 border border-[#374151] overflow-hidden">
+        <div className="rounded-2xl bg-[#16212b] border border-[#1f2937] overflow-hidden">
           {(payload?.topTracks ?? []).slice(0, 5).map((track, i) => (
             <div
               key={track.id}
-              className="flex items-center gap-4 px-4 py-3 hover:bg-[#1f2937]/50 transition-colors border-b border-[#374151] last:border-b-0"
+              className="flex items-center gap-4 px-4 py-3 hover:bg-[#1f2937]/50 transition-colors border-b border-[#1f2937] last:border-b-0"
             >
               <span className="text-sm font-bold text-[#6b7280] w-6 text-center">{i + 1}</span>
               <div className="relative flex-shrink-0">
@@ -395,15 +395,15 @@ export function Home() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {(payload?.topArtists ?? []).slice(0, 6).map((artist, i) => (
-            <motion.div
-              key={artist.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-              className="rounded-xl p-4 bg-[#111827]/40 border border-[#374151]"
-            >
-              <div className="relative mb-3">
-                <div className="aspect-square rounded-full overflow-hidden bg-[#1f2937]">
+              <motion.div
+                key={artist.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="rounded-xl p-4 bg-[#16212b] border border-[#1f2937]"
+              >
+                <div className="relative mb-3">
+                  <div className="aspect-square rounded-full overflow-hidden bg-[#1f2937]">
                   <img
                     src={artist.image || '/placeholder-artist.svg'}
                     alt={artist.name}
@@ -447,7 +447,7 @@ export function Home() {
           {/* Now Playing + Quick Stats */}
           <div className="space-y-4">
             {/* Now Playing */}
-            <div className="rounded-xl p-4 bg-[#111827]/40 border border-[#374151]">
+            <div className="rounded-xl p-4 bg-[#16212b] border border-[#1f2937]">
               {nowPlaying?.isPlaying && nowPlaying.track ? (
                 <div className="flex items-center gap-3">
                   <img
@@ -458,8 +458,8 @@ export function Home() {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#1DB954] animate-pulse" />
-                      <span className="text-xs text-[#1DB954] font-semibold">Now Playing</span>
+                      <span className="h-2 w-2 rounded-full bg-[#10b981] animate-pulse" />
+                      <span className="text-xs text-[#10b981] font-semibold">Now Playing</span>
                     </div>
                     <p className="text-sm font-semibold text-white truncate">{nowPlaying.track.title}</p>
                     <p className="text-xs text-[#9ca3af] truncate">{nowPlaying.track.artist}</p>
@@ -480,19 +480,19 @@ export function Home() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-4 bg-[#111827]/40 border border-[#374151]">
+              <div className="rounded-xl p-4 bg-[#16212b] border border-[#1f2937]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#1DB954]" />
-                  <span className="text-xs text-[#1DB954] font-bold">+8</span>
+                  <TrendingUp className="h-4 w-4 text-[#10b981]" />
+                  <span className="text-xs text-[#10b981] font-bold">+8</span>
                 </div>
                 <p className="text-xs text-[#9ca3af]">tracks</p>
                 <p className="text-sm font-semibold text-white">Today</p>
                 <p className="text-xl font-bold text-white">{stats.songsThisWeek > 0 ? Math.round(stats.songsThisWeek / 7) : 42}</p>
               </div>
-              <div className="rounded-xl p-4 bg-[#111827]/40 border border-[#374151]">
+              <div className="rounded-xl p-4 bg-[#16212b] border border-[#1f2937]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#1DB954]" />
-                  <span className="text-xs text-[#1DB954] font-bold">+24</span>
+                  <TrendingUp className="h-4 w-4 text-[#10b981]" />
+                  <span className="text-xs text-[#10b981] font-bold">+24</span>
                 </div>
                 <p className="text-xs text-[#9ca3af]">tracks</p>
                 <p className="text-sm font-semibold text-white">This Week</p>
