@@ -19,12 +19,8 @@ export function Login() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        {/* Main Content Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gray-900/40 backdrop-blur-2xl border border-gray-800/50 shadow-2xl">
-          {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-black"></div>
-          
-          <div className="absolute inset-[1px] bg-gray-900/90 backdrop-blur-2xl rounded-3xl"></div>
+        {/* Main Content Card - solid dark navy, no glassmorphism */}
+        <div className="relative overflow-hidden rounded-3xl bg-[#121826] border border-[#1F2937] shadow-2xl">
 
           <div className="relative p-12">
             {/* Logo Section */}
@@ -33,23 +29,20 @@ export function Login() {
                 <SpoticsLogo className="relative h-20 w-20" />
               </div>
               
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent mb-3 text-center">
+              <h1 className="text-5xl font-bold text-[#1DB954] mb-3 text-center">
                 Spotics
               </h1>
               
-              <p className="text-gray-400 text-center max-w-sm leading-relaxed">
+              <p className="text-[#9CA3AF] text-center max-w-sm leading-relaxed">
                 Your personal music analytics platform. Connect with Spotify to unlock deep insights into your listening habits.
               </p>
             </div>
-
-            {/* Decorative Line */}
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-green-500/30 to-transparent mb-12" />
 
             {/* Spotify Login Button */}
             <div>
               <Button
                 onClick={handleSpotifyLogin}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-7 rounded-2xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 text-lg group relative overflow-hidden"
+                className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-white font-semibold py-7 rounded-2xl shadow-lg shadow-[#1DB954]/30 hover:shadow-xl hover:shadow-[#1DB954]/50 transition-all duration-300 text-lg group relative overflow-hidden"
               >
                 <span className="relative flex items-center justify-center gap-3">
                   <svg 
@@ -80,7 +73,7 @@ export function Login() {
                 ].map((feature) => (
                   <div
                     key={feature.label}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800/50 border border-gray-700/50 backdrop-blur-sm hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-colors duration-300"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1F2937] border border-[#374755] hover:border-[#1DB954]/50 transition-colors duration-300"
                   >
                     <span className="text-lg">{feature.icon}</span>
                     <span className="text-sm text-gray-300">{feature.label}</span>
@@ -93,7 +86,7 @@ export function Login() {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-[#9CA3AF]">
             Spotics is not affiliated with Spotify AB or any of its partners
           </p>
         </div>

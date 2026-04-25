@@ -12,7 +12,8 @@ import { Button } from '../components/ui/button';
 import { useDashboard, useSyncDashboard, useNowPlaying } from '../hooks/useDashboard';
 import { useWrap } from '../hooks/useWrap';
 import { StoriesViewer } from '../components/StoriesViewer';
-import type { TimeRange, TrackStat, ArtistStat, AlbumStat, GenreStat, Activity } from '../types';
+import type { TimeRange, TrackStat, ArtistStat, AlbumStat, GenreStat } from '../types';
+import type { Activity as ActivityItem } from '../types';
 
 const RANGE_LABELS: Record<TimeRange, string> = {
   short_term: 'Last 4 Weeks',
