@@ -37,7 +37,12 @@ jobs:
         run: npm run build
 
       - name: Install Railway CLI
-        run: npm install -g @railway/cli@4.36.1
+        run: |
+          curl -fsSL https://github.com/railwayapp/cli/releases/download/v4.36.1/railway-v4.36.1-x86_64-unknown-linux-gnu.tar.gz -o railway.tar.gz
+          tar -xzf railway.tar.gz
+          sudo mv railway /usr/local/bin/railway
+          chmod +x /usr/local/bin/railway
+          rm railway.tar.gz
 
       - name: Deploy to Railway
         env:
