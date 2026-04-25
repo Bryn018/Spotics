@@ -24,7 +24,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Headphones,
 };
 
-const GENRE_COLORS = ['#22c55e', '#3b82f6', '#881337', '#10b981', '#059669', '#1d4ed8', '#9f1239', '#16a34a', '#2563eb', '#4338ca'];
+const GENRE_COLORS = ['#1DB954', '#19E68C', '#1DB95499', '#19E68C99', '#1DB95477', '#19E68C77', '#1DB954', '#19E68C', '#1DB954', '#19E68C'];
 
 function getIcon(name: string) {
   return ICON_MAP[name] ?? Music;
@@ -423,7 +423,7 @@ export function Analytics() {
               <CardContent className="p-5">
                 {achievement.unlocked && (
                   <div className="absolute top-2 right-2">
-                    <Award className="h-5 w-5 text-yellow-400" fill="currentColor" />
+                    <Award className="h-5 w-5 text-[#1DB954]" fill="currentColor" />
                   </div>
                 )}
                 <div className={`h-16 w-16 rounded-full bg-gradient-to-br ${achievement.color} p-0.5 mb-4 ${!achievement.unlocked && 'opacity-50'}`}>

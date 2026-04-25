@@ -24,7 +24,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-[#1f2937] bg-[#0B111B]/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0B111B]/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-12">
           <div className="flex items-center gap-8">
             <Link to="/dashboard" className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export function Header() {
                 className={`text-sm font-medium transition-colors pb-1 ${
                   isActive('/dashboard')
                     ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
-                    : 'text-gray-400 hover:text-white border-b-2 border-transparent'
+                    : 'text-[#B3B3B3] hover:text-white border-b-2 border-transparent'
                 }`}
               >
                 Dashboard
@@ -50,7 +50,7 @@ export function Header() {
                 className={`text-sm font-medium transition-colors pb-1 ${
                   isActive('/dashboard/analytics')
                     ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
-                    : 'text-gray-400 hover:text-white border-b-2 border-transparent'
+                    : 'text-[#B3B3B3] hover:text-white border-b-2 border-transparent'
                 }`}
               >
                 Analytics
@@ -60,7 +60,7 @@ export function Header() {
                 className={`text-sm font-medium transition-colors pb-1 ${
                   isActive('/dashboard/export')
                     ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
-                    : 'text-gray-400 hover:text-white border-b-2 border-transparent'
+                    : 'text-[#B3B3B3] hover:text-white border-b-2 border-transparent'
                 }`}
               >
                 Export
@@ -74,11 +74,11 @@ export function Header() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-gray-400 hover:text-white hidden sm:flex relative"
+                className="text-[#B3B3B3] hover:text-white hidden sm:flex relative"
                 onClick={() => setNotificationsOpen(true)}
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-purple-500"></span>
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#1DB954]"></span>
               </Button>
             </motion.div>
             
@@ -87,7 +87,7 @@ export function Header() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-gray-400 hover:text-white hidden sm:flex"
+                className="text-[#B3B3B3] hover:text-white hidden sm:flex"
                 onClick={() => setSettingsOpen(true)}
               >
                 <Settings className="h-5 w-5" />
@@ -97,7 +97,7 @@ export function Header() {
             {/* Account Avatar */}
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Avatar 
-                className="h-9 w-9 hidden sm:flex cursor-pointer ring-2 ring-transparent hover:ring-purple-500/50 transition-all" 
+                className="h-9 w-9 hidden sm:flex cursor-pointer ring-2 ring-transparent hover:ring-[#1DB954]/50 transition-all" 
                 onClick={() => setAccountOpen(true)}
               >
                 <AvatarImage src={user?.avatar_url || undefined} />
@@ -108,7 +108,7 @@ export function Header() {
             {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Button variant="ghost" size="icon" className="text-[#B3B3B3] hover:text-white">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -123,7 +123,7 @@ export function Header() {
                     className={`text-sm font-medium py-2 transition-colors ${
                       isActive('/dashboard')
                         ? 'text-[#1DB954]'
-                        : 'text-gray-400 hover:text-white'
+                        : 'text-[#B3B3B3] hover:text-white'
                     }`}
                   >
                     Dashboard
@@ -133,7 +133,7 @@ export function Header() {
                     className={`text-sm font-medium py-2 transition-colors ${
                       isActive('/dashboard/analytics')
                         ? 'text-[#1DB954]'
-                        : 'text-gray-400 hover:text-white'
+                        : 'text-[#B3B3B3] hover:text-white'
                     }`}
                   >
                     Analytics
@@ -143,7 +143,7 @@ export function Header() {
                     className={`text-sm font-medium py-2 transition-colors ${
                       isActive('/dashboard/export')
                         ? 'text-[#1DB954]'
-                        : 'text-gray-400 hover:text-white'
+                        : 'text-[#B3B3B3] hover:text-white'
                     }`}
                   >
                     Export

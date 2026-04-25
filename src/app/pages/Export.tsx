@@ -35,7 +35,7 @@ export function Export() {
     period: 'Last 7 Days',
     stats: [
       { icon: 'Clock', label: 'Total Time', value: '—', color: 'from-[#1DB954] to-[#19E68C]' },
-      { icon: 'Music', label: 'Tracks', value: '—', color: 'from-[#3B82F6] to-blue-600' },
+      { icon: 'Music', label: 'Tracks', value: '—', color: 'from-[#3B82F6] to-[#1DB954]' },
       { icon: 'Headphones', label: 'Artists', value: '—', color: 'from-[#881337] to-[#7F1D1D]' },
       { icon: 'TrendingUp', label: 'Avg Daily', value: '—', color: 'from-[#19E68C] to-[#3B82F6]' },
     ],
@@ -125,7 +125,7 @@ export function Export() {
               Export Your Insights
             </h1>
           </motion.div>
-          <p className="text-gray-300 text-lg max-w-2xl">
+          <p className="text-[#B3B3B3] text-lg max-w-2xl">
             Create beautiful, shareable snapshots of your music journey
           </p>
 
@@ -187,7 +187,7 @@ export function Export() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="alltime"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#3B82F6] data-[state=active]:to-indigo-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
+                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#3B82F6] data-[state=active]:to-[#1DB954] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
                 >
                   All Time
                 </TabsTrigger>
@@ -209,7 +209,7 @@ export function Export() {
               <Button
                 onClick={handleDownload}
                 disabled={isGenerating || isLoading}
-                className="w-full bg-gradient-to-r from-[#19E68C] via-teal-600 to-blue-600 hover:from-green-700 hover:via-teal-700 hover:to-blue-700 text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
+                className="w-full bg-gradient-to-r from-[#19E68C] via-teal-600 to-[#1DB954] hover:from-[#19E68C] hover:via-teal-700 hover:to-[#19E68C] text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
@@ -250,7 +250,7 @@ export function Export() {
           <div className="mb-4 flex items-center justify-between">
             <p className="text-[#B3B3B3] text-sm font-medium">Preview</p>
             <div className="flex gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500/50" />
+              <div className="h-3 w-3 rounded-full bg-[#1DB954]/50" />
               <div className="h-3 w-3 rounded-full bg-yellow-500/50" />
               <div className="h-3 w-3 rounded-full bg-[#1DB954]/50" />
             </div>
@@ -479,25 +479,25 @@ export function Export() {
                 <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-green-500/20">
                   1
                 </div>
-                <p className="text-gray-300 text-sm">Select your preferred time range: Weekly, Monthly, or All Time stats</p>
+                <p className="text-[#B3B3B3] text-sm">Select your preferred time range: Weekly, Monthly, or All Time stats</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
                 <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-[#3B82F6] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
                   2
                 </div>
-                <p className="text-gray-300 text-sm">Click the "Download as PNG" button to generate a high-quality image</p>
+                <p className="text-[#B3B3B3] text-sm">Click the "Download as PNG" button to generate a high-quality image</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#3B82F6] to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#3B82F6] to-[#1DB954] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
                   3
                 </div>
-                <p className="text-gray-300 text-sm">Share your music taste on social media with friends and followers</p>
+                <p className="text-[#B3B3B3] text-sm">Share your music taste on social media with friends and followers</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-[#881337] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-800/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-[#881337] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-800/20">
                   4
                 </div>
-                <p className="text-gray-300 text-sm">Image includes stats, top tracks, artists, and genre distribution</p>
+                <p className="text-[#B3B3B3] text-sm">Image includes stats, top tracks, artists, and genre distribution</p>
               </div>
             </div>
           </CardContent>

@@ -40,12 +40,12 @@ function formatTimeAgo(date: string) {
 
 function getGenreColors(genre: string): {bg: string; text: string} {
   const g = genre.toLowerCase();
-  if (g.includes('pop')) return {bg: 'bg-purple-500/20', text: 'text-purple-300'};
-  if (g.includes('hip hop') || g.includes('rap') || g.includes('hip-hop')) return {bg: 'bg-pink-500/20', text: 'text-pink-300'};
-  if (g.includes('rock')) return {bg: 'bg-blue-500/20', text: 'text-blue-300'};
-  if (g.includes('electronic') || g.includes('edm')) return {bg: 'bg-violet-400/20', text: 'text-violet-200'};
-  if (g.includes('indie')) return {bg: 'bg-indigo-500/20', text: 'text-indigo-300'};
-  return {bg: 'bg-purple-500/20', text: 'text-purple-300'};
+  if (g.includes('pop')) return {bg: 'bg-[#8B5CF6]/20', text: 'text-[#A78BFA]'};
+  if (g.includes('hip hop') || g.includes('rap') || g.includes('hip-hop')) return {bg: 'bg-[#EC4899]/20', text: 'text-[#F472B6]'};
+  if (g.includes('rock')) return {bg: 'bg-[#3B82F6]/20', text: 'text-[#60A5FA]'};
+  if (g.includes('electronic') || g.includes('edm')) return {bg: 'bg-[#A78BFA]/20', text: 'text-[#C4B5FD]'};
+  if (g.includes('indie')) return {bg: 'bg-[#6366F1]/20', text: 'text-[#818CF8]'};
+  return {bg: 'bg-[#8B5CF6]/20', text: 'text-[#A78BFA]'};
 }
 
 export function Home() {
