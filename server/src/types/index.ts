@@ -395,3 +395,113 @@ export interface WrapPayloadMap {
   weekly: WeeklyWrapPayload;
   yearly: YearlyWrapPayload;
 }
+
+// Analytics types
+export interface HourlyDataPoint {
+  hour: string;
+  plays: number;
+}
+
+export interface MusicTasteMetric {
+  category: string;
+  value: number;
+}
+
+export interface Achievement {
+  id: number;
+  title: string;
+  description: string;
+  icon: string;
+  progress: number;
+  unlocked: boolean;
+  color: string;
+}
+
+export interface Milestone {
+  id: number;
+  title: string;
+  date: string;
+  completed: boolean;
+}
+
+export interface Highlight {
+  id: number;
+  title: string;
+  icon: string;
+  color: string;
+  date: string;
+  followers?: string;
+}
+
+export interface Streak {
+  days: number;
+  type: string;
+  icon: string;
+  active: boolean;
+  description: string;
+}
+
+export interface AnalyticsStat {
+  label: string;
+  value: string;
+  change: string;
+  trend: 'up' | 'down' | 'same';
+  icon: string;
+  color: string;
+  bgColor: string;
+}
+
+export interface AnalyticsResponse {
+  stats: AnalyticsStat[];
+  trends: ListeningChartPoint[];
+  hourlyDistribution: HourlyDataPoint[];
+  musicTaste: MusicTasteMetric[];
+  topGenres: GenreStat[];
+  achievements: Achievement[];
+  milestones: Milestone[];
+  highlights: Highlight[];
+  streaks: Streak[];
+}
+
+// ── Export ──
+
+export interface ExportStat {
+  icon: string;
+  label: string;
+  value: string;
+  color: string;
+}
+
+export interface ExportTrack {
+  title: string;
+  artist: string;
+  plays: number;
+  image: string | null;
+}
+
+export interface ExportArtist {
+  name: string;
+  plays: number;
+  image: string | null;
+}
+
+export interface ExportGenre {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export interface ExportRangeData {
+  title: string;
+  period: string;
+  stats: ExportStat[];
+  topTracks: ExportTrack[];
+  topArtists: ExportArtist[];
+  genres: ExportGenre[];
+}
+
+export interface ExportResponse {
+  weekly: ExportRangeData;
+  monthly: ExportRangeData;
+  alltime: ExportRangeData;
+}

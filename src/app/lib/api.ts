@@ -100,6 +100,8 @@ export const apiRoutes = {
   login: '/api/auth/login',
   logout: '/api/auth/logout',
   dashboard: '/api/dashboard',
+  analytics: '/api/analytics',
+  export: '/api/export',
   sync: '/api/summaries/sync',
   activitiesSync: '/api/activities/sync',
   wraps: '/api/wraps',

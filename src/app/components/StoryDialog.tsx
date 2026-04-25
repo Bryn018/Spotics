@@ -76,7 +76,7 @@ export function StoryDialog({ open, onOpenChange, timeframe, data }: StoryDialog
   if (!data || slides.length === 0) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg bg-gradient-to-br from-black via-gray-900 to-black border-gray-800 p-0" aria-describedby={undefined}>
+        <DialogContent className="w-full max-w-[420px] h-[90vh] max-h-[850px] bg-gradient-to-br from-black via-gray-900 to-black border-gray-800 p-0 shadow-2xl" aria-describedby={undefined}>
           <DialogHeader className="sr-only">
             <DialogTitle>{timeframe} Wrap</DialogTitle>
           </DialogHeader>
@@ -787,12 +787,12 @@ export function StoryDialog({ open, onOpenChange, timeframe, data }: StoryDialog
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-hidden bg-black border-gray-800 p-0 rounded-2xl" aria-describedby={undefined}>
+      <DialogContent className="w-full max-w-[420px] h-[90vh] max-h-[850px] overflow-hidden bg-black border-gray-800 p-0 rounded-2xl shadow-2xl" aria-describedby={undefined}>
         <DialogHeader className="sr-only">
           <DialogTitle>{timeframe} Wrap</DialogTitle>
         </DialogHeader>
 
-        <div className="relative h-[80vh] flex flex-col">
+        <div className="relative h-full flex flex-col">
           {/* Progress bars at top */}
           <div className="absolute top-0 left-0 right-0 z-20 flex gap-1 p-3 pt-4">
             {slides.map((_, index) => (

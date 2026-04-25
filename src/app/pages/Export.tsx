@@ -6,6 +6,19 @@ import html2canvas from 'html2canvas';
 import { SpoticsLogo } from '../components/SpoticsLogo';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { useExport } from '../hooks/useExport';
+import type { ExportRangeData } from '../types';
+
+const iconMap: Record<string, React.ElementType> = {
+  Clock,
+  Music,
+  Headphones,
+  TrendingUp,
+};
+
+function getIcon(name: string) {
+  return iconMap[name] ?? Music;
+}
 
 type ExportTimeRange = 'weekly' | 'monthly' | 'alltime';
 
@@ -15,91 +28,22 @@ export function Export() {
   const [downloadComplete, setDownloadComplete] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
 
-  const dataByRange = {
-    weekly: {
-      title: 'Weekly',
-      period: 'Last 7 Days',
-      stats: [
-        { icon: Clock, label: 'Total Time', value: '23h 15m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '412', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '87', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '198 mins', color: 'from-green-600 to-blue-500' }
-      ],
-      topTracks: [
-        { title: 'Anti-Hero', artist: 'Taylor Swift', plays: 34 },
-        { title: 'Flowers', artist: 'Miley Cyrus', plays: 28 },
-        { title: 'Vampire', artist: 'Olivia Rodrigo', plays: 25 }
-      ],
-      topArtists: [
-        { name: 'Taylor Swift', plays: 89 },
-        { name: 'The Weeknd', plays: 67 },
-        { name: 'Harry Styles', plays: 54 }
-      ],
-      genres: [
-        { name: 'Pop', value: 35, color: '#10b981' },
-        { name: 'Hip Hop', value: 22, color: '#3b82f6' },
-        { name: 'Rock', value: 18, color: '#881337' },
-        { name: 'Electronic', value: 15, color: '#059669' },
-        { name: 'Indie', value: 10, color: '#1e40af' }
-      ]
-    },
-    monthly: {
-      title: 'Monthly',
-      period: 'Last 30 Days',
-      stats: [
-        { icon: Clock, label: 'Total Time', value: '87h 42m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '1,523', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '245', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '175 mins', color: 'from-green-600 to-blue-500' }
-      ],
-      topTracks: [
-        { title: 'Blinding Lights', artist: 'The Weeknd', plays: 127 },
-        { title: 'Stay', artist: 'The Kid LAROI, Justin Bieber', plays: 98 },
-        { title: 'As It Was', artist: 'Harry Styles', plays: 86 }
-      ],
-      topArtists: [
-        { name: 'The Weeknd', plays: 287 },
-        { name: 'Harry Styles', plays: 198 },
-        { name: 'Dua Lipa', plays: 167 }
-      ],
-      genres: [
-        { name: 'Pop', value: 32, color: '#10b981' },
-        { name: 'Hip Hop', value: 24, color: '#3b82f6' },
-        { name: 'Rock', value: 18, color: '#881337' },
-        { name: 'Electronic', value: 16, color: '#059669' },
-        { name: 'Indie', value: 10, color: '#1e40af' }
-      ]
-    },
-    alltime: {
-      title: 'All Time',
-      period: 'Since You Joined',
-      stats: [
-        { icon: Clock, label: 'Total Time', value: '1,247h 56m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '18,923', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '892', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '156 mins', color: 'from-green-600 to-blue-500' }
-      ],
-      topTracks: [
-        { title: 'Blinding Lights', artist: 'The Weeknd', plays: 1247 },
-        { title: 'Stay', artist: 'The Kid LAROI, Justin Bieber', plays: 987 },
-        { title: 'As It Was', artist: 'Harry Styles', plays: 856 }
-      ],
-      topArtists: [
-        { name: 'The Weeknd', plays: 3487 },
-        { name: 'Harry Styles', plays: 2356 },
-        { name: 'Dua Lipa', plays: 1998 }
-      ],
-      genres: [
-        { name: 'Pop', value: 32, color: '#10b981' },
-        { name: 'Hip Hop', value: 24, color: '#3b82f6' },
-        { name: 'Rock', value: 18, color: '#881337' },
-        { name: 'Electronic', value: 14, color: '#059669' },
-        { name: 'Indie', value: 12, color: '#1e40af' }
-      ]
-    }
+  const { data, isLoading } = useExport();
+
+  const currentData: ExportRangeData = data?.[selectedRange] ?? {
+    title: 'Weekly',
+    period: 'Last 7 Days',
+    stats: [
+      { icon: 'Clock', label: 'Total Time', value: '—', color: 'from-green-500 to-green-600' },
+      { icon: 'Music', label: 'Tracks', value: '—', color: 'from-blue-500 to-blue-600' },
+      { icon: 'Headphones', label: 'Artists', value: '—', color: 'from-rose-800 to-rose-900' },
+      { icon: 'TrendingUp', label: 'Avg Daily', value: '—', color: 'from-green-600 to-blue-500' },
+    ],
+    topTracks: [],
+    topArtists: [],
+    genres: [],
   };
 
-  const currentData = dataByRange[selectedRange];
   const stats = currentData.stats;
   const topTracks = currentData.topTracks;
   const topArtists = currentData.topArtists;
@@ -112,7 +56,6 @@ export function Export() {
     setDownloadComplete(false);
 
     try {
-      // Wait a bit for any animations to complete
       await new Promise(resolve => setTimeout(resolve, 300));
 
       const canvas = await html2canvas(exportRef.current, {
@@ -120,7 +63,7 @@ export function Export() {
         scale: 2,
         logging: false,
         useCORS: true,
-        allowTaint: true
+        allowTaint: true,
       });
 
       const link = document.createElement('a');
@@ -139,9 +82,8 @@ export function Export() {
 
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1400px]">
-      {/* Hero Section with improved design */}
+      {/* Hero Section */}
       <div className="mb-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-500/10 via-teal-500/10 to-blue-500/10 border border-green-500/20 p-8 lg:p-12">
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-500/20 to-transparent rounded-full blur-3xl"
@@ -189,28 +131,40 @@ export function Export() {
 
           {/* Stats preview cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-green-500/30 transition-all"
-              >
-                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20 w-fit mb-2`}>
-                  <stat.icon className="h-4 w-4 text-white" />
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10 animate-pulse">
+                  <div className="h-8 w-8 rounded-lg bg-gray-700 mb-2" />
+                  <div className="h-3 w-16 bg-gray-700 rounded mb-1" />
+                  <div className="h-6 w-20 bg-gray-700 rounded" />
                 </div>
-                <p className="text-gray-400 text-xs mb-1">{stat.label}</p>
-                <p className="text-white font-bold text-lg">{stat.value}</p>
-              </motion.div>
-            ))}
+              ))
+            ) : (
+              stats.map((stat, index) => {
+                const Icon = getIcon(stat.icon);
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-green-500/30 transition-all"
+                  >
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20 w-fit mb-2`}>
+                      <Icon className="h-4 w-4 text-white" />
+                    </div>
+                    <p className="text-gray-400 text-xs mb-1">{stat.label}</p>
+                    <p className="text-white font-bold text-lg">{stat.value}</p>
+                  </motion.div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
 
       {/* Control Panel */}
       <div className="grid lg:grid-cols-2 gap-6 mb-8">
-        {/* Time Range Selector */}
         <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border-gray-700/50 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -245,7 +199,6 @@ export function Export() {
           </CardContent>
         </Card>
 
-        {/* Download Action Card */}
         <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border-gray-700/50 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -255,10 +208,9 @@ export function Export() {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 onClick={handleDownload}
-                disabled={isGenerating}
+                disabled={isGenerating || isLoading}
                 className="w-full bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 hover:from-green-700 hover:via-teal-700 hover:to-blue-700 text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
               >
-                {/* Animated gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
                 {isGenerating ? (
@@ -326,24 +278,37 @@ export function Export() {
               </div>
             </div>
 
-            {/* Stats Grid with enhanced design */}
+            {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-8">
-              {stats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="relative rounded-xl p-4 lg:p-5 shadow-lg overflow-hidden"
-                  style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.8))', border: '1px solid rgba(55, 65, 81, 0.5)' }}
-                >
-                  <div className={`relative h-10 w-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg`}>
-                    <stat.icon className="h-5 w-5" style={{ color: '#ffffff' }} />
+              {isLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="rounded-xl p-4 lg:p-5 shadow-lg animate-pulse" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
+                    <div className="h-10 w-10 rounded-lg bg-gray-700 mb-3" />
+                    <div className="h-3 w-16 bg-gray-700 rounded mb-1" />
+                    <div className="h-8 w-20 bg-gray-700 rounded" />
                   </div>
-                  <p className="relative text-xs font-medium mb-1 uppercase tracking-wide" style={{ color: '#9ca3af' }}>{stat.label}</p>
-                  <p className="relative text-2xl lg:text-3xl font-bold" style={{ color: '#ffffff' }}>{stat.value}</p>
-                </div>
-              ))}
+                ))
+              ) : (
+                stats.map((stat, index) => {
+                  const Icon = getIcon(stat.icon);
+                  return (
+                    <div
+                      key={index}
+                      className="relative rounded-xl p-4 lg:p-5 shadow-lg overflow-hidden"
+                      style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.8))', border: '1px solid rgba(55, 65, 81, 0.5)' }}
+                    >
+                      <div className={`relative h-10 w-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg`}>
+                        <Icon className="h-5 w-5" style={{ color: '#ffffff' }} />
+                      </div>
+                      <p className="relative text-xs font-medium mb-1 uppercase tracking-wide" style={{ color: '#9ca3af' }}>{stat.label}</p>
+                      <p className="relative text-2xl lg:text-3xl font-bold" style={{ color: '#ffffff' }}>{stat.value}</p>
+                    </div>
+                  );
+                })
+              )}
             </div>
 
-            {/* Content Grid with refined cards */}
+            {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-8">
               {/* Top Tracks */}
               <div className="relative rounded-2xl p-6 shadow-xl overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
@@ -354,23 +319,38 @@ export function Export() {
                   <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Tracks</h3>
                 </div>
                 <div className="relative space-y-4">
-                  {topTracks.map((track, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-xl transition-all" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, rgba(34, 197, 94, 0.2), rgba(20, 184, 166, 0.2))' }}>
-                          <span className="font-bold text-sm" style={{ color: '#22c55e' }}>#{index + 1}</span>
+                  {isLoading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 rounded-xl animate-pulse" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="h-8 w-8 rounded-lg bg-gray-700" />
+                          <div className="flex-1">
+                            <div className="h-4 w-32 bg-gray-700 rounded mb-1" />
+                            <div className="h-3 w-20 bg-gray-700 rounded" />
+                          </div>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold truncate" style={{ color: '#ffffff' }}>{track.title}</p>
-                          <p className="text-sm truncate" style={{ color: '#9ca3af' }}>{track.artist}</p>
+                        <div className="h-6 w-10 bg-gray-700 rounded" />
+                      </div>
+                    ))
+                  ) : (
+                    topTracks.map((track, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 rounded-xl transition-all" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, rgba(34, 197, 94, 0.2), rgba(20, 184, 166, 0.2))' }}>
+                            <span className="font-bold text-sm" style={{ color: '#22c55e' }}>#{index + 1}</span>
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold truncate" style={{ color: '#ffffff' }}>{track.title}</p>
+                            <p className="text-sm truncate" style={{ color: '#9ca3af' }}>{track.artist}</p>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0 text-right ml-4">
+                          <p className="font-bold text-lg" style={{ color: '#22c55e' }}>{track.plays}</p>
+                          <p className="text-xs uppercase tracking-wide" style={{ color: '#6b7280' }}>plays</p>
                         </div>
                       </div>
-                      <div className="flex-shrink-0 text-right ml-4">
-                        <p className="font-bold text-lg" style={{ color: '#22c55e' }}>{track.plays}</p>
-                        <p className="text-xs uppercase tracking-wide" style={{ color: '#6b7280' }}>plays</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -383,25 +363,41 @@ export function Export() {
                   <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Artists</h3>
                 </div>
                 <div className="relative space-y-4">
-                  {topArtists.map((artist, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-xl transition-all" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.3), rgba(99, 102, 241, 0.3))', border: '2px solid rgba(59, 130, 246, 0.3)' }}>
-                          <span className="font-bold" style={{ color: '#3b82f6' }}>{index + 1}</span>
+                  {isLoading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 rounded-xl animate-pulse" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="h-10 w-10 rounded-full bg-gray-700" />
+                          <div className="h-4 w-28 bg-gray-700 rounded" />
                         </div>
-                        <p className="font-semibold truncate flex-1 min-w-0" style={{ color: '#ffffff' }}>{artist.name}</p>
+                        <div className="h-6 w-10 bg-gray-700 rounded" />
                       </div>
-                      <div className="flex-shrink-0 text-right ml-4">
-                        <p className="font-bold text-lg" style={{ color: '#3b82f6' }}>{artist.plays}</p>
-                        <p className="text-xs uppercase tracking-wide" style={{ color: '#6b7280' }}>plays</p>
+                    ))
+                  ) : (
+                    topArtists.map((artist, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 rounded-xl transition-all" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.3), rgba(99, 102, 241, 0.3))', border: '2px solid rgba(59, 130, 246, 0.3)' }}>
+                            {artist.image ? (
+                              <img src={artist.image} alt={artist.name} className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="font-bold" style={{ color: '#3b82f6' }}>{index + 1}</span>
+                            )}
+                          </div>
+                          <p className="font-semibold truncate flex-1 min-w-0" style={{ color: '#ffffff' }}>{artist.name}</p>
+                        </div>
+                        <div className="flex-shrink-0 text-right ml-4">
+                          <p className="font-bold text-lg" style={{ color: '#3b82f6' }}>{artist.plays}</p>
+                          <p className="text-xs uppercase tracking-wide" style={{ color: '#6b7280' }}>plays</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Genre Distribution with enhanced styling */}
+            {/* Genre Distribution */}
             <div className="relative rounded-2xl p-6 shadow-xl overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
               <div className="relative flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #881337, #9f1239)' }}>
@@ -410,29 +406,41 @@ export function Export() {
                 <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Genres</h3>
               </div>
               <div className="relative space-y-4">
-                {genres.map((genre, index) => (
-                  <div key={index}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold" style={{ color: '#ffffff' }}>{genre.name}</span>
-                      <span className="text-sm font-bold" style={{ color: '#d1d5db' }}>{genre.value}%</span>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="h-4 w-20 bg-gray-700 rounded" />
+                        <div className="h-4 w-10 bg-gray-700 rounded" />
+                      </div>
+                      <div className="h-3 rounded-full bg-gray-700" />
                     </div>
-                    <div className="h-3 rounded-full overflow-hidden shadow-inner" style={{ background: 'rgba(31, 41, 55, 0.6)', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-500 shadow-lg relative overflow-hidden"
-                        style={{
-                          width: `${genre.value * 3.125}%`,
-                          background: `linear-gradient(90deg, ${genre.color}, ${genre.color}dd)`
-                        }}
-                      >
-                        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent)' }} />
+                  ))
+                ) : (
+                  genres.map((genre, index) => (
+                    <div key={index}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold" style={{ color: '#ffffff' }}>{genre.name}</span>
+                        <span className="text-sm font-bold" style={{ color: '#d1d5db' }}>{genre.value}%</span>
+                      </div>
+                      <div className="h-3 rounded-full overflow-hidden shadow-inner" style={{ background: 'rgba(31, 41, 55, 0.6)', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-500 shadow-lg relative overflow-hidden"
+                          style={{
+                            width: `${Math.min(genre.value * 3.125, 100)}%`,
+                            background: `linear-gradient(90deg, ${genre.color}, ${genre.color}dd)`
+                          }}
+                        >
+                          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent)' }} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
-            {/* Footer with enhanced styling */}
+            {/* Footer */}
             <div className="mt-8 pt-6" style={{ borderTop: '1px solid #374151' }}>
               <div className="flex items-center justify-center gap-2">
                 <p className="text-sm" style={{ color: '#9ca3af' }}>

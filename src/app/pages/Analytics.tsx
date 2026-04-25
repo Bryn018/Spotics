@@ -1,187 +1,70 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { TrendingUp, TrendingDown, Clock, Music, Calendar, Award, Target, Zap, Users, Globe, Crown, Trophy, Star, Sparkles, Flame, Heart, Headphones } from 'lucide-react';
+import { TrendingUp, TrendingDown, Clock, Music, Calendar, Award, Target, Zap, Users, Globe, Crown, Trophy, Star, Sparkles, Flame, Heart, Headphones, Loader2 } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 import { motion } from 'framer-motion';
 import { useId, useMemo } from 'react';
+import { useAnalytics } from '../hooks/useAnalytics';
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Clock,
+  Music,
+  Users,
+  Globe,
+  Crown,
+  Sparkles,
+  Trophy,
+  Flame,
+  Star,
+  Calendar,
+  Zap,
+  Heart,
+  Award,
+  Target,
+  Headphones,
+};
+
+const GENRE_COLORS = ['#22c55e', '#3b82f6', '#881337', '#10b981', '#059669', '#1d4ed8', '#9f1239', '#16a34a', '#2563eb', '#4338ca'];
+
+function getIcon(name: string) {
+  return ICON_MAP[name] ?? Music;
+}
 
 export function Analytics() {
   const reactId = useId();
   const uniqueId = useMemo(() => `${reactId}-${Math.random().toString(36).substr(2, 9)}`, [reactId]);
-  const monthlyData = [
-    { id: 'jan', month: 'Jan', minutes: 1842, tracks: 412 },
-    { id: 'feb', month: 'Feb', minutes: 1956, tracks: 438 },
-    { id: 'mar', month: 'Mar', minutes: 2134, tracks: 476 },
-    { id: 'apr', month: 'Apr', minutes: 2298, tracks: 512 },
-    { id: 'may', month: 'May', minutes: 2456, tracks: 548 },
-    { id: 'jun', month: 'Jun', minutes: 2634, tracks: 587 },
-  ];
+  const { data, isLoading } = useAnalytics();
 
-  const hourlyData = [
-    { id: 'h12am', hour: '12AM', plays: 12 },
-    { id: 'h3am', hour: '3AM', plays: 5 },
-    { id: 'h6am', hour: '6AM', plays: 18 },
-    { id: 'h9am', hour: '9AM', plays: 45 },
-    { id: 'h12pm', hour: '12PM', plays: 67 },
-    { id: 'h3pm', hour: '3PM', plays: 89 },
-    { id: 'h6pm', hour: '6PM', plays: 123 },
-    { id: 'h9pm', hour: '9PM', plays: 145 },
-  ];
+  const stats = data?.stats ?? [];
+  const trends = data?.trends ?? [];
+  const hourlyData = data?.hourlyDistribution ?? [];
+  const musicTasteData = data?.musicTaste ?? [];
+  const topGenres = (data?.topGenres ?? []).map((g, i) => ({ ...g, color: GENRE_COLORS[i % GENRE_COLORS.length] }));
+  const achievements = data?.achievements ?? [];
+  const milestones = data?.milestones ?? [];
+  const highlights = data?.highlights ?? [];
+  const listeningStreaks = data?.streaks ?? [];
 
-  const musicTasteData = [
-    { id: 'energy', category: 'Energy', value: 85 },
-    { id: 'dance', category: 'Danceability', value: 72 },
-    { id: 'acoustic', category: 'Acousticness', value: 45 },
-    { id: 'valence', category: 'Valence', value: 68 },
-    { id: 'popularity', category: 'Popularity', value: 78 },
-  ];
+  const totalTrendMinutes = trends.reduce((sum, t) => sum + (t.minutes ?? 0), 0);
+  const avgDaily = trends.length > 0 ? (totalTrendMinutes / trends.length).toFixed(1) : '0';
+  const bestDay = trends.reduce((best, t) => (t.minutes > best.minutes ? t : best), trends[0] ?? { label: '-', minutes: 0 });
 
-  const topGenresTime = [
-    { genre: 'Pop', hours: 142, percentage: 32, color: '#22c55e' },
-    { genre: 'Hip Hop', hours: 106, percentage: 24, color: '#3b82f6' },
-    { genre: 'Rock', hours: 80, percentage: 18, color: '#881337' },
-    { genre: 'Electronic', hours: 62, percentage: 14, color: '#10b981' },
-    { genre: 'Indie', hours: 53, percentage: 12, color: '#059669' },
-    { genre: 'R&B', hours: 45, percentage: 10, color: '#1d4ed8' },
-    { genre: 'Alternative', hours: 38, percentage: 9, color: '#9f1239' },
-    { genre: 'Jazz', hours: 31, percentage: 7, color: '#16a34a' },
-    { genre: 'Country', hours: 27, percentage: 6, color: '#2563eb' },
-    { genre: 'Classical', hours: 22, percentage: 5, color: '#4338ca' },
-  ];
+  const totalHourlyPlays = hourlyData.reduce((sum, h) => sum + h.plays, 0);
+  const morningPlays = (hourlyData[2]?.plays ?? 0) + (hourlyData[3]?.plays ?? 0);
+  const afternoonPlays = (hourlyData[4]?.plays ?? 0) + (hourlyData[5]?.plays ?? 0);
+  const eveningPlays = (hourlyData[6]?.plays ?? 0) + (hourlyData[7]?.plays ?? 0);
+  const peakHour = hourlyData.reduce((peak, h) => (h.plays > peak.plays ? h : peak), hourlyData[0] ?? { hour: '-', plays: 0 });
 
-  const achievements = [
-    {
-      id: 1,
-      title: 'Early Bird',
-      description: '100 songs before 8 AM',
-      icon: '🌅',
-      progress: 100,
-      unlocked: true,
-      color: 'from-yellow-500 to-orange-500'
-    },
-    {
-      id: 2,
-      title: 'Night Owl',
-      description: '200 songs after midnight',
-      icon: '🦉',
-      progress: 100,
-      unlocked: true,
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      id: 3,
-      title: 'Diverse Listener',
-      description: '50+ different genres',
-      icon: '🎵',
-      progress: 76,
-      unlocked: false,
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      id: 4,
-      title: 'Marathon',
-      description: '10 hours in one day',
-      icon: '🏃',
-      progress: 85,
-      unlocked: false,
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      id: 5,
-      title: 'Globetrotter',
-      description: 'Listened to artists from 30 countries',
-      icon: '🌍',
-      progress: 100,
-      unlocked: true,
-      color: 'from-teal-500 to-cyan-500'
-    },
-    {
-      id: 6,
-      title: 'Vintage Vibes',
-      description: '500 songs from before 2000',
-      icon: '📻',
-      progress: 62,
-      unlocked: false,
-      color: 'from-amber-500 to-yellow-500'
-    },
-    {
-      id: 7,
-      title: 'Audiophile',
-      description: '1000 unique albums played',
-      icon: '💿',
-      progress: 100,
-      unlocked: true,
-      color: 'from-indigo-500 to-purple-500'
-    },
-    {
-      id: 8,
-      title: 'Party Starter',
-      description: 'Created 25 playlists',
-      icon: '🎉',
-      progress: 44,
-      unlocked: false,
-      color: 'from-rose-500 to-pink-500'
-    },
-  ];
-
-  const stats = [
-    {
-      label: 'Total Listening Time',
-      value: '487h',
-      change: '+23%',
-      trend: 'up',
-      icon: Clock,
-      color: 'from-green-500 to-blue-500',
-      bgColor: 'from-green-500/20 to-blue-500/20'
-    },
-    {
-      label: 'Tracks Played',
-      value: '2,973',
-      change: '+18%',
-      trend: 'up',
-      icon: Music,
-      color: 'from-blue-500 to-green-600',
-      bgColor: 'from-blue-500/20 to-green-600/20'
-    },
-    {
-      label: 'Unique Artists',
-      value: '312',
-      change: '+12%',
-      trend: 'up',
-      icon: Users,
-      color: 'from-green-600 to-emerald-600',
-      bgColor: 'from-green-600/20 to-emerald-600/20'
-    },
-    {
-      label: 'Top Genre',
-      value: 'Pop',
-      change: '32%',
-      trend: 'same',
-      icon: Globe,
-      color: 'from-rose-900 to-rose-800',
-      bgColor: 'from-rose-900/20 to-rose-800/20'
-    },
-  ];
-
-  const milestones = [
-    { id: 1, title: '1,000 Songs', date: 'Jan 15, 2026', completed: true },
-    { id: 2, title: '100 Hours', date: 'Feb 3, 2026', completed: true },
-    { id: 3, title: '2,000 Songs', date: 'Apr 22, 2026', completed: true },
-    { id: 4, title: '300 Artists', date: 'Jun 8, 2026', completed: true },
-    { id: 5, title: '5,000 Songs', date: 'Coming soon', completed: false },
-  ];
-
-  const yearlyHighlights = [
-    { id: 1, title: 'Reached Top 1% of The Weeknd listeners', icon: Crown, color: 'from-yellow-500 to-orange-500', date: 'March 2026' },
-    { id: 2, title: 'Discovered 150 new artists', icon: Sparkles, color: 'from-purple-500 to-pink-500', date: 'February 2026' },
-    { id: 3, title: 'Created your most popular playlist', icon: Trophy, color: 'from-blue-500 to-cyan-500', date: 'January 2026', followers: '2.3K' },
-  ];
-
-  const listeningStreaks = [
-    { days: 127, type: 'Current Streak', icon: Flame, active: true, description: 'Days in a row' },
-    { days: 189, type: 'Longest Streak', icon: Star, active: false, description: 'Personal best' },
-    { days: 45, type: 'Monthly Average', icon: Calendar, active: false, description: 'This year' },
-  ];
+  if (isLoading) {
+    return (
+      <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+          <span className="ml-3 text-gray-400">Loading your analytics...</span>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
@@ -197,7 +80,7 @@ export function Analytics() {
       {/* Key Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         {stats.map((stat, index) => {
-          const Icon = stat.icon;
+          const Icon = getIcon(stat.icon);
           return (
             <Card key={index} className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 overflow-hidden relative group hover:border-purple-500/30 transition-all">
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
@@ -223,7 +106,7 @@ export function Analytics() {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-        {/* Monthly Trends */}
+        {/* Weekly Trends */}
         <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 animate-pulse" />
           
@@ -234,20 +117,20 @@ export function Analytics() {
                   <Calendar className="h-5 w-5 text-purple-400" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl text-white">Monthly Trends</CardTitle>
-                  <p className="text-sm text-gray-400 mt-1">Your listening journey over time</p>
+                  <CardTitle className="text-xl text-white">Listening Trends</CardTitle>
+                  <p className="text-sm text-gray-400 mt-1">Your listening over the last 7 days</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-gray-400">This Month</p>
-                <p className="text-lg font-bold text-purple-400">+43.9h</p>
+                <p className="text-xs text-gray-400">Best Day</p>
+                <p className="text-lg font-bold text-purple-400">{bestDay.label}</p>
               </div>
             </div>
           </CardHeader>
           
           <CardContent className="relative z-10">
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyData} id={`monthly-chart-${uniqueId}`}>
+              <LineChart data={trends} id={`monthly-chart-${uniqueId}`}>
                 <defs>
                   <linearGradient id={`analyticsMonthlyGradient-${uniqueId}`} x1="0" y1="0" x2="0" y2="1">
                     <stop key={`analytics-monthly-stop1-${uniqueId}`} offset="0%" stopColor="#a855f7" stopOpacity={0.8}/>
@@ -255,7 +138,7 @@ export function Analytics() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.3} vertical={false} />
-                <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: '12px' }} />
+                <XAxis dataKey="label" stroke="#9ca3af" style={{ fontSize: '12px' }} />
                 <YAxis stroke="#9ca3af" style={{ fontSize: '12px' }} />
                 <Tooltip
                   contentStyle={{
@@ -269,7 +152,7 @@ export function Analytics() {
               </LineChart>
             </ResponsiveContainer>
             
-            {/* Monthly Insights */}
+            {/* Weekly Insights */}
             <div className="grid grid-cols-3 gap-3 mt-6">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -279,10 +162,10 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <TrendingUp className="h-4 w-4 text-purple-400" />
-                  <p className="text-xs text-gray-400">Growth</p>
+                  <p className="text-xs text-gray-400">Total</p>
                 </div>
-                <p className="text-lg font-bold text-white">+43%</p>
-                <p className="text-xs text-gray-500">vs last month</p>
+                <p className="text-lg font-bold text-white">{Math.round(totalTrendMinutes)}m</p>
+                <p className="text-xs text-gray-500">This week</p>
               </motion.div>
               
               <motion.div
@@ -295,8 +178,8 @@ export function Analytics() {
                   <Music className="h-4 w-4 text-pink-400" />
                   <p className="text-xs text-gray-400">Avg Daily</p>
                 </div>
-                <p className="text-lg font-bold text-white">87.8 min</p>
-                <p className="text-xs text-gray-500">This month</p>
+                <p className="text-lg font-bold text-white">{avgDaily} min</p>
+                <p className="text-xs text-gray-500">This week</p>
               </motion.div>
               
               <motion.div
@@ -307,10 +190,10 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Heart className="h-4 w-4 text-purple-400" />
-                  <p className="text-xs text-gray-400">Best Month</p>
+                  <p className="text-xs text-gray-400">Best Day</p>
                 </div>
-                <p className="text-lg font-bold text-white">June</p>
-                <p className="text-xs text-gray-500">2,634 minutes</p>
+                <p className="text-lg font-bold text-white">{bestDay.label}</p>
+                <p className="text-xs text-gray-500">{Math.round(bestDay.minutes)} minutes</p>
               </motion.div>
             </div>
           </CardContent>
@@ -333,7 +216,7 @@ export function Analytics() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-gray-400">Peak Hour</p>
-                <p className="text-lg font-bold text-blue-400">8-9 PM</p>
+                <p className="text-lg font-bold text-blue-400">{peakHour.hour}</p>
               </div>
             </div>
           </CardHeader>
@@ -381,7 +264,7 @@ export function Analytics() {
                   <Zap className="h-4 w-4 text-blue-400" />
                   <p className="text-xs text-gray-400">Morning</p>
                 </div>
-                <p className="text-lg font-bold text-white">63 plays</p>
+                <p className="text-lg font-bold text-white">{morningPlays} plays</p>
                 <p className="text-xs text-gray-500">6AM - 12PM</p>
               </motion.div>
               
@@ -395,7 +278,7 @@ export function Analytics() {
                   <Zap className="h-4 w-4 text-cyan-400" />
                   <p className="text-xs text-gray-400">Afternoon</p>
                 </div>
-                <p className="text-lg font-bold text-white">156 plays</p>
+                <p className="text-lg font-bold text-white">{afternoonPlays} plays</p>
                 <p className="text-xs text-gray-500">12PM - 6PM</p>
               </motion.div>
               
@@ -409,7 +292,7 @@ export function Analytics() {
                   <Flame className="h-4 w-4 text-purple-400" />
                   <p className="text-xs text-gray-400">Evening</p>
                 </div>
-                <p className="text-lg font-bold text-white">268 plays</p>
+                <p className="text-lg font-bold text-white">{eveningPlays} plays</p>
                 <p className="text-xs text-gray-500">6PM - 12AM</p>
               </motion.div>
             </div>
@@ -491,12 +374,12 @@ export function Analytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topGenresTime.map((genre, index) => (
-                <div key={`genre-time-${genre.genre}-${index}`} className="space-y-2">
+              {topGenres.map((genre, index) => (
+                <div key={`genre-time-${genre.name}-${index}`} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="h-3 w-3 rounded-full" style={{ backgroundColor: genre.color }}></div>
-                      <span className="text-sm font-medium text-white">{genre.genre}</span>
+                      <span className="text-sm font-medium text-white">{genre.name}</span>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-sm text-gray-400">{genre.hours}h</span>
@@ -514,6 +397,9 @@ export function Analytics() {
                   </div>
                 </div>
               ))}
+              {topGenres.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-8">No genre data available yet. Start listening to build your profile!</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -601,6 +487,9 @@ export function Analytics() {
                   </div>
                 </div>
               ))}
+              {milestones.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">Keep listening to unlock milestones!</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -610,37 +499,43 @@ export function Analytics() {
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
           <div className="h-1 w-12 bg-gradient-to-r from-green-600 to-rose-900 rounded-full"></div>
-          <h2 className="text-2xl font-bold text-white">Yearly Highlights</h2>
+          <h2 className="text-2xl font-bold text-white">Highlights</h2>
         </div>
 
         <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
-              {yearlyHighlights.map((highlight, index) => (
-                <div key={highlight.id} className="relative flex items-center gap-4">
-                  {index !== yearlyHighlights.length - 1 && (
-                    <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${highlight.color} bg-gradient-to-b`}></div>
-                  )}
-                  <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 bg-gradient-to-br ${highlight.color}`}>
-                    <highlight.icon className="h-4 w-4 text-white" fill="white" />
-                  </div>
-                  <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
-                    <div className="flex items-center justify-between">
-                      <h4 className={`font-semibold ${highlight.color} text-white`}>
-                        {highlight.title}
-                      </h4>
-                      <span className="text-sm text-gray-400">{highlight.date}</span>
-                    </div>
-                    {highlight.followers && (
-                      <div className="mt-2">
-                        <Badge className="bg-gray-800/30 border border-gray-700/30 text-gray-400">
-                          {highlight.followers} followers
-                        </Badge>
-                      </div>
+              {highlights.map((highlight, index) => {
+                const Icon = getIcon(highlight.icon);
+                return (
+                  <div key={highlight.id} className="relative flex items-center gap-4">
+                    {index !== highlights.length - 1 && (
+                      <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] bg-gradient-to-b ${highlight.color}`}></div>
                     )}
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 bg-gradient-to-br ${highlight.color}`}>
+                      <Icon className="h-4 w-4 text-white" fill="white" />
+                    </div>
+                    <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-semibold text-white">
+                          {highlight.title}
+                        </h4>
+                        <span className="text-sm text-gray-400">{highlight.date}</span>
+                      </div>
+                      {highlight.followers && (
+                        <div className="mt-2">
+                          <Badge className="bg-gray-800/30 border border-gray-700/30 text-gray-400">
+                            {highlight.followers} followers
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+              {highlights.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">Highlights will appear as you build your listening history.</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -656,32 +551,35 @@ export function Analytics() {
         <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
-              {listeningStreaks.map((streak, index) => (
-                <div key={streak.type} className="relative flex items-center gap-4">
-                  {index !== listeningStreaks.length - 1 && (
-                    <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${streak.active ? 'bg-gradient-to-b from-purple-500 to-pink-500' : 'bg-gray-700'}`}></div>
-                  )}
-                  <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 ${
-                    streak.active
-                      ? 'bg-gradient-to-br from-purple-500 to-pink-500'
-                      : 'bg-gray-700'
-                  }`}>
-                    {streak.active ? (
-                      <Award className="h-4 w-4 text-white" fill="white" />
-                    ) : (
-                      <div className="h-3 w-3 rounded-full bg-gray-900"></div>
+              {listeningStreaks.map((streak, index) => {
+                const Icon = getIcon(streak.icon);
+                return (
+                  <div key={streak.type} className="relative flex items-center gap-4">
+                    {index !== listeningStreaks.length - 1 && (
+                      <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${streak.active ? 'bg-gradient-to-b from-purple-500 to-pink-500' : 'bg-gray-700'}`}></div>
                     )}
-                  </div>
-                  <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
-                    <div className="flex items-center justify-between">
-                      <h4 className={`font-semibold ${streak.active ? 'text-white' : 'text-gray-500'}`}>
-                        {streak.type}
-                      </h4>
-                      <span className="text-sm text-gray-400">{streak.days} {streak.description}</span>
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 ${
+                      streak.active
+                        ? 'bg-gradient-to-br from-purple-500 to-pink-500'
+                        : 'bg-gray-700'
+                    }`}>
+                      {streak.active ? (
+                        <Award className="h-4 w-4 text-white" fill="white" />
+                      ) : (
+                        <Icon className="h-4 w-4 text-gray-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
+                      <div className="flex items-center justify-between">
+                        <h4 className={`font-semibold ${streak.active ? 'text-white' : 'text-gray-500'}`}>
+                          {streak.type}
+                        </h4>
+                        <span className="text-sm text-gray-400">{streak.days} {streak.description}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

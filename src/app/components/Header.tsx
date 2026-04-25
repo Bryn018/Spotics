@@ -1,4 +1,4 @@
-import { Music2, Bell, Settings, User, Menu } from 'lucide-react';
+import { Music2 as Music, Bell, Settings, User, Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription, SheetHeader } from './ui/sheet';
@@ -24,37 +24,43 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-gray-800/50 bg-black/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <header className="sticky top-0 z-50 w-full border-b border-[#1f2937] bg-[#0B111B]/95 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-12">
           <div className="flex items-center gap-8">
             <Link to="/dashboard" className="flex items-center gap-3">
-              <SpoticsLogo className="h-10 w-10" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              <Music className="h-7 w-7 text-[#1DB954]" />
+              <h1 className="text-2xl font-bold text-white tracking-tight">
                 Spotics
               </h1>
             </Link>
-            
-            <nav className="hidden md:flex items-center gap-6">
-              <Link 
-                to="/dashboard" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/dashboard') ? 'text-green-400' : 'text-gray-400 hover:text-white'
+
+            <nav className="hidden md:flex items-center gap-8">
+              <Link
+                to="/dashboard"
+                className={`text-sm font-medium transition-colors pb-1 ${
+                  isActive('/dashboard')
+                    ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
+                    : 'text-gray-400 hover:text-white border-b-2 border-transparent'
                 }`}
               >
                 Dashboard
               </Link>
-              <Link 
-                to="/dashboard/analytics" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/dashboard/analytics') ? 'text-blue-400' : 'text-gray-400 hover:text-white'
+              <Link
+                to="/dashboard/analytics"
+                className={`text-sm font-medium transition-colors pb-1 ${
+                  isActive('/dashboard/analytics')
+                    ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
+                    : 'text-gray-400 hover:text-white border-b-2 border-transparent'
                 }`}
               >
                 Analytics
               </Link>
-              <Link 
-                to="/dashboard/export" 
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/dashboard/export') ? 'text-rose-800' : 'text-gray-400 hover:text-white'
+              <Link
+                to="/dashboard/export"
+                className={`text-sm font-medium transition-colors pb-1 ${
+                  isActive('/dashboard/export')
+                    ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
+                    : 'text-gray-400 hover:text-white border-b-2 border-transparent'
                 }`}
               >
                 Export
@@ -112,26 +118,32 @@ export function Header() {
                   <SheetDescription>Choose a section to navigate to</SheetDescription>
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 mt-8">
-                  <Link 
-                    to="/dashboard" 
+                  <Link
+                    to="/dashboard"
                     className={`text-sm font-medium py-2 transition-colors ${
-                      isActive('/dashboard') ? 'text-green-400' : 'text-gray-400 hover:text-white'
+                      isActive('/dashboard')
+                        ? 'text-[#1DB954]'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     Dashboard
                   </Link>
-                  <Link 
-                    to="/dashboard/analytics" 
+                  <Link
+                    to="/dashboard/analytics"
                     className={`text-sm font-medium py-2 transition-colors ${
-                      isActive('/dashboard/analytics') ? 'text-blue-400' : 'text-gray-400 hover:text-white'
+                      isActive('/dashboard/analytics')
+                        ? 'text-[#1DB954]'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     Analytics
                   </Link>
-                  <Link 
-                    to="/dashboard/export" 
+                  <Link
+                    to="/dashboard/export"
                     className={`text-sm font-medium py-2 transition-colors ${
-                      isActive('/dashboard/export') ? 'text-rose-800' : 'text-gray-400 hover:text-white'
+                      isActive('/dashboard/export')
+                        ? 'text-[#1DB954]'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     Export
