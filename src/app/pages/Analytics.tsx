@@ -59,8 +59,8 @@ export function Analytics() {
     return (
       <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
         <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
-          <span className="ml-3 text-gray-400">Loading your analytics...</span>
+          <Loader2 className="h-8 w-8 text-[#1DB954] animate-spin" />
+          <span className="ml-3 text-[#B3B3B3]">Loading your analytics...</span>
         </div>
       </main>
     );
@@ -71,10 +71,10 @@ export function Analytics() {
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#1DB954] to-[#19E68C] rounded-full"></div>
           <h1 className="text-4xl font-bold text-white">Analytics</h1>
         </div>
-        <p className="text-gray-400">Deep dive into your listening patterns and music preferences</p>
+        <p className="text-[#B3B3B3]">Deep dive into your listening patterns and music preferences</p>
       </div>
 
       {/* Key Stats */}
@@ -82,7 +82,7 @@ export function Analytics() {
         {stats.map((stat, index) => {
           const Icon = getIcon(stat.icon);
           return (
-            <Card key={index} className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 overflow-hidden relative group hover:border-purple-500/30 transition-all">
+            <Card key={index} className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 overflow-hidden relative group hover:border-[#8B5CF6]/30 transition-all">
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
               <CardContent className="p-6 relative z-10">
                 <div className="flex items-start justify-between mb-4">
@@ -90,13 +90,13 @@ export function Analytics() {
                     <Icon className="h-6 w-6 text-white" />
                   </div>
                   {stat.trend !== 'same' && (
-                    <div className={`flex items-center gap-1 text-sm font-medium ${stat.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                    <div className={`flex items-center gap-1 text-sm font-medium ${stat.trend === 'up' ? 'text-[#1DB954]' : 'text-red-400'}`}>
                       {stat.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                       <span>{stat.change}</span>
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
+                <p className="text-sm text-[#B3B3B3] mb-1">{stat.label}</p>
                 <p className="text-3xl font-bold text-white">{stat.value}</p>
               </CardContent>
             </Card>
@@ -107,23 +107,23 @@ export function Analytics() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         {/* Weekly Trends */}
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5 animate-pulse" />
+        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/5 via-transparent to-[#EC4899]/5 animate-pulse" />
           
           <CardHeader className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                  <Calendar className="h-5 w-5 text-purple-400" />
+                <div className="p-2 rounded-lg bg-gradient-to-br from-[#8B5CF6]/20 to-[#EC4899]/20">
+                  <Calendar className="h-5 w-5 text-[#A78BFA]" />
                 </div>
                 <div>
                   <CardTitle className="text-xl text-white">Listening Trends</CardTitle>
-                  <p className="text-sm text-gray-400 mt-1">Your listening over the last 7 days</p>
+                  <p className="text-sm text-[#B3B3B3] mt-1">Your listening over the last 7 days</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-gray-400">Best Day</p>
-                <p className="text-lg font-bold text-purple-400">{bestDay.label}</p>
+                <p className="text-xs text-[#B3B3B3]">Best Day</p>
+                <p className="text-lg font-bold text-[#A78BFA]">{bestDay.label}</p>
               </div>
             </div>
           </CardHeader>
@@ -158,65 +158,65 @@ export function Analytics() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20"
+                className="bg-gradient-to-br from-[#8B5CF6]/10 to-[#EC4899]/10 rounded-lg p-3 border border-[#8B5CF6]/20"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-purple-400" />
-                  <p className="text-xs text-gray-400">Total</p>
+                  <TrendingUp className="h-4 w-4 text-[#A78BFA]" />
+                  <p className="text-xs text-[#B3B3B3]">Total</p>
                 </div>
                 <p className="text-lg font-bold text-white">{Math.round(totalTrendMinutes)}m</p>
-                <p className="text-xs text-gray-500">This week</p>
+                <p className="text-xs text-[#9CA3AF]">This week</p>
               </motion.div>
               
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-lg p-3 border border-pink-500/20"
+                className="bg-gradient-to-br from-[#EC4899]/10 to-[#8B5CF6]/10 rounded-lg p-3 border border-[#EC4899]/20"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Music className="h-4 w-4 text-pink-400" />
-                  <p className="text-xs text-gray-400">Avg Daily</p>
+                  <Music className="h-4 w-4 text-[#F472B6]" />
+                  <p className="text-xs text-[#B3B3B3]">Avg Daily</p>
                 </div>
                 <p className="text-lg font-bold text-white">{avgDaily} min</p>
-                <p className="text-xs text-gray-500">This week</p>
+                <p className="text-xs text-[#9CA3AF]">This week</p>
               </motion.div>
               
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20"
+                className="bg-gradient-to-br from-[#8B5CF6]/10 to-[#EC4899]/10 rounded-lg p-3 border border-[#8B5CF6]/20"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Heart className="h-4 w-4 text-purple-400" />
-                  <p className="text-xs text-gray-400">Best Day</p>
+                  <Heart className="h-4 w-4 text-[#A78BFA]" />
+                  <p className="text-xs text-[#B3B3B3]">Best Day</p>
                 </div>
                 <p className="text-lg font-bold text-white">{bestDay.label}</p>
-                <p className="text-xs text-gray-500">{Math.round(bestDay.minutes)} minutes</p>
+                <p className="text-xs text-[#9CA3AF]">{Math.round(bestDay.minutes)} minutes</p>
               </motion.div>
             </div>
           </CardContent>
         </Card>
 
         {/* Hourly Distribution */}
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 animate-pulse" />
+        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#3B82F6]/5 via-transparent to-[#06B6D4]/5 animate-pulse" />
           
           <CardHeader className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
-                  <Clock className="h-5 w-5 text-blue-400" />
+                <div className="p-2 rounded-lg bg-gradient-to-br from-[#3B82F6]/20 to-[#06B6D4]/20">
+                  <Clock className="h-5 w-5 text-[#60A5FA]" />
                 </div>
                 <div>
                   <CardTitle className="text-xl text-white">Listening by Hour</CardTitle>
-                  <p className="text-sm text-gray-400 mt-1">Peak activity times</p>
+                  <p className="text-sm text-[#B3B3B3] mt-1">Peak activity times</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-gray-400">Peak Hour</p>
-                <p className="text-lg font-bold text-blue-400">{peakHour.hour}</p>
+                <p className="text-xs text-[#B3B3B3]">Peak Hour</p>
+                <p className="text-lg font-bold text-[#60A5FA]">{peakHour.hour}</p>
               </div>
             </div>
           </CardHeader>
@@ -258,42 +258,42 @@ export function Analytics() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-lg p-3 border border-blue-500/20"
+                className="bg-gradient-to-br from-[#3B82F6]/10 to-[#06B6D4]/10 rounded-lg p-3 border border-[#3B82F6]/20"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Zap className="h-4 w-4 text-blue-400" />
-                  <p className="text-xs text-gray-400">Morning</p>
+                  <Zap className="h-4 w-4 text-[#60A5FA]" />
+                  <p className="text-xs text-[#B3B3B3]">Morning</p>
                 </div>
                 <p className="text-lg font-bold text-white">{morningPlays} plays</p>
-                <p className="text-xs text-gray-500">6AM - 12PM</p>
+                <p className="text-xs text-[#9CA3AF]">6AM - 12PM</p>
               </motion.div>
               
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-lg p-3 border border-cyan-500/20"
+                className="bg-gradient-to-br from-[#06B6D4]/10 to-[#3B82F6]/10 rounded-lg p-3 border border-[#06B6D4]/20"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Zap className="h-4 w-4 text-cyan-400" />
-                  <p className="text-xs text-gray-400">Afternoon</p>
+                  <Zap className="h-4 w-4 text-[#22D3EE]" />
+                  <p className="text-xs text-[#B3B3B3]">Afternoon</p>
                 </div>
                 <p className="text-lg font-bold text-white">{afternoonPlays} plays</p>
-                <p className="text-xs text-gray-500">12PM - 6PM</p>
+                <p className="text-xs text-[#9CA3AF]">12PM - 6PM</p>
               </motion.div>
               
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20"
+                className="bg-gradient-to-br from-[#8B5CF6]/10 to-[#EC4899]/10 rounded-lg p-3 border border-[#8B5CF6]/20"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Flame className="h-4 w-4 text-purple-400" />
-                  <p className="text-xs text-gray-400">Evening</p>
+                  <Flame className="h-4 w-4 text-[#A78BFA]" />
+                  <p className="text-xs text-[#B3B3B3]">Evening</p>
                 </div>
                 <p className="text-lg font-bold text-white">{eveningPlays} plays</p>
-                <p className="text-xs text-gray-500">6PM - 12AM</p>
+                <p className="text-xs text-[#9CA3AF]">6PM - 12AM</p>
               </motion.div>
             </div>
           </CardContent>
@@ -303,17 +303,17 @@ export function Analytics() {
       {/* Music Taste Profile & Genre Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         {/* Music Taste Radar */}
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5 animate-pulse" />
+        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954]/5 via-transparent to-[#1DB954]/5 animate-pulse" />
           
           <CardHeader className="relative z-10">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20">
-                <Target className="h-5 w-5 text-green-400" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-[#1DB954]/20 to-[#1DB954]/20">
+                <Target className="h-5 w-5 text-[#1DB954]" />
               </div>
               <div>
                 <CardTitle className="text-xl text-white">Music Taste Profile</CardTitle>
-                <p className="text-sm text-gray-400 mt-1">Your unique listening DNA</p>
+                <p className="text-sm text-[#B3B3B3] mt-1">Your unique listening DNA</p>
               </div>
             </div>
           </CardHeader>
@@ -342,18 +342,18 @@ export function Analytics() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-lg p-3 border border-green-500/20"
+                  className="bg-gradient-to-br from-[#1DB954]/10 to-[#1DB954]/10 rounded-lg p-3 border border-[#1DB954]/20"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-gray-400">{item.category}</p>
-                    <span className="text-sm font-bold text-green-400">{item.value}%</span>
+                    <p className="text-xs text-[#B3B3B3]">{item.category}</p>
+                    <span className="text-sm font-bold text-[#1DB954]">{item.value}%</span>
                   </div>
-                  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[#1F2937] rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${item.value}%` }}
                       transition={{ duration: 1, delay: index * 0.1 }}
-                      className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
+                      className="h-full bg-gradient-to-r from-[#1DB954] to-[#1DB954] rounded-full"
                     />
                   </div>
                 </motion.div>
@@ -363,11 +363,11 @@ export function Analytics() {
         </Card>
 
         {/* Genre Breakdown */}
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-pink-500/20 to-purple-500/20">
-                <Music className="h-5 w-5 text-pink-400" />
+              <div className="p-2 rounded-lg bg-gradient-to-br from-[#EC4899]/20 to-[#8B5CF6]/20">
+                <Music className="h-5 w-5 text-[#F472B6]" />
               </div>
               <CardTitle className="text-xl text-white">Top Genres by Time</CardTitle>
             </div>
@@ -382,11 +382,11 @@ export function Analytics() {
                       <span className="text-sm font-medium text-white">{genre.name}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-gray-400">{genre.hours}h</span>
+                      <span className="text-sm text-[#B3B3B3]">{genre.hours}h</span>
                       <span className="text-sm font-bold text-white w-12 text-right">{genre.percentage}%</span>
                     </div>
                   </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-2 bg-[#1F2937] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -398,7 +398,7 @@ export function Analytics() {
                 </div>
               ))}
               {topGenres.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-8">No genre data available yet. Start listening to build your profile!</p>
+                <p className="text-sm text-[#9CA3AF] text-center py-8">No genre data available yet. Start listening to build your profile!</p>
               )}
             </div>
           </CardContent>
@@ -408,7 +408,7 @@ export function Analytics() {
       {/* Achievements */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#1DB954] to-[#3B82F6] rounded-full"></div>
           <h2 className="text-2xl font-bold text-white">Achievements</h2>
         </div>
 
@@ -416,8 +416,8 @@ export function Analytics() {
           {achievements.map((achievement) => (
             <Card
               key={achievement.id}
-              className={`bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 overflow-hidden relative ${
-                achievement.unlocked ? 'border-purple-500/30' : ''
+              className={`bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 overflow-hidden relative ${
+                achievement.unlocked ? 'border-[#8B5CF6]/30' : ''
               }`}
             >
               <CardContent className="p-5">
@@ -427,18 +427,18 @@ export function Analytics() {
                   </div>
                 )}
                 <div className={`h-16 w-16 rounded-full bg-gradient-to-br ${achievement.color} p-0.5 mb-4 ${!achievement.unlocked && 'opacity-50'}`}>
-                  <div className="h-full w-full rounded-full bg-gray-900 flex items-center justify-center">
+                  <div className="h-full w-full rounded-full bg-[#111827] flex items-center justify-center">
                     <span className="text-3xl">{achievement.icon}</span>
                   </div>
                 </div>
                 <h3 className="font-bold text-white mb-1">{achievement.title}</h3>
-                <p className="text-xs text-gray-400 mb-3">{achievement.description}</p>
+                <p className="text-xs text-[#B3B3B3] mb-3">{achievement.description}</p>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500">Progress</span>
-                    <span className="text-purple-400 font-medium">{achievement.progress}%</span>
+                    <span className="text-[#9CA3AF]">Progress</span>
+                    <span className="text-[#A78BFA] font-medium">{achievement.progress}%</span>
                   </div>
-                  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[#1F2937] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full bg-gradient-to-r ${achievement.color} transition-all duration-500`}
                       style={{ width: `${achievement.progress}%` }}
@@ -454,41 +454,41 @@ export function Analytics() {
       {/* Milestones */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-green-600 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#3B82F6] to-[#19E68C] rounded-full"></div>
           <h2 className="text-2xl font-bold text-white">Milestones</h2>
         </div>
 
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
               {milestones.map((milestone, index) => (
                 <div key={milestone.id} className="relative flex items-center gap-4">
                   {index !== milestones.length - 1 && (
-                    <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${milestone.completed ? 'bg-gradient-to-b from-purple-500 to-pink-500' : 'bg-gray-700'}`}></div>
+                    <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${milestone.completed ? 'bg-gradient-to-b from-[#8B5CF6] to-[#EC4899]' : 'bg-[#374151]'}`}></div>
                   )}
                   <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 ${
                     milestone.completed
-                      ? 'bg-gradient-to-br from-purple-500 to-pink-500'
-                      : 'bg-gray-700'
+                      ? 'bg-gradient-to-br from-[#8B5CF6] to-[#EC4899]'
+                      : 'bg-[#374151]'
                   }`}>
                     {milestone.completed ? (
                       <Award className="h-4 w-4 text-white" fill="white" />
                     ) : (
-                      <div className="h-3 w-3 rounded-full bg-gray-900"></div>
+                      <div className="h-3 w-3 rounded-full bg-[#111827]"></div>
                     )}
                   </div>
-                  <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
+                  <div className="flex-1 p-3 rounded-lg bg-[#1F2937]/30 border border-[#374151]/30">
                     <div className="flex items-center justify-between">
-                      <h4 className={`font-semibold ${milestone.completed ? 'text-white' : 'text-gray-500'}`}>
+                      <h4 className={`font-semibold ${milestone.completed ? 'text-white' : 'text-[#9CA3AF]'}`}>
                         {milestone.title}
                       </h4>
-                      <span className="text-sm text-gray-400">{milestone.date}</span>
+                      <span className="text-sm text-[#B3B3B3]">{milestone.date}</span>
                     </div>
                   </div>
                 </div>
               ))}
               {milestones.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-4">Keep listening to unlock milestones!</p>
+                <p className="text-sm text-[#9CA3AF] text-center py-4">Keep listening to unlock milestones!</p>
               )}
             </div>
           </CardContent>
@@ -498,11 +498,11 @@ export function Analytics() {
       {/* Yearly Highlights */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-green-600 to-rose-900 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#19E68C] to-[#7F1D1D] rounded-full"></div>
           <h2 className="text-2xl font-bold text-white">Highlights</h2>
         </div>
 
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
               {highlights.map((highlight, index) => {
@@ -515,16 +515,16 @@ export function Analytics() {
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 bg-gradient-to-br ${highlight.color}`}>
                       <Icon className="h-4 w-4 text-white" fill="white" />
                     </div>
-                    <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
+                    <div className="flex-1 p-3 rounded-lg bg-[#1F2937]/30 border border-[#374151]/30">
                       <div className="flex items-center justify-between">
                         <h4 className="font-semibold text-white">
                           {highlight.title}
                         </h4>
-                        <span className="text-sm text-gray-400">{highlight.date}</span>
+                        <span className="text-sm text-[#B3B3B3]">{highlight.date}</span>
                       </div>
                       {highlight.followers && (
                         <div className="mt-2">
-                          <Badge className="bg-gray-800/30 border border-gray-700/30 text-gray-400">
+                          <Badge className="bg-[#1F2937]/30 border border-[#374151]/30 text-[#B3B3B3]">
                             {highlight.followers} followers
                           </Badge>
                         </div>
@@ -534,7 +534,7 @@ export function Analytics() {
                 );
               })}
               {highlights.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-4">Highlights will appear as you build your listening history.</p>
+                <p className="text-sm text-[#9CA3AF] text-center py-4">Highlights will appear as you build your listening history.</p>
               )}
             </div>
           </CardContent>
@@ -544,11 +544,11 @@ export function Analytics() {
       {/* Listening Streaks */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-rose-900 to-rose-800 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#7F1D1D] to-[#881337] rounded-full"></div>
           <h2 className="text-2xl font-bold text-white">Listening Streaks</h2>
         </div>
 
-        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
               {listeningStreaks.map((streak, index) => {
@@ -556,25 +556,25 @@ export function Analytics() {
                 return (
                   <div key={streak.type} className="relative flex items-center gap-4">
                     {index !== listeningStreaks.length - 1 && (
-                      <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${streak.active ? 'bg-gradient-to-b from-purple-500 to-pink-500' : 'bg-gray-700'}`}></div>
+                      <div className={`absolute left-[15px] top-[40px] w-px h-[calc(100%+16px)] ${streak.active ? 'bg-gradient-to-b from-[#8B5CF6] to-[#EC4899]' : 'bg-[#374151]'}`}></div>
                     )}
                     <div className={`h-8 w-8 rounded-full flex items-center justify-center z-10 ${
                       streak.active
-                        ? 'bg-gradient-to-br from-purple-500 to-pink-500'
-                        : 'bg-gray-700'
+                        ? 'bg-gradient-to-br from-[#8B5CF6] to-[#EC4899]'
+                        : 'bg-[#374151]'
                     }`}>
                       {streak.active ? (
                         <Award className="h-4 w-4 text-white" fill="white" />
                       ) : (
-                        <Icon className="h-4 w-4 text-gray-400" />
+                        <Icon className="h-4 w-4 text-[#B3B3B3]" />
                       )}
                     </div>
-                    <div className="flex-1 p-3 rounded-lg bg-gray-800/30 border border-gray-700/30">
+                    <div className="flex-1 p-3 rounded-lg bg-[#1F2937]/30 border border-[#374151]/30">
                       <div className="flex items-center justify-between">
-                        <h4 className={`font-semibold ${streak.active ? 'text-white' : 'text-gray-500'}`}>
+                        <h4 className={`font-semibold ${streak.active ? 'text-white' : 'text-[#9CA3AF]'}`}>
                           {streak.type}
                         </h4>
-                        <span className="text-sm text-gray-400">{streak.days} {streak.description}</span>
+                        <span className="text-sm text-[#B3B3B3]">{streak.days} {streak.description}</span>
                       </div>
                     </div>
                   </div>
