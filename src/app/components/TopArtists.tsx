@@ -47,7 +47,7 @@ export function TopArtists({ artists }: TopArtistsProps) {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500">{artist.hours}h</p>
+              <p className="text-xs text-gray-500">{artist.hours ?? 0}h</p>
             </div>
           </div>
         ))}

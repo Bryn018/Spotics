@@ -45,7 +45,7 @@ export function TopAlbums({ albums }: TopAlbumsProps) {
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-500">{album.plays} plays</p>
-              <p className="text-xs text-gray-600">{album.totalMinutes}m</p>
+              <p className="text-xs text-gray-600">{album.totalMinutes ?? 0}m</p>
             </div>
           </div>
         ))}

@@ -83,7 +83,7 @@ export function Export() {
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1400px]">
       {/* Hero Section */}
-      <div className="mb-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1DB954]/10 via-#19E68C/10 to-[#3B82F6]/10 border border-[#1DB954]/20 p-8 lg:p-12">
+      <div className="mb-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#001a0f] via-[#001a0f] to-[#000000] border border-[#064e3b] p-8 lg:p-12">
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#1DB954]/20 to-transparent rounded-full blur-3xl"
@@ -118,10 +118,10 @@ export function Export() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 mb-4"
           >
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-[#1DB954]/20 to-[#3B82F6]/20 backdrop-blur-sm border border-[#1DB954]/30">
-              <ImageIcon className="h-6 w-6 text-[#1DB954]" />
+            <div className="p-3 rounded-2xl bg-[#064e3b] backdrop-blur-sm border border-[#1DB954]/30">
+              <ImageIcon className="h-6 w-6 text-[#10b981]" />
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#1DB954] via-teal-400 to-[#60A5FA] bg-clip-text text-transparent">
+            <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#10b981] to-[#3b82f6] bg-clip-text text-transparent">
               Export Your Insights
             </h1>
           </motion.div>
@@ -133,7 +133,7 @@ export function Export() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10 animate-pulse">
+                <div key={i} className="bg-[#020617] backdrop-blur-sm rounded-xl p-4 border border-[#1e293b] animate-pulse">
                   <div className="h-8 w-8 rounded-lg bg-[#374151] mb-2" />
                   <div className="h-3 w-16 bg-[#374151] rounded mb-1" />
                   <div className="h-6 w-20 bg-[#374151] rounded" />
@@ -148,7 +148,7 @@ export function Export() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-[#1DB954]/30 transition-all"
+                    className="bg-[#020617] backdrop-blur-sm rounded-xl p-4 border border-[#1e293b] hover:border-[#1DB954]/30 transition-all"
                   >
                     <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20 w-fit mb-2`}>
                       <Icon className="h-4 w-4 text-white" />
@@ -165,17 +165,17 @@ export function Export() {
 
       {/* Control Panel */}
       <div className="grid lg:grid-cols-2 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-[#111827]/80 to-[#1F2937]/80 border-[#374151]/50 backdrop-blur-sm">
+        <Card className="bg-gradient-to-br from-[#111827]/80 to-[#1F2937]/80 border-[#1E293B] backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <Calendar className="h-5 w-5 text-[#1DB954]" />
               <h3 className="text-lg font-semibold text-white">Select Time Range</h3>
             </div>
             <Tabs value={selectedRange} onValueChange={(value) => setSelectedRange(value as ExportTimeRange)}>
-              <TabsList className="bg-[#1F2937]/80 backdrop-blur-sm border border-[#374151]/50 p-1 w-full">
+              <TabsList className="bg-[#1F2937]/80 backdrop-blur-sm border border-[#1E293B] p-1 w-full">
                 <TabsTrigger
                   value="weekly"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#1DB954] data-[state=active]:to-#19E68C data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
+                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#10b981] data-[state=active]:to-[#06b6d4] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
                 >
                   Weekly
                 </TabsTrigger>
@@ -199,7 +199,7 @@ export function Export() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-[#111827]/80 to-[#1F2937]/80 border-[#374151]/50 backdrop-blur-sm">
+        <Card className="bg-gradient-to-br from-[#111827]/80 to-[#1F2937]/80 border-[#1E293B] backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <Share2 className="h-5 w-5 text-[#60A5FA]" />
@@ -209,7 +209,7 @@ export function Export() {
               <Button
                 onClick={handleDownload}
                 disabled={isGenerating || isLoading}
-                className="w-full bg-gradient-to-r from-[#19E68C] via-#19E68C to-[#1DB954] hover:from-[#19E68C] hover:via-#19E68C hover:to-[#19E68C] text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
+                className="w-full bg-gradient-to-r from-[#059669] to-[#10b981] hover:from-[#19E68C] hover:via-[#10b981] hover:to-[#19E68C] text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
@@ -245,8 +245,8 @@ export function Export() {
         transition={{ delay: 0.2 }}
         className="relative"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1DB954]/5 via-#19E68C/5 to-[#3B82F6]/5 rounded-2xl blur-xl" />
-        <div className="relative bg-gradient-to-br from-[#111827]/90 to-[#1F2937]/90 backdrop-blur-sm rounded-2xl p-4 lg:p-8 border border-[#374151]/50 shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1DB954]/5 via-[#10b981]/5 to-[#3B82F6]/5 rounded-2xl blur-xl" />
+        <div className="relative bg-gradient-to-br from-[#111827]/90 to-[#1F2937]/90 backdrop-blur-sm rounded-2xl p-4 lg:p-8 border border-[#1E293B] shadow-2xl">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-[#B3B3B3] text-sm font-medium">Preview</p>
             <div className="flex gap-2">
@@ -267,7 +267,7 @@ export function Export() {
                   <h2 className="text-3xl lg:text-4xl font-bold mb-1" style={{ color: '#22c55e' }}>
                     Spotics
                   </h2>
-                  <p className="text-sm font-medium" style={{ color: '#9ca3af' }}>Music Listening Insights</p>
+                  <p className="text-sm font-medium" style={{ color: '#94A3B8' }}>Music Listening Insights</p>
                 </div>
               </div>
               <div className="text-right">
@@ -300,7 +300,7 @@ export function Export() {
                       <div className={`relative h-10 w-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg`}>
                         <Icon className="h-5 w-5" style={{ color: '#ffffff' }} />
                       </div>
-                      <p className="relative text-xs font-medium mb-1 uppercase tracking-wide" style={{ color: '#9ca3af' }}>{stat.label}</p>
+                      <p className="relative text-xs font-medium mb-1 uppercase tracking-wide" style={{ color: '#94A3B8' }}>{stat.label}</p>
                       <p className="relative text-2xl lg:text-3xl font-bold" style={{ color: '#ffffff' }}>{stat.value}</p>
                     </div>
                   );
@@ -341,7 +341,7 @@ export function Export() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-semibold truncate" style={{ color: '#ffffff' }}>{track.title}</p>
-                            <p className="text-sm truncate" style={{ color: '#9ca3af' }}>{track.artist}</p>
+                            <p className="text-sm truncate" style={{ color: '#94A3B8' }}>{track.artist}</p>
                           </div>
                         </div>
                         <div className="flex-shrink-0 text-right ml-4">
@@ -443,11 +443,11 @@ export function Export() {
             {/* Footer */}
             <div className="mt-8 pt-6" style={{ borderTop: '1px solid #374151' }}>
               <div className="flex items-center justify-center gap-2">
-                <p className="text-sm" style={{ color: '#9ca3af' }}>
+                <p className="text-sm" style={{ color: '#94A3B8' }}>
                   Generated with
                 </p>
                 <span style={{ color: '#ef4444' }}>❤️</span>
-                <p className="text-sm" style={{ color: '#9ca3af' }}>
+                <p className="text-sm" style={{ color: '#94A3B8' }}>
                   by <span className="font-semibold" style={{ color: '#22c55e' }}>Spotics</span>
                 </p>
                 <span style={{ color: '#4b5563' }}>•</span>
@@ -466,35 +466,35 @@ export function Export() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="mt-8 bg-gradient-to-br from-[#111827]/80 to-[#1F2937]/80 border-[#374151]/50 backdrop-blur-sm shadow-xl">
+        <Card className="mt-8 bg-gradient-to-br from-[#111827]/80 to-[#1F2937]/80 border-[#1E293B] backdrop-blur-sm shadow-xl">
           <CardContent className="p-6 lg:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#1DB954]/20 to-[#3B82F6]/20 flex items-center justify-center border border-[#1DB954]/30">
+              <div className="h-10 w-10 rounded-xl bg-[#064e3b] flex items-center justify-center border border-[#1DB954]/30">
                 <ImageIcon className="h-5 w-5 text-[#1DB954]" />
               </div>
               <h3 className="text-xl font-bold text-white">How to Use</h3>
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-#19E68C flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-green-500/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#10b981] to-[#10b981] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-green-500/20">
                   1
                 </div>
                 <p className="text-[#B3B3B3] text-sm">Select your preferred time range: Weekly, Monthly, or All Time stats</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-#19E68C to-[#3B82F6] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#10b981] to-[#06b6d4] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
                   2
                 </div>
                 <p className="text-[#B3B3B3] text-sm">Click the "Download as PNG" button to generate a high-quality image</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#3B82F6] to-[#1DB954] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#10b981] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
                   3
                 </div>
                 <p className="text-[#B3B3B3] text-sm">Share your music taste on social media with friends and followers</p>
               </div>
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#1F2937]/40 border border-[#374151]/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#1DB954] to-[#19E68C] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-800/20">
+                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-[#10b981] to-[#10b981] flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-800/20">
                   4
                 </div>
                 <p className="text-[#B3B3B3] text-sm">Image includes stats, top tracks, artists, and genre distribution</p>

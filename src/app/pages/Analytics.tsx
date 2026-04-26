@@ -60,7 +60,7 @@ export function Analytics() {
       <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
         <div className="flex items-center justify-center h-96">
           <Loader2 className="h-8 w-8 text-[#1DB954] animate-spin" />
-          <span className="ml-3 text-[#B3B3B3]">Loading your analytics...</span>
+          <span className="ml-3 text-[#94A3B8]">Loading your analytics...</span>
         </div>
       </main>
     );
@@ -74,7 +74,7 @@ export function Analytics() {
           <div className="h-1 w-12 bg-gradient-to-r from-[#1DB954] to-[#19E68C] rounded-full"></div>
           <h1 className="text-4xl font-bold text-white">Analytics</h1>
         </div>
-        <p className="text-[#B3B3B3]">Deep dive into your listening patterns and music preferences</p>
+        <p className="text-[#94A3B8]">Deep dive into your listening patterns and music preferences</p>
       </div>
 
       {/* Key Stats */}
@@ -82,7 +82,7 @@ export function Analytics() {
         {stats.map((stat, index) => {
           const Icon = getIcon(stat.icon);
           return (
-            <Card key={index} className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 overflow-hidden relative group hover:border-[#8B5CF6]/30 transition-all">
+            <Card key={index} className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] overflow-hidden relative group hover:border-[#8B5CF6]/30 transition-all">
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
               <CardContent className="p-6 relative z-10">
                 <div className="flex items-start justify-between mb-4">
@@ -96,7 +96,7 @@ export function Analytics() {
                     </div>
                   )}
                 </div>
-                <p className="text-sm text-[#B3B3B3] mb-1">{stat.label}</p>
+                <p className="text-sm text-[#94A3B8] mb-1">{stat.label}</p>
                 <p className="text-3xl font-bold text-white">{stat.value}</p>
               </CardContent>
             </Card>
@@ -107,22 +107,22 @@ export function Analytics() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         {/* Weekly Trends */}
-        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl overflow-hidden relative">
+        <Card className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] shadow-xl overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/5 via-transparent to-[#EC4899]/5 animate-pulse" />
           
           <CardHeader className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-[#8B5CF6]/20 to-[#EC4899]/20">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-[#211432] to-[#211432]">
                   <Calendar className="h-5 w-5 text-[#A78BFA]" />
                 </div>
                 <div>
                   <CardTitle className="text-xl text-white">Listening Trends</CardTitle>
-                  <p className="text-sm text-[#B3B3B3] mt-1">Your listening over the last 7 days</p>
+                  <p className="text-sm text-[#94A3B8] mt-1">Your listening over the last 7 days</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-[#B3B3B3]">Best Day</p>
+                <p className="text-xs text-[#94A3B8]">Best Day</p>
                 <p className="text-lg font-bold text-[#A78BFA]">{bestDay.label}</p>
               </div>
             </div>
@@ -162,7 +162,7 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <TrendingUp className="h-4 w-4 text-[#A78BFA]" />
-                  <p className="text-xs text-[#B3B3B3]">Total</p>
+                  <p className="text-xs text-[#94A3B8]">Total</p>
                 </div>
                 <p className="text-lg font-bold text-white">{Math.round(totalTrendMinutes)}m</p>
                 <p className="text-xs text-[#9CA3AF]">This week</p>
@@ -176,7 +176,7 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Music className="h-4 w-4 text-[#F472B6]" />
-                  <p className="text-xs text-[#B3B3B3]">Avg Daily</p>
+                  <p className="text-xs text-[#94A3B8]">Avg Daily</p>
                 </div>
                 <p className="text-lg font-bold text-white">{avgDaily} min</p>
                 <p className="text-xs text-[#9CA3AF]">This week</p>
@@ -190,7 +190,7 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Heart className="h-4 w-4 text-[#A78BFA]" />
-                  <p className="text-xs text-[#B3B3B3]">Best Day</p>
+                  <p className="text-xs text-[#94A3B8]">Best Day</p>
                 </div>
                 <p className="text-lg font-bold text-white">{bestDay.label}</p>
                 <p className="text-xs text-[#9CA3AF]">{Math.round(bestDay.minutes)} minutes</p>
@@ -200,22 +200,22 @@ export function Analytics() {
         </Card>
 
         {/* Hourly Distribution */}
-        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl overflow-hidden relative">
+        <Card className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] shadow-xl overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-[#3B82F6]/5 via-transparent to-[#06B6D4]/5 animate-pulse" />
           
           <CardHeader className="relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-[#3B82F6]/20 to-[#06B6D4]/20">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-[#0B2135] to-[#0B2135]">
                   <Clock className="h-5 w-5 text-[#60A5FA]" />
                 </div>
                 <div>
                   <CardTitle className="text-xl text-white">Listening by Hour</CardTitle>
-                  <p className="text-sm text-[#B3B3B3] mt-1">Peak activity times</p>
+                  <p className="text-sm text-[#94A3B8] mt-1">Peak activity times</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs text-[#B3B3B3]">Peak Hour</p>
+                <p className="text-xs text-[#94A3B8]">Peak Hour</p>
                 <p className="text-lg font-bold text-[#60A5FA]">{peakHour.hour}</p>
               </div>
             </div>
@@ -262,7 +262,7 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="h-4 w-4 text-[#60A5FA]" />
-                  <p className="text-xs text-[#B3B3B3]">Morning</p>
+                  <p className="text-xs text-[#94A3B8]">Morning</p>
                 </div>
                 <p className="text-lg font-bold text-white">{morningPlays} plays</p>
                 <p className="text-xs text-[#9CA3AF]">6AM - 12PM</p>
@@ -276,7 +276,7 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Zap className="h-4 w-4 text-[#22D3EE]" />
-                  <p className="text-xs text-[#B3B3B3]">Afternoon</p>
+                  <p className="text-xs text-[#94A3B8]">Afternoon</p>
                 </div>
                 <p className="text-lg font-bold text-white">{afternoonPlays} plays</p>
                 <p className="text-xs text-[#9CA3AF]">12PM - 6PM</p>
@@ -290,7 +290,7 @@ export function Analytics() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Flame className="h-4 w-4 text-[#A78BFA]" />
-                  <p className="text-xs text-[#B3B3B3]">Evening</p>
+                  <p className="text-xs text-[#94A3B8]">Evening</p>
                 </div>
                 <p className="text-lg font-bold text-white">{eveningPlays} plays</p>
                 <p className="text-xs text-[#9CA3AF]">6PM - 12AM</p>
@@ -303,17 +303,17 @@ export function Analytics() {
       {/* Music Taste Profile & Genre Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         {/* Music Taste Radar */}
-        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl overflow-hidden relative">
+        <Card className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] shadow-xl overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954]/5 via-transparent to-[#1DB954]/5 animate-pulse" />
           
           <CardHeader className="relative z-10">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-[#1DB954]/20 to-[#1DB954]/20">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-[#062621] to-[#062621] to-[#1DB954]/20">
                 <Target className="h-5 w-5 text-[#1DB954]" />
               </div>
               <div>
                 <CardTitle className="text-xl text-white">Music Taste Profile</CardTitle>
-                <p className="text-sm text-[#B3B3B3] mt-1">Your unique listening DNA</p>
+                <p className="text-sm text-[#94A3B8] mt-1">Your unique listening DNA</p>
               </div>
             </div>
           </CardHeader>
@@ -345,7 +345,7 @@ export function Analytics() {
                   className="bg-gradient-to-br from-[#1DB954]/10 to-[#1DB954]/10 rounded-lg p-3 border border-[#1DB954]/20"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-[#B3B3B3]">{item.category}</p>
+                    <p className="text-xs text-[#94A3B8]">{item.category}</p>
                     <span className="text-sm font-bold text-[#1DB954]">{item.value}%</span>
                   </div>
                   <div className="h-1.5 bg-[#1F2937] rounded-full overflow-hidden">
@@ -363,7 +363,7 @@ export function Analytics() {
         </Card>
 
         {/* Genre Breakdown */}
-        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] shadow-xl">
           <CardHeader>
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-lg bg-gradient-to-br from-[#EC4899]/20 to-[#8B5CF6]/20">
@@ -382,7 +382,7 @@ export function Analytics() {
                       <span className="text-sm font-medium text-white">{genre.name}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-sm text-[#B3B3B3]">{genre.hours}h</span>
+                      <span className="text-sm text-[#94A3B8]">{genre.hours}h</span>
                       <span className="text-sm font-bold text-white w-12 text-right">{genre.percentage}%</span>
                     </div>
                   </div>
@@ -416,7 +416,7 @@ export function Analytics() {
           {achievements.map((achievement) => (
             <Card
               key={achievement.id}
-              className={`bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 overflow-hidden relative ${
+              className={`bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] overflow-hidden relative ${
                 achievement.unlocked ? 'border-[#8B5CF6]/30' : ''
               }`}
             >
@@ -432,7 +432,7 @@ export function Analytics() {
                   </div>
                 </div>
                 <h3 className="font-bold text-white mb-1">{achievement.title}</h3>
-                <p className="text-xs text-[#B3B3B3] mb-3">{achievement.description}</p>
+                <p className="text-xs text-[#94A3B8] mb-3">{achievement.description}</p>
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-[#9CA3AF]">Progress</span>
@@ -458,7 +458,7 @@ export function Analytics() {
           <h2 className="text-2xl font-bold text-white">Milestones</h2>
         </div>
 
-        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
               {milestones.map((milestone, index) => (
@@ -482,7 +482,7 @@ export function Analytics() {
                       <h4 className={`font-semibold ${milestone.completed ? 'text-white' : 'text-[#9CA3AF]'}`}>
                         {milestone.title}
                       </h4>
-                      <span className="text-sm text-[#B3B3B3]">{milestone.date}</span>
+                      <span className="text-sm text-[#94A3B8]">{milestone.date}</span>
                     </div>
                   </div>
                 </div>
@@ -502,7 +502,7 @@ export function Analytics() {
           <h2 className="text-2xl font-bold text-white">Highlights</h2>
         </div>
 
-        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
               {highlights.map((highlight, index) => {
@@ -520,11 +520,11 @@ export function Analytics() {
                         <h4 className="font-semibold text-white">
                           {highlight.title}
                         </h4>
-                        <span className="text-sm text-[#B3B3B3]">{highlight.date}</span>
+                        <span className="text-sm text-[#94A3B8]">{highlight.date}</span>
                       </div>
                       {highlight.followers && (
                         <div className="mt-2">
-                          <Badge className="bg-[#1F2937]/30 border border-[#374151]/30 text-[#B3B3B3]">
+                          <Badge className="bg-[#1F2937]/30 border border-[#374151]/30 text-[#94A3B8]">
                             {highlight.followers} followers
                           </Badge>
                         </div>
@@ -548,7 +548,7 @@ export function Analytics() {
           <h2 className="text-2xl font-bold text-white">Listening Streaks</h2>
         </div>
 
-        <Card className="bg-gradient-to-br from-[#111827]/50 to-[#1F2937]/50 border-[#1F2937]/50 shadow-xl">
+        <Card className="bg-gradient-to-br from-[#090C13] to-[#090C13] border-[#1E293B] shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-4">
               {listeningStreaks.map((streak, index) => {
@@ -566,7 +566,7 @@ export function Analytics() {
                       {streak.active ? (
                         <Award className="h-4 w-4 text-white" fill="white" />
                       ) : (
-                        <Icon className="h-4 w-4 text-[#B3B3B3]" />
+                        <Icon className="h-4 w-4 text-[#94A3B8]" />
                       )}
                     </div>
                     <div className="flex-1 p-3 rounded-lg bg-[#1F2937]/30 border border-[#374151]/30">
@@ -574,7 +574,7 @@ export function Analytics() {
                         <h4 className={`font-semibold ${streak.active ? 'text-white' : 'text-[#9CA3AF]'}`}>
                           {streak.type}
                         </h4>
-                        <span className="text-sm text-[#B3B3B3]">{streak.days} {streak.description}</span>
+                        <span className="text-sm text-[#94A3B8]">{streak.days} {streak.description}</span>
                       </div>
                     </div>
                   </div>

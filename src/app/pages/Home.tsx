@@ -98,7 +98,7 @@ export function Home() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 border-4 border-[#1DB954]/20 border-t-[#1DB954] rounded-full animate-spin" />
+          <div className="h-10 w-10 border-4 border-[#1ED760]/20 border-t-[#1ED760] rounded-full animate-spin" />
           <p className="text-[#B3B3B3]">Loading your music data...</p>
         </div>
       </div>
@@ -112,11 +112,11 @@ export function Home() {
         <div className="absolute inset-0 bg-black" />
         <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px]">
           <svg viewBox="0 0 400 400" className="w-full h-full opacity-20">
-            <circle cx="200" cy="200" r="180" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="150" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="120" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="90" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="60" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.06" />
+            <circle cx="200" cy="200" r="180" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="150" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="120" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="90" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="60" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.06" />
           </svg>
         </div>
 
@@ -129,10 +129,10 @@ export function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#062826] border border-[#1DB954]"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#062826] border border-[#1ED760]"
               >
-                <Sparkles className="h-4 w-4 text-[#1DB954]" />
-                <span className="text-xs font-bold text-[#1DB954] uppercase tracking-wider">Year in Review</span>
+                <Sparkles className="h-4 w-4 text-[#2ABBA7]" />
+                <span className="text-xs font-bold text-[#2ABBA7] uppercase tracking-wider">Year in Review</span>
               </motion.div>
 
               {/* Headline */}
@@ -145,7 +145,7 @@ export function Home() {
                 <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[0.95] tracking-tight">
                   <span className="relative inline-block">
                     Look
-                    <span className="absolute -bottom-2 left-0 w-[110px] h-1 bg-gradient-to-r from-[#1DB954] to-[#19E68C] rounded-full" />
+                    <span className="absolute -bottom-2 left-0 w-[110px] h-1 bg-gradient-to-r from-[#1ED760] to-[#1DB954] rounded-full" />
                   </span>{' '}
                   Back At It
                 </h1>
@@ -170,11 +170,11 @@ export function Home() {
                 ].map((stat, i) => (
                   <div
                     key={stat.label}
-                    className="rounded-xl p-6 bg-[#121212] border border-[#282828]"
+                    className="rounded-xl p-6 bg-[#121E24] border border-[#282828]"
                   >
-                    <stat.icon className="h-5 w-5 text-[#1DB954] mb-3" />
+                    <stat.icon className="h-5 w-5 text-[#2ABBA7] mb-3" />
                     <p className="text-xs font-bold text-[#B3B3B3] uppercase tracking-wider">{stat.label}</p>
-                    <p className="text-[36px] font-black text-[#1DB954] leading-none">{stat.value}</p>
+                    <p className="text-[36px] font-black text-[#2ABBA7] leading-none">{stat.value}</p>
                   </div>
                 ))}
               </motion.div>
@@ -193,8 +193,8 @@ export function Home() {
                       onClick={() => setActiveWrap(t)}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                         activeWrap === t
-                          ? 'bg-[#A6113A] text-white border border-[#A6113A]'
-                          : 'bg-[#121212] text-[#B3B3B3] border border-[#282828]'
+                          ? 'bg-[#A10035] text-white border border-[#A10035]'
+                          : 'bg-transparent text-[#B3B3B3] border border-[#333333]'
                       }`}
                     >
                       {t === 'daily' && <Calendar className="h-4 w-4" />}
@@ -207,7 +207,7 @@ export function Home() {
 
                 <Button
                   onClick={() => setDialogOpen(true)}
-                  className="bg-gradient-to-r from-[#1DB954] to-[#19E68C] text-white font-bold px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#1DB954]/40 transition-all"
+                  className="bg-gradient-to-r from-[#1ED760] to-[#1DB954] text-white font-bold px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#1ED760]/40 transition-all"
                 >
                   <Play className="h-5 w-5 mr-2" fill="white" />
                   {activeWrap === 'daily' ? 'View Today' : activeWrap === 'weekly' ? 'View This Week' : 'View Your Year'}
@@ -227,7 +227,7 @@ export function Home() {
                 {/* Floating Top 1% */}
                 <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#181D2B] border border-[#2E3B52] shadow-xl">
                   <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-[#1DB954]" fill="#1DB954" />
+                    <Star className="h-5 w-5 text-[#2ABBA7]" fill="#1ED760" />
                     <div>
                       <p className="text-xs text-[#B3B3B3]">Top 1%</p>
                       <p className="text-lg font-black text-white">Listener</p>
@@ -259,14 +259,14 @@ export function Home() {
             <h2 className="text-2xl font-bold text-white">Your Music Stats</h2>
             <p className="text-sm text-[#B3B3B3] mt-1">Track your listening habits and discover your musical journey</p>
           </div>
-          <div className="flex bg-[#121212] rounded-lg p-1">
+          <div className="flex bg-[#121E24] rounded-lg p-1">
             {(['short_term', 'medium_term', 'long_term'] as TimeRange[]).map((range) => (
               <button
                 key={range}
                 onClick={() => handleTimeRangeChange(range)}
                 className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
                   timeRange === range
-                    ? 'bg-[#282828] text-[#1DB954]'
+                    ? 'bg-[#282828] text-[#2ABBA7]'
                     : 'text-[#B3B3B3] hover:text-white'
                 }`}
               >
@@ -288,14 +288,14 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="rounded-xl p-6 bg-[#121212] border border-[#282828]"
+                className="rounded-xl p-6 bg-[#121E24] border border-[#282828]"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <stat.icon className="h-5 w-5 text-[#1DB954]" />
+                  <stat.icon className="h-5 w-5 text-[#2ABBA7]" />
                 </div>
                 <p className="text-xs text-[#B3B3B3] mb-1">{stat.label}</p>
                 <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-                <p className="text-xs text-[#1DB954]">{stat.change}</p>
+                <p className="text-xs text-[#2ABBA7]">{stat.change}</p>
               </motion.div>
             ))}
           </div>
@@ -304,7 +304,7 @@ export function Home() {
       {/* ── TOP ALBUMS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#1DB954] to-[#19E68C] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#1ED760] to-[#1DB954] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Albums</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -316,7 +316,7 @@ export function Home() {
               transition={{ delay: i * 0.1 }}
               className="group"
             >
-              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#121212] border border-[#282828]">
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#121E24] border border-[#282828]">
                 <img
                   src={album.image || '/placeholder-album.svg'}
                   alt={album.name}
@@ -343,10 +343,10 @@ export function Home() {
       {/* ── TOP TRACKS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#3b82f6] to-[#1DB954] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#3b82f6] to-[#1ED760] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Tracks</h2>
         </div>
-        <div className="rounded-2xl bg-[#121212] border border-[#282828] overflow-hidden">
+        <div className="rounded-2xl bg-[#121E24] border border-[#282828] overflow-hidden">
           {(payload?.topTracks ?? []).slice(0, 5).map((track, i) => (
             <div
               key={track.id}
@@ -390,7 +390,7 @@ export function Home() {
       {/* ── TOP ARTISTS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#1DB954] to-[#3b82f6] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#1ED760] to-[#3b82f6] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Artists</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -400,7 +400,7 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-xl p-4 bg-[#121212] border border-[#282828]"
+                className="rounded-xl p-4 bg-[#121E24] border border-[#282828]"
               >
                 <div className="relative mb-3">
                   <div className="aspect-square rounded-full overflow-hidden bg-[#282828]">
@@ -447,7 +447,7 @@ export function Home() {
           {/* Now Playing + Quick Stats */}
           <div className="space-y-4">
             {/* Now Playing */}
-            <div className="rounded-xl p-4 bg-[#121212] border border-[#282828]">
+            <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
               {nowPlaying?.isPlaying && nowPlaying.track ? (
                 <div className="flex items-center gap-3">
                   <img
@@ -458,8 +458,8 @@ export function Home() {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#1DB954] animate-pulse" />
-                      <span className="text-xs text-[#1DB954] font-semibold">Now Playing</span>
+                      <span className="h-2 w-2 rounded-full bg-[#1ED760] animate-pulse" />
+                      <span className="text-xs text-[#2ABBA7] font-semibold">Now Playing</span>
                     </div>
                     <p className="text-sm font-semibold text-white truncate">{nowPlaying.track.title}</p>
                     <p className="text-xs text-[#B3B3B3] truncate">{nowPlaying.track.artist}</p>
@@ -480,19 +480,19 @@ export function Home() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-4 bg-[#121212] border border-[#282828]">
+              <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#1DB954]" />
-                  <span className="text-xs text-[#1DB954] font-bold">+8</span>
+                  <TrendingUp className="h-4 w-4 text-[#2ABBA7]" />
+                  <span className="text-xs text-[#2ABBA7] font-bold">+8</span>
                 </div>
                 <p className="text-xs text-[#B3B3B3]">tracks</p>
                 <p className="text-sm font-semibold text-white">Today</p>
                 <p className="text-xl font-bold text-white">{stats.songsThisWeek > 0 ? Math.round(stats.songsThisWeek / 7) : 42}</p>
               </div>
-              <div className="rounded-xl p-4 bg-[#121212] border border-[#282828]">
+              <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#1DB954]" />
-                  <span className="text-xs text-[#1DB954] font-bold">+24</span>
+                  <TrendingUp className="h-4 w-4 text-[#2ABBA7]" />
+                  <span className="text-xs text-[#2ABBA7] font-bold">+24</span>
                 </div>
                 <p className="text-xs text-[#B3B3B3]">tracks</p>
                 <p className="text-sm font-semibold text-white">This Week</p>
@@ -535,7 +535,7 @@ export function Home() {
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="rounded-2xl p-6 bg-[#181D2B] border border-[#2E3B52] flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#1DB954] to-[#19E68C] flex items-center justify-center">
+            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#1ED760] to-[#1DB954] flex items-center justify-center">
               <BarChart3 className="h-7 w-7 text-white" />
             </div>
             <div>
@@ -544,7 +544,7 @@ export function Home() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-[#1DB954]">
+            <div className="flex items-center gap-1 text-[#2ABBA7]">
               <TrendingUp className="h-4 w-4" />
               <span className="text-sm font-bold">+0.5</span>
             </div>
@@ -559,7 +559,7 @@ export function Home() {
       {/* ── ANALYTICS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-20">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-[#1DB954] rounded-full" />
+          <div className="h-1 w-8 bg-[#1ED760] rounded-full" />
           <h2 className="text-3xl font-bold text-white">Analytics</h2>
         </div>
 
@@ -570,13 +570,13 @@ export function Home() {
             <div className="rounded-2xl p-6 bg-[#181D2B] border border-[#2E3B52]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-[#1DB954]" />
+                  <Clock className="h-5 w-5 text-[#2ABBA7]" />
                   <div>
                     <h3 className="text-lg font-bold text-white">Listening Activity</h3>
                     <p className="text-xs text-[#B3B3B3]">Your listening time this week</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-[#1DB954]">
+                <div className="flex items-center gap-1 text-[#2ABBA7]">
                   <TrendingUp className="h-4 w-4" />
                   <span className="text-sm font-bold">+12%</span>
                   <span className="text-xs text-[#B3B3B3]">vs last week</span>
@@ -590,9 +590,9 @@ export function Home() {
                   { label: 'Average', value: `${Math.round((payload?.listeningChart?.reduce((a, b) => a + b.minutes, 0) ?? 0) / 7)}m` },
                   { label: 'Peak Day', value: payload?.listeningChart?.reduce((a, b) => a.minutes > b.minutes ? a : b, payload?.listeningChart[0] ?? { label: 'Sat', minutes: 0 })?.label ?? 'Sat' },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-lg p-3 bg-[#121212]">
+                  <div key={s.label} className="rounded-lg p-3 bg-[#121E24]">
                     <p className="text-xs text-[#B3B3B3] mb-1">{s.label}</p>
-                    <p className="text-lg font-bold text-[#1DB954]">{s.value}</p>
+                    <p className="text-lg font-bold text-[#2ABBA7]">{s.value}</p>
                   </div>
                 ))}
               </div>
@@ -604,8 +604,8 @@ export function Home() {
                     <AreaChart data={payload?.listeningChart ?? []}>
                       <defs>
                         <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#1DB954" stopOpacity={0.3} />
-                          <stop offset="100%" stopColor="#1DB954" stopOpacity={0} />
+                          <stop offset="0%" stopColor="#1ED760" stopOpacity={0.3} />
+                          <stop offset="100%" stopColor="#1ED760" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
@@ -640,7 +640,7 @@ export function Home() {
                   { icon: Calendar, label: 'Best Day', value: stats.bestDay || 'Saturday', sub: 'Weekend vibes', color: 'from-[#8b5cf6] to-[#7c3aed]' },
                   { icon: Music, label: 'Songs This Week', value: String(stats.songsThisWeek || 156), sub: 'Unique tracks', color: 'from-[#a855f7] to-[#9333ea]' },
                 ].map((insight, i) => (
-                  <div key={insight.label} className="rounded-xl p-4 bg-[#121212] border border-[#282828] flex items-center gap-3">
+                  <div key={insight.label} className="rounded-xl p-4 bg-[#121E24] border border-[#282828] flex items-center gap-3">
                     <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${insight.color} flex items-center justify-center flex-shrink-0`}>
                       <insight.icon className="h-5 w-5 text-white" />
                     </div>
@@ -655,7 +655,7 @@ export function Home() {
             </div>
 
             {/* Achievement Banner */}
-            <div className="rounded-2xl p-5 bg-gradient-to-r from-[#062826] to-[#0a3d2e] border border-[#1DB954] flex items-center gap-4">
+            <div className="rounded-2xl p-5 bg-gradient-to-r from-[#062826] to-[#0a3d2e] border border-[#1ED760] flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#ff7b00] to-[#f97316] flex items-center justify-center flex-shrink-0">
                 <Flame className="h-6 w-6 text-white" />
               </div>
@@ -671,7 +671,7 @@ export function Home() {
                   ))}
                 </div>
               </div>
-              <div className="rounded-xl px-4 py-3 bg-gradient-to-br from-[#1DB954] to-[#19E68C] shadow-lg shadow-[#1DB954]/20 flex-shrink-0">
+              <div className="rounded-xl px-4 py-3 bg-gradient-to-br from-[#1ED760] to-[#1DB954] shadow-lg shadow-[#1ED760]/20 flex-shrink-0">
                 <p className="text-[10px] text-white/80 uppercase font-bold">Bonus</p>
                 <p className="text-lg font-black text-white">+50 XP</p>
               </div>
@@ -680,9 +680,9 @@ export function Home() {
 
           {/* Right Column - Genre Distribution (1/3) */}
           <div className="space-y-6">
-            <div className="rounded-2xl p-6 bg-[#121212] border border-[#282828]">
+            <div className="rounded-2xl p-6 bg-[#121E24] border border-[#282828]">
               <div className="flex items-center gap-3 mb-6">
-                <Music className="h-5 w-5 text-[#1DB954]" />
+                <Music className="h-5 w-5 text-[#2ABBA7]" />
                 <div>
                   <h3 className="text-lg font-bold text-white">Genre Distribution</h3>
                   <p className="text-xs text-[#B3B3B3]">Your most listened genres</p>
@@ -698,7 +698,7 @@ export function Home() {
               {/* Total Plays */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-[#1DB954]" />
+                  <BarChart3 className="h-4 w-4 text-[#2ABBA7]" />
                   <span className="text-xs text-[#B3B3B3]">Total Plays</span>
                 </div>
                 <span className="text-lg font-bold text-white">
@@ -742,7 +742,7 @@ export function Home() {
       {/* Footer */}
       <footer className="border-t border-[#374151] py-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
-          <p className="text-sm text-[#1DB954]">&copy; 2026 Insights</p>
+          <p className="text-sm text-[#2ABBA7]">&copy; 2026 Insights</p>
         </div>
       </footer>
 

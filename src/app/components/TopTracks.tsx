@@ -49,7 +49,7 @@ export function TopTracks({ tracks }: TopTracksProps) {
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-500">{track.plays} plays</p>
-              <p className="text-xs text-gray-600">{track.durationLabel}</p>
+              <p className="text-xs text-gray-600">{track.durationLabel ?? '0:00'}</p>
             </div>
           </div>
         ))}
