@@ -98,7 +98,7 @@ export function Home() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 border-4 border-[#1ED760]/20 border-t-[#1ED760] rounded-full animate-spin" />
+          <div className="h-10 w-10 border-4 border-[#1DB954]/20 border-t-[#1ED760] rounded-full animate-spin" />
           <p className="text-[#B3B3B3]">Loading your music data...</p>
         </div>
       </div>
@@ -112,11 +112,11 @@ export function Home() {
         <div className="absolute inset-0 bg-black" />
         <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px]">
           <svg viewBox="0 0 400 400" className="w-full h-full opacity-20">
-            <circle cx="200" cy="200" r="180" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="150" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="120" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="90" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="60" fill="none" stroke="#1ED760" strokeWidth="1" opacity="0.06" />
+            <circle cx="200" cy="200" r="180" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="150" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="120" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="90" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="60" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.06" />
           </svg>
         </div>
 
@@ -129,10 +129,10 @@ export function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#062826] border border-[#1ED760]"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#002B24] border border-[#1DB954]"
               >
-                <Sparkles className="h-4 w-4 text-[#2ABBA7]" />
-                <span className="text-xs font-bold text-[#2ABBA7] uppercase tracking-wider">Year in Review</span>
+                <Sparkles className="h-4 w-4 text-[#22D3EE]" />
+                <span className="text-xs font-bold text-[#22D3EE] uppercase tracking-wider">Year in Review</span>
               </motion.div>
 
               {/* Headline */}
@@ -172,9 +172,9 @@ export function Home() {
                     key={stat.label}
                     className="rounded-xl p-6 bg-[#121E24] border border-[#282828]"
                   >
-                    <stat.icon className="h-5 w-5 text-[#2ABBA7] mb-3" />
+                    <stat.icon className="h-5 w-5 text-[#22D3EE] mb-3" />
                     <p className="text-xs font-bold text-[#B3B3B3] uppercase tracking-wider">{stat.label}</p>
-                    <p className="text-[36px] font-black text-[#2ABBA7] leading-none">{stat.value}</p>
+                    <p className="text-[36px] font-black text-[#22D3EE] leading-none">{stat.value}</p>
                   </div>
                 ))}
               </motion.div>
@@ -193,7 +193,7 @@ export function Home() {
                       onClick={() => setActiveWrap(t)}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                         activeWrap === t
-                          ? 'bg-[#A10035] text-white border border-[#A10035]'
+                          ? 'bg-[#A10E36] text-white border border-[#A10035]'
                           : 'bg-transparent text-[#B3B3B3] border border-[#333333]'
                       }`}
                     >
@@ -225,9 +225,9 @@ export function Home() {
                 className="relative"
               >
                 {/* Floating Top 1% */}
-                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#181D2B] border border-[#2E3B52] shadow-xl">
+                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#1A2233] border border-[#2E3B52] shadow-xl">
                   <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-[#2ABBA7]" fill="#1ED760" />
+                    <Star className="h-5 w-5 text-[#22D3EE]" fill="#1ED760" />
                     <div>
                       <p className="text-xs text-[#B3B3B3]">Top 1%</p>
                       <p className="text-lg font-black text-white">Listener</p>
@@ -236,7 +236,7 @@ export function Home() {
                 </div>
 
                 {/* Floating Active Days */}
-                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#181D2B] border border-[#2E3B52] shadow-xl">
+                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#1A2233] border border-[#2E3B52] shadow-xl">
                   <div className="flex items-center gap-2">
                     <Signal className="h-5 w-5 text-[#60A5FA]" />
                     <div>
@@ -266,7 +266,7 @@ export function Home() {
                 onClick={() => handleTimeRangeChange(range)}
                 className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
                   timeRange === range
-                    ? 'bg-[#282828] text-[#2ABBA7]'
+                    ? 'bg-[#282828] text-[#22D3EE]'
                     : 'text-[#B3B3B3] hover:text-white'
                 }`}
               >
@@ -291,11 +291,11 @@ export function Home() {
                 className="rounded-xl p-6 bg-[#121E24] border border-[#282828]"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <stat.icon className="h-5 w-5 text-[#2ABBA7]" />
+                  <stat.icon className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <p className="text-xs text-[#B3B3B3] mb-1">{stat.label}</p>
                 <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-                <p className="text-xs text-[#2ABBA7]">{stat.change}</p>
+                <p className="text-xs text-[#22D3EE]">{stat.change}</p>
               </motion.div>
             ))}
           </div>
@@ -459,7 +459,7 @@ export function Home() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="h-2 w-2 rounded-full bg-[#1ED760] animate-pulse" />
-                      <span className="text-xs text-[#2ABBA7] font-semibold">Now Playing</span>
+                      <span className="text-xs text-[#22D3EE] font-semibold">Now Playing</span>
                     </div>
                     <p className="text-sm font-semibold text-white truncate">{nowPlaying.track.title}</p>
                     <p className="text-xs text-[#B3B3B3] truncate">{nowPlaying.track.artist}</p>
@@ -482,8 +482,8 @@ export function Home() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#2ABBA7]" />
-                  <span className="text-xs text-[#2ABBA7] font-bold">+8</span>
+                  <TrendingUp className="h-4 w-4 text-[#22D3EE]" />
+                  <span className="text-xs text-[#22D3EE] font-bold">+8</span>
                 </div>
                 <p className="text-xs text-[#B3B3B3]">tracks</p>
                 <p className="text-sm font-semibold text-white">Today</p>
@@ -491,8 +491,8 @@ export function Home() {
               </div>
               <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#2ABBA7]" />
-                  <span className="text-xs text-[#2ABBA7] font-bold">+24</span>
+                  <TrendingUp className="h-4 w-4 text-[#22D3EE]" />
+                  <span className="text-xs text-[#22D3EE] font-bold">+24</span>
                 </div>
                 <p className="text-xs text-[#B3B3B3]">tracks</p>
                 <p className="text-sm font-semibold text-white">This Week</p>
@@ -502,7 +502,7 @@ export function Home() {
           </div>
 
           {/* Activity Feed */}
-          <div className="lg:col-span-2 rounded-2xl bg-[#181D2B] border border-[#2E3B52] overflow-hidden">
+          <div className="lg:col-span-2 rounded-2xl bg-[#1A2233] border border-[#2E3B52] overflow-hidden">
             {activities.slice(0, 6).map((activity, i) => (
               <div
                 key={activity.id}
@@ -533,7 +533,7 @@ export function Home() {
 
       {/* ── YOUR LISTENING SCORE ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
-        <div className="rounded-2xl p-6 bg-[#181D2B] border border-[#2E3B52] flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="rounded-2xl p-6 bg-[#1A2233] border border-[#2E3B52] flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#1ED760] to-[#1DB954] flex items-center justify-center">
               <BarChart3 className="h-7 w-7 text-white" />
@@ -544,7 +544,7 @@ export function Home() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-[#2ABBA7]">
+            <div className="flex items-center gap-1 text-[#22D3EE]">
               <TrendingUp className="h-4 w-4" />
               <span className="text-sm font-bold">+0.5</span>
             </div>
@@ -567,16 +567,16 @@ export function Home() {
           {/* Left Column - Listening Activity (2/3) */}
           <div className="lg:col-span-2 space-y-6">
             {/* Chart Card */}
-            <div className="rounded-2xl p-6 bg-[#181D2B] border border-[#2E3B52]">
+            <div className="rounded-2xl p-6 bg-[#1A2233] border border-[#2E3B52]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-[#2ABBA7]" />
+                  <Clock className="h-5 w-5 text-[#22D3EE]" />
                   <div>
                     <h3 className="text-lg font-bold text-white">Listening Activity</h3>
                     <p className="text-xs text-[#B3B3B3]">Your listening time this week</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-[#2ABBA7]">
+                <div className="flex items-center gap-1 text-[#22D3EE]">
                   <TrendingUp className="h-4 w-4" />
                   <span className="text-sm font-bold">+12%</span>
                   <span className="text-xs text-[#B3B3B3]">vs last week</span>
@@ -592,7 +592,7 @@ export function Home() {
                 ].map((s) => (
                   <div key={s.label} className="rounded-lg p-3 bg-[#121E24]">
                     <p className="text-xs text-[#B3B3B3] mb-1">{s.label}</p>
-                    <p className="text-lg font-bold text-[#2ABBA7]">{s.value}</p>
+                    <p className="text-lg font-bold text-[#22D3EE]">{s.value}</p>
                   </div>
                 ))}
               </div>
@@ -655,7 +655,7 @@ export function Home() {
             </div>
 
             {/* Achievement Banner */}
-            <div className="rounded-2xl p-5 bg-gradient-to-r from-[#062826] to-[#0a3d2e] border border-[#1ED760] flex items-center gap-4">
+            <div className="rounded-2xl p-5 bg-gradient-to-r from-[#062826] to-[#0a3d2e] border border-[#1DB954] flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#ff7b00] to-[#f97316] flex items-center justify-center flex-shrink-0">
                 <Flame className="h-6 w-6 text-white" />
               </div>
@@ -682,7 +682,7 @@ export function Home() {
           <div className="space-y-6">
             <div className="rounded-2xl p-6 bg-[#121E24] border border-[#282828]">
               <div className="flex items-center gap-3 mb-6">
-                <Music className="h-5 w-5 text-[#2ABBA7]" />
+                <Music className="h-5 w-5 text-[#22D3EE]" />
                 <div>
                   <h3 className="text-lg font-bold text-white">Genre Distribution</h3>
                   <p className="text-xs text-[#B3B3B3]">Your most listened genres</p>
@@ -690,7 +690,7 @@ export function Home() {
               </div>
 
               {/* Top Genre */}
-              <div className="rounded-xl p-4 bg-[#181D2B] mb-6">
+              <div className="rounded-xl p-4 bg-[#1A2233] mb-6">
                 <p className="text-xs text-[#B3B3B3] mb-1">Top Genre</p>
                 <p className="text-2xl font-bold text-white">{payload?.genreDistribution?.[0]?.name ?? 'Pop'}</p>
               </div>
@@ -698,7 +698,7 @@ export function Home() {
               {/* Total Plays */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-[#2ABBA7]" />
+                  <BarChart3 className="h-4 w-4 text-[#22D3EE]" />
                   <span className="text-xs text-[#B3B3B3]">Total Plays</span>
                 </div>
                 <span className="text-lg font-bold text-white">
@@ -742,7 +742,7 @@ export function Home() {
       {/* Footer */}
       <footer className="border-t border-[#374151] py-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
-          <p className="text-sm text-[#2ABBA7]">&copy; 2026 Insights</p>
+          <p className="text-sm text-[#22D3EE]">&copy; 2026 Insights</p>
         </div>
       </footer>
 
