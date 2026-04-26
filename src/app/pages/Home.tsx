@@ -191,11 +191,11 @@ export function Home() {
                     <button
                       key={t}
                       onClick={() => setActiveWrap(t)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                        activeWrap === t
-                          ? 'bg-[#A10E36] text-white border border-[#A10035]'
-                          : 'bg-transparent text-[#B3B3B3] border border-[#333333]'
-                      }`}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                          activeWrap === t
+                            ? 'bg-[#A10E36] text-white border border-[#A10E36]'
+                            : 'bg-transparent text-[#B3B3B3] border border-[#333333]'
+                        }`}
                     >
                       {t === 'daily' && <Calendar className="h-4 w-4" />}
                       {t === 'weekly' && <TrendingUp className="h-4 w-4" />}
@@ -655,7 +655,7 @@ export function Home() {
             </div>
 
             {/* Achievement Banner */}
-            <div className="rounded-2xl p-5 bg-gradient-to-r from-[#062826] to-[#0a3d2e] border border-[#1DB954] flex items-center gap-4">
+            <div className="rounded-2xl p-5 bg-gradient-to-r from-[#002B24] to-[#0a3d2e] border border-[#1DB954] flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-[#ff7b00] to-[#f97316] flex items-center justify-center flex-shrink-0">
                 <Flame className="h-6 w-6 text-white" />
               </div>
