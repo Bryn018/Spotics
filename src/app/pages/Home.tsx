@@ -236,7 +236,7 @@ export function Home() {
                 </div>
 
                 {/* Floating Active Days */}
-                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#121E21] border border-[#282828] shadow-xl">
+                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#1A2233] border border-[#2E3B52] shadow-xl">
                   <div className="flex items-center gap-2">
                     <Signal className="h-5 w-5 text-[#1DB954]" />
                     <div>
