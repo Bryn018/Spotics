@@ -40,12 +40,12 @@ function formatTimeAgo(date: string) {
 
 function getGenreColors(genre: string): {bg: string; text: string} {
   const g = genre.toLowerCase();
-  if (g.includes('pop')) return {bg: 'bg-[#8B5CF6]/20', text: 'text-[#A78BFA]'};
-  if (g.includes('hip hop') || g.includes('rap') || g.includes('hip-hop')) return {bg: 'bg-[#EC4899]/20', text: 'text-[#F472B6]'};
-  if (g.includes('rock')) return {bg: 'bg-[#3B82F6]/20', text: 'text-[#60A5FA]'};
-  if (g.includes('electronic') || g.includes('edm')) return {bg: 'bg-[#A78BFA]/20', text: 'text-[#C4B5FD]'};
-  if (g.includes('indie')) return {bg: 'bg-[#6366F1]/20', text: 'text-[#818CF8]'};
-  return {bg: 'bg-[#8B5CF6]/20', text: 'text-[#A78BFA]'};
+  if (g.includes('pop')) return {bg: 'bg-[#db2777]/20', text: 'text-[#ff1493]'};
+  if (g.includes('hip hop') || g.includes('rap') || g.includes('hip-hop')) return {bg: 'bg-[#f97316]/20', text: 'text-[#f97316]'};
+  if (g.includes('rock')) return {bg: 'bg-[#3b82f6]/20', text: 'text-[#3b82f6]'};
+  if (g.includes('electronic') || g.includes('edm')) return {bg: 'bg-[#eab308]/20', text: 'text-[#eab308]'};
+  if (g.includes('indie')) return {bg: 'bg-[#8b5cf6]/20', text: 'text-[#8b5cf6]'};
+  return {bg: 'bg-[#8b5cf6]/20', text: 'text-[#8b5cf6]'};
 }
 
 export function Home() {
@@ -99,7 +99,7 @@ export function Home() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 border-4 border-[#1DB954]/20 border-t-[#1ED760] rounded-full animate-spin" />
-          <p className="text-[#B3B3B3]">Loading your music data...</p>
+          <p className="text-[#6B8E85]">Loading your music data...</p>
         </div>
       </div>
     );
@@ -112,11 +112,11 @@ export function Home() {
         <div className="absolute inset-0 bg-black" />
         <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px]">
           <svg viewBox="0 0 400 400" className="w-full h-full opacity-20">
-            <circle cx="200" cy="200" r="180" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="150" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="120" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="90" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="60" fill="none" stroke="#1DB954" strokeWidth="1" opacity="0.06" />
+            <circle cx="200" cy="200" r="180" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="150" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="120" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="90" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="60" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.06" />
           </svg>
         </div>
 
@@ -129,10 +129,10 @@ export function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#002B24] border border-[#1DB954]"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#0D3D2D] border border-[#00D9FF]"
               >
-                <Sparkles className="h-4 w-4 text-[#22D3EE]" />
-                <span className="text-xs font-bold text-[#22D3EE] uppercase tracking-wider">Year in Review</span>
+                <Sparkles className="h-4 w-4 text-[#00D9FF]" />
+                <span className="text-xs font-bold text-[#00D9FF] uppercase tracking-wider">Year in Review</span>
               </motion.div>
 
               {/* Headline */}
@@ -145,11 +145,11 @@ export function Home() {
                 <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[0.95] tracking-tight">
                   <span className="relative inline-block">
                     Look
-                    <span className="absolute -bottom-2 left-0 w-[110px] h-1 bg-gradient-to-r from-[#1ED760] to-[#1DB954] rounded-full" />
+                    <span className="absolute -bottom-2 left-0 w-[110px] h-1 bg-gradient-to-r from-[#00D9FF] to-[#00B88A] rounded-full" />
                   </span>{' '}
                   Back At It
                 </h1>
-                <p className="text-xl md:text-2xl text-[#B3B3B3] leading-relaxed max-w-2xl">
+                <p className="text-xl md:text-2xl text-[#6B8E85] leading-relaxed max-w-2xl">
                   An epic year of music awaits.{' '}
                   <strong className="text-white">{wrapStats.tracks.toLocaleString()} songs</strong> from{' '}
                   <strong className="text-white">{wrapStats.artists.toLocaleString()} artists</strong> shaped your soundtrack.
@@ -170,11 +170,11 @@ export function Home() {
                 ].map((stat, i) => (
                   <div
                     key={stat.label}
-                    className="rounded-xl p-6 bg-[#121E24] border border-[#282828]"
+                    className="rounded-xl p-6 bg-[#0D2B24] border border-[#1A4D3F]"
                   >
-                    <stat.icon className="h-5 w-5 text-[#22D3EE] mb-3" />
-                    <p className="text-xs font-bold text-[#B3B3B3] uppercase tracking-wider">{stat.label}</p>
-                    <p className="text-[36px] font-black text-[#22D3EE] leading-none">{stat.value}</p>
+                    <stat.icon className="h-5 w-5 text-[#00D9FF] mb-3" />
+                    <p className="text-xs font-bold text-[#6B8E85] uppercase tracking-wider">{stat.label}</p>
+                    <p className="text-[36px] font-black text-[#00D9FF] leading-none">{stat.value}</p>
                   </div>
                 ))}
               </motion.div>
@@ -193,8 +193,8 @@ export function Home() {
                       onClick={() => setActiveWrap(t)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                           activeWrap === t
-                            ? 'bg-[#A10E36] text-white border border-[#A10E36]'
-                            : 'bg-transparent text-[#B3B3B3] border border-[#333333]'
+                            ? 'bg-gradient-to-r from-[#C1145A] to-[#B8134F] text-white border border-[#C1145A]'
+                            : 'bg-transparent text-[#6B8E85] border border-[#1A4D3F]'
                         }`}
                     >
                       {t === 'daily' && <Calendar className="h-4 w-4" />}
@@ -207,9 +207,9 @@ export function Home() {
 
                 <Button
                   onClick={() => setDialogOpen(true)}
-                  className="bg-gradient-to-r from-[#1ED760] to-[#1DB954] text-white font-bold px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#1ED760]/40 transition-all"
+                  className="bg-gradient-to-r from-[#00D9FF] to-[#00A878] text-black font-bold px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#00D9FF]/40 transition-all hover:shadow-[#00D9FF]/60"
                 >
-                  <Play className="h-5 w-5 mr-2" fill="white" />
+                  <Play className="h-5 w-5 mr-2" fill="black" />
                   {activeWrap === 'daily' ? 'View Today' : activeWrap === 'weekly' ? 'View This Week' : 'View Your Year'}
                   <Sparkles className="h-5 w-5 ml-2" />
                 </Button>
@@ -225,22 +225,22 @@ export function Home() {
                 className="relative"
               >
                 {/* Floating Top 1% */}
-                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#1A2233] border border-[#2E3B52] shadow-xl">
+                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#0D3D2D] border border-[#1A4D3F] shadow-xl">
                   <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-[#22D3EE]" fill="#1ED760" />
+                    <Star className="h-5 w-5 text-[#00D9FF]" fill="#00D9FF" />
                     <div>
-                      <p className="text-xs text-[#B3B3B3]">Top 1%</p>
+                      <p className="text-xs text-[#6B8E85]">Top 1%</p>
                       <p className="text-lg font-black text-white">Listener</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Floating Active Days */}
-                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#1A2233] border border-[#2E3B52] shadow-xl">
+                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#0D3D2D] border border-[#1A4D3F] shadow-xl">
                   <div className="flex items-center gap-2">
-                    <Signal className="h-5 w-5 text-[#60A5FA]" />
+                    <Signal className="h-5 w-5 text-[#00A878]" />
                     <div>
-                      <p className="text-xs text-[#B3B3B3]">Active Days</p>
+                      <p className="text-xs text-[#6B8E85]">Active Days</p>
                       <p className="text-lg font-black text-white">{stats.currentStreak > 0 ? stats.currentStreak * 7 : 342}</p>
                     </div>
                   </div>
@@ -257,17 +257,17 @@ export function Home() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h2 className="text-2xl font-bold text-white">Your Music Stats</h2>
-            <p className="text-sm text-[#B3B3B3] mt-1">Track your listening habits and discover your musical journey</p>
+            <p className="text-sm text-[#6B8E85] mt-1">Track your listening habits and discover your musical journey</p>
           </div>
-          <div className="flex bg-[#121E24] rounded-lg p-1">
+          <div className="flex bg-[#0D2B24] rounded-lg p-1">
             {(['short_term', 'medium_term', 'long_term'] as TimeRange[]).map((range) => (
               <button
                 key={range}
                 onClick={() => handleTimeRangeChange(range)}
                 className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
                   timeRange === range
-                    ? 'bg-[#282828] text-[#22D3EE]'
-                    : 'text-[#B3B3B3] hover:text-white'
+                    ? 'bg-[#1A4D3F] text-[#00D9FF]'
+                    : 'text-[#6B8E85] hover:text-white'
                 }`}
               >
                 {RANGE_LABELS[range]}
@@ -288,14 +288,14 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="rounded-xl p-6 bg-[#121E24] border border-[#282828]"
+                className="rounded-xl p-6 bg-[#0D2B24] border border-[#1A4D3F]"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <stat.icon className="h-5 w-5 text-[#22D3EE]" />
+                  <stat.icon className="h-5 w-5 text-[#00D9FF]" />
                 </div>
-                <p className="text-xs text-[#B3B3B3] mb-1">{stat.label}</p>
+                <p className="text-xs text-[#6B8E85] mb-1">{stat.label}</p>
                 <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-                <p className="text-xs text-[#22D3EE]">{stat.change}</p>
+                <p className="text-xs text-[#00D9FF]">{stat.change}</p>
               </motion.div>
             ))}
           </div>
@@ -304,7 +304,7 @@ export function Home() {
       {/* ── TOP ALBUMS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#1ED760] to-[#1DB954] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#00D9FF] to-[#00A878] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Albums</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -316,7 +316,7 @@ export function Home() {
               transition={{ delay: i * 0.1 }}
               className="group"
             >
-              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#121E24] border border-[#282828]">
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#0D2B24] border border-[#1A4D3F]">
                 <img
                   src={album.image || '/placeholder-album.svg'}
                   alt={album.name}
@@ -328,12 +328,12 @@ export function Home() {
                 </div>
               </div>
               <h3 className="font-bold text-white text-base truncate">{album.name}</h3>
-              <p className="text-xs text-[#B3B3B3] truncate">{album.artist}</p>
-              <p className="text-xs text-[#B3B3B3]">{album.plays} plays</p>
+              <p className="text-xs text-[#6B8E85] truncate">{album.artist}</p>
+              <p className="text-xs text-[#6B8E85]">{album.plays} plays</p>
             </motion.div>
           ))}
           {(payload?.topAlbums ?? []).length === 0 && (
-            <div className="col-span-full text-center py-8 text-[#B3B3B3]">
+            <div className="col-span-full text-center py-8 text-[#6B8E85]">
               <p>No album data available</p>
             </div>
           )}
@@ -343,16 +343,16 @@ export function Home() {
       {/* ── TOP TRACKS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#3b82f6] to-[#1ED760] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#00D9FF] to-[#00A878] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Tracks</h2>
         </div>
-        <div className="rounded-2xl bg-[#121E24] border border-[#282828] overflow-hidden">
+        <div className="rounded-2xl bg-[#0D2B24] border border-[#1A4D3F] overflow-hidden">
           {(payload?.topTracks ?? []).slice(0, 5).map((track, i) => (
             <div
               key={track.id}
-              className="flex items-center gap-4 px-4 py-3 hover:bg-[#282828]/50 transition-colors border-b border-[#282828] last:border-b-0"
+              className="flex items-center gap-4 px-4 py-3 hover:bg-[#1A4D3F]/50 transition-colors border-b border-[#1A4D3F] last:border-b-0"
             >
-              <span className="text-sm font-bold text-[#B3B3B3] w-6 text-center">{i + 1}</span>
+              <span className="text-sm font-bold text-[#6B8E85] w-6 text-center">{i + 1}</span>
               <div className="relative flex-shrink-0">
                 <img
                   src={track.image || '/placeholder-album.svg'}
@@ -363,16 +363,16 @@ export function Home() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-white truncate">{track.title}</p>
-                <p className="text-xs text-[#B3B3B3] truncate">{track.artist}</p>
+                <p className="text-xs text-[#6B8E85] truncate">{track.artist}</p>
               </div>
               <div className="hidden sm:block flex-1 min-w-0">
-                <p className="text-xs text-[#B3B3B3] truncate">{track.album}</p>
+                <p className="text-xs text-[#6B8E85] truncate">{track.album}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-[#B3B3B3]">{track.plays}</p>
+                <p className="text-xs text-[#6B8E85]">{track.plays}</p>
               </div>
               <div className="text-right w-12">
-                <p className="text-xs text-[#B3B3B3]">{track.durationLabel || formatDuration(track.durationMs)}</p>
+                <p className="text-xs text-[#6B8E85]">{track.durationLabel || formatDuration(track.durationMs)}</p>
               </div>
               <button className="p-2 rounded-full hover:bg-white/10 transition-colors">
                 <Play className="h-4 w-4 text-white" />
@@ -380,7 +380,7 @@ export function Home() {
             </div>
           ))}
           {(payload?.topTracks ?? []).length === 0 && (
-            <div className="text-center py-8 text-[#B3B3B3]">
+            <div className="text-center py-8 text-[#6B8E85]">
               <p>No tracks available for this timeframe</p>
             </div>
           )}
@@ -390,7 +390,7 @@ export function Home() {
       {/* ── TOP ARTISTS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#1ED760] to-[#3b82f6] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#00D9FF] to-[#00A878] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Artists</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -400,10 +400,10 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-xl p-4 bg-[#121E24] border border-[#282828]"
+                className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]"
               >
                 <div className="relative mb-3">
-                  <div className="aspect-square rounded-full overflow-hidden bg-[#282828]">
+                  <div className="aspect-square rounded-full overflow-hidden bg-[#1A4D3F]">
                   <img
                     src={artist.image || '/placeholder-artist.svg'}
                     alt={artist.name}
@@ -416,8 +416,8 @@ export function Home() {
                 </div>
               </div>
               <h3 className="font-bold text-white text-base truncate mb-1">{artist.name}</h3>
-              <p className="text-xs text-[#B3B3B3] mb-2">{artist.plays} plays</p>
-              <p className="text-sm text-[#B3B3B3]">{(artist.hours ?? 0).toFixed(1)}h listening</p>
+              <p className="text-xs text-[#6B8E85] mb-2">{artist.plays} plays</p>
+              <p className="text-sm text-[#6B8E85]">{(artist.hours ?? 0).toFixed(1)}h listening</p>
               <div className="flex flex-wrap gap-1 mt-1">
         {artist.genres?.slice(0, 2).map((genre: string) => {
           const {bg, text} = getGenreColors(genre);
@@ -431,7 +431,7 @@ export function Home() {
             </motion.div>
           ))}
           {(payload?.topArtists ?? []).length === 0 && (
-            <div className="col-span-full text-center py-8 text-[#B3B3B3]">
+            <div className="col-span-full text-center py-8 text-[#6B8E85]">
               <p>No artist data available</p>
             </div>
           )}
@@ -440,14 +440,14 @@ export function Home() {
 
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#881337] to-[#f43f5e] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#C1145A] to-[#FF6B9D] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
         </div>
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Now Playing + Quick Stats */}
           <div className="space-y-4">
             {/* Now Playing */}
-            <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
+            <div className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]">
               {nowPlaying?.isPlaying && nowPlaying.track ? (
                 <div className="flex items-center gap-3">
                   <img
@@ -459,20 +459,20 @@ export function Home() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="h-2 w-2 rounded-full bg-[#1ED760] animate-pulse" />
-                      <span className="text-xs text-[#22D3EE] font-semibold">Now Playing</span>
+                      <span className="text-xs text-[#00D9FF] font-semibold">Now Playing</span>
                     </div>
                     <p className="text-sm font-semibold text-white truncate">{nowPlaying.track.title}</p>
-                    <p className="text-xs text-[#B3B3B3] truncate">{nowPlaying.track.artist}</p>
+                    <p className="text-xs text-[#6B8E85] truncate">{nowPlaying.track.artist}</p>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 rounded-lg bg-[#282828] flex items-center justify-center">
-                    <Music className="h-5 w-5 text-[#B3B3B3]" />
+                    <Music className="h-5 w-5 text-[#6B8E85]" />
                   </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Nothing playing</p>
-                  <p className="text-xs text-[#B3B3B3]">Start listening on Spotify</p>
+                  <p className="text-xs text-[#6B8E85]">Start listening on Spotify</p>
                 </div>
               </div>
             )}
@@ -480,21 +480,21 @@ export function Home() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
+              <div className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#22D3EE]" />
-                  <span className="text-xs text-[#22D3EE] font-bold">+8</span>
+                  <TrendingUp className="h-4 w-4 text-[#00D9FF]" />
+                  <span className="text-xs text-[#00D9FF] font-bold">+8</span>
                 </div>
-                <p className="text-xs text-[#B3B3B3]">tracks</p>
+                <p className="text-xs text-[#6B8E85]">tracks</p>
                 <p className="text-sm font-semibold text-white">Today</p>
                 <p className="text-xl font-bold text-white">{stats.songsThisWeek > 0 ? Math.round(stats.songsThisWeek / 7) : 42}</p>
               </div>
-              <div className="rounded-xl p-4 bg-[#121E24] border border-[#282828]">
+              <div className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#22D3EE]" />
-                  <span className="text-xs text-[#22D3EE] font-bold">+24</span>
+                  <TrendingUp className="h-4 w-4 text-[#00D9FF]" />
+                  <span className="text-xs text-[#00D9FF] font-bold">+24</span>
                 </div>
-                <p className="text-xs text-[#B3B3B3]">tracks</p>
+                <p className="text-xs text-[#6B8E85]">tracks</p>
                 <p className="text-sm font-semibold text-white">This Week</p>
                 <p className="text-xl font-bold text-white">{stats.songsThisWeek || 312}</p>
               </div>
@@ -515,15 +515,15 @@ export function Home() {
                   onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-album.svg'; }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#B3B3B3]">{activity.activity_type === 'track' ? 'Listened to' : activity.activity_type}</p>
+                  <p className="text-xs text-[#6B8E85]">{activity.activity_type === 'track' ? 'Listened to' : activity.activity_type}</p>
                   <p className="text-sm font-semibold text-white truncate">{activity.title}</p>
-                  <p className="text-xs text-[#B3B3B3] truncate">{activity.subtitle}</p>
+                  <p className="text-xs text-[#6B8E85] truncate">{activity.subtitle}</p>
                 </div>
-                <span className="text-xs text-[#B3B3B3] flex-shrink-0">{formatTimeAgo(activity.occurred_at)}</span>
+                <span className="text-xs text-[#6B8E85] flex-shrink-0">{formatTimeAgo(activity.occurred_at)}</span>
               </div>
             ))}
           {activities.length === 0 && (
-              <div className="text-center py-8 text-[#B3B3B3]">
+              <div className="text-center py-8 text-[#6B8E85]">
                 <p>No recent activity</p>
               </div>
             )}
@@ -539,18 +539,18 @@ export function Home() {
               <BarChart3 className="h-7 w-7 text-white" />
             </div>
             <div>
-              <p className="text-sm text-[#B3B3B3]">Your Listening Score</p>
+              <p className="text-sm text-[#6B8E85]">Your Listening Score</p>
               <p className="text-3xl font-black text-white">{payload?.listeningScore?.toFixed(1) ?? '8.7'}/10</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-[#22D3EE]">
+            <div className="flex items-center gap-1 text-[#00D9FF]">
               <TrendingUp className="h-4 w-4" />
               <span className="text-sm font-bold">+0.5</span>
             </div>
             <div className="text-right">
-              <p className="text-xs text-[#B3B3B3]">This week</p>
-              <p className="text-xs text-[#B3B3B3]">Based on listening time, variety, and engagement</p>
+              <p className="text-xs text-[#6B8E85]">This week</p>
+              <p className="text-xs text-[#6B8E85]">Based on listening time, variety, and engagement</p>
             </div>
           </div>
         </div>
@@ -570,16 +570,16 @@ export function Home() {
             <div className="rounded-2xl p-6 bg-[#1A2233] border border-[#2E3B52]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-[#22D3EE]" />
+                  <Clock className="h-5 w-5 text-[#00D9FF]" />
                   <div>
                     <h3 className="text-lg font-bold text-white">Listening Activity</h3>
-                    <p className="text-xs text-[#B3B3B3]">Your listening time this week</p>
+                    <p className="text-xs text-[#6B8E85]">Your listening time this week</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-[#22D3EE]">
+                <div className="flex items-center gap-1 text-[#00D9FF]">
                   <TrendingUp className="h-4 w-4" />
                   <span className="text-sm font-bold">+12%</span>
-                  <span className="text-xs text-[#B3B3B3]">vs last week</span>
+                  <span className="text-xs text-[#6B8E85]">vs last week</span>
                 </div>
               </div>
 
@@ -591,8 +591,8 @@ export function Home() {
                   { label: 'Peak Day', value: payload?.listeningChart?.reduce((a, b) => a.minutes > b.minutes ? a : b, payload?.listeningChart[0] ?? { label: 'Sat', minutes: 0 })?.label ?? 'Sat' },
                 ].map((s) => (
                   <div key={s.label} className="rounded-lg p-3 bg-[#121E24]">
-                    <p className="text-xs text-[#B3B3B3] mb-1">{s.label}</p>
-                    <p className="text-lg font-bold text-[#22D3EE]">{s.value}</p>
+                    <p className="text-xs text-[#6B8E85] mb-1">{s.label}</p>
+                    <p className="text-lg font-bold text-[#00D9FF]">{s.value}</p>
                   </div>
                 ))}
               </div>
@@ -619,7 +619,7 @@ export function Home() {
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-[#B3B3B3]">
+                  <div className="flex items-center justify-center h-full text-[#6B8E85]">
                     <p>No chart data available</p>
                   </div>
                 )}
@@ -630,7 +630,7 @@ export function Home() {
             <div>
               <div className="flex items-center gap-4 mb-4">
                 <div className="flex-1 h-px bg-[#2E3B52]" />
-                <span className="text-xs font-bold text-[#B3B3B3] uppercase tracking-wider">Weekly Insights</span>
+                <span className="text-xs font-bold text-[#6B8E85] uppercase tracking-wider">Weekly Insights</span>
                 <div className="flex-1 h-px bg-[#2E3B52]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -645,9 +645,9 @@ export function Home() {
                       <insight.icon className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-xs text-[#B3B3B3]">{insight.label}</p>
+                      <p className="text-xs text-[#6B8E85]">{insight.label}</p>
                       <p className="text-lg font-bold text-white">{insight.value}</p>
-                      <p className="text-xs text-[#B3B3B3]">{insight.sub}</p>
+                      <p className="text-xs text-[#6B8E85]">{insight.sub}</p>
                     </div>
                   </div>
                 ))}
@@ -664,7 +664,7 @@ export function Home() {
                   <h4 className="text-white font-bold">7-Day Streak Achievement!</h4>
                   <Star className="h-4 w-4 text-[#f59e0b]" fill="#f59e0b" />
                 </div>
-                <p className="text-sm text-[#B3B3B3]">You've been consistent all week. Keep the momentum going!</p>
+                <p className="text-sm text-[#6B8E85]">You've been consistent all week. Keep the momentum going!</p>
                 <div className="flex gap-1 mt-2">
                   {Array.from({ length: 7 }).map((_, i) => (
                     <div key={i} className="h-2 flex-1 rounded-full bg-gradient-to-r from-[#ff7b00] to-[#f97316]" />
@@ -682,24 +682,24 @@ export function Home() {
           <div className="space-y-6">
             <div className="rounded-2xl p-6 bg-[#121E24] border border-[#282828]">
               <div className="flex items-center gap-3 mb-6">
-                <Music className="h-5 w-5 text-[#22D3EE]" />
+                <Music className="h-5 w-5 text-[#00D9FF]" />
                 <div>
                   <h3 className="text-lg font-bold text-white">Genre Distribution</h3>
-                  <p className="text-xs text-[#B3B3B3]">Your most listened genres</p>
+                  <p className="text-xs text-[#6B8E85]">Your most listened genres</p>
                 </div>
               </div>
 
               {/* Top Genre */}
               <div className="rounded-xl p-4 bg-[#1A2233] mb-6">
-                <p className="text-xs text-[#B3B3B3] mb-1">Top Genre</p>
+                <p className="text-xs text-[#6B8E85] mb-1">Top Genre</p>
                 <p className="text-2xl font-bold text-white">{payload?.genreDistribution?.[0]?.name ?? 'Pop'}</p>
               </div>
 
               {/* Total Plays */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-[#22D3EE]" />
-                  <span className="text-xs text-[#B3B3B3]">Total Plays</span>
+                  <BarChart3 className="h-4 w-4 text-[#00D9FF]" />
+                  <span className="text-xs text-[#6B8E85]">Total Plays</span>
                 </div>
                 <span className="text-lg font-bold text-white">
                   {(payload?.genreDistribution ?? []).reduce((a, b) => a + (b.hours || 0), 0).toLocaleString()}
@@ -716,7 +716,7 @@ export function Home() {
                         <Music className="h-3 w-3" style={{ color: genreColors[i % genreColors.length] }} />
                       </div>
                       <span className="text-sm text-white flex-1">{genre.name}</span>
-                      <span className="text-xs text-[#B3B3B3]">{genre.hours || 0} plays</span>
+                      <span className="text-xs text-[#6B8E85]">{genre.hours || 0} plays</span>
                       <span className="text-xs font-bold text-white w-8 text-right">{genre.percentage}%</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-[#282828] overflow-hidden">
@@ -731,7 +731,7 @@ export function Home() {
                   </div>
                 ))}
                 {(payload?.genreDistribution ?? []).length === 0 && (
-                  <p className="text-sm text-[#B3B3B3]">No genre data available</p>
+                  <p className="text-sm text-[#6B8E85]">No genre data available</p>
                 )}
               </div>
             </div>
@@ -742,7 +742,7 @@ export function Home() {
       {/* Footer */}
       <footer className="border-t border-[#374151] py-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
-          <p className="text-sm text-[#22D3EE]">&copy; 2026 Insights</p>
+          <p className="text-sm text-[#00D9FF]">&copy; 2026 Insights</p>
         </div>
       </footer>
 
