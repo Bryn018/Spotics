@@ -38,14 +38,10 @@ jobs:
 
       - name: Install Railway CLI
         run: |
-          curl -fsSL https://github.com/railwayapp/cli/releases/download/v4.36.1/railway-v4.36.1-x86_64-unknown-linux-gnu.tar.gz -o railway.tar.gz
-          tar -xzf railway.tar.gz
-          sudo mv railway /usr/local/bin/railway
-          chmod +x /usr/local/bin/railway
-          rm railway.tar.gz
+          npm install -g @railway/cli
 
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: 46451ed9-f824-4c07-92d5-ab39ac22a0ae
-        run: railway up --ci --project $RAILWAY_PROJECT_ID --service spotics --environment production
+        run: railway up --ci
