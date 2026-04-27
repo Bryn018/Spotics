@@ -34,10 +34,10 @@ export function Export() {
     title: 'Weekly',
     period: 'Last 7 Days',
     stats: [
-      { icon: 'Clock', label: 'Total Time', value: '—', color: 'from-[#1DB954] to-[#19E68C]' },
+      { icon: 'Clock', label: 'Total Time', value: '—', color: 'from-[#1DB954] to-[#1ED760]' },
       { icon: 'Music', label: 'Tracks', value: '—', color: 'from-[#3B82F6] to-[#1DB954]' },
-      { icon: 'Headphones', label: 'Artists', value: '—', color: 'from-[#19E68C] to-[#7F1D1D]' },
-      { icon: 'TrendingUp', label: 'Avg Daily', value: '—', color: 'from-[#19E68C] to-[#3B82F6]' },
+      { icon: 'Headphones', label: 'Artists', value: '—', color: 'from-[#1ED760] to-[#7F1D1D]' },
+      { icon: 'TrendingUp', label: 'Avg Daily', value: '—', color: 'from-[#1ED760] to-[#3B82F6]' },
     ],
     topTracks: [],
     topArtists: [],
@@ -181,7 +181,7 @@ export function Export() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="monthly"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-#19E68C data-[state=active]:to-[#3B82F6] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
+                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-#1ED760 data-[state=active]:to-[#3B82F6] data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/30 data-[state=inactive]:text-[#B3B3B3] data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
                 >
                   Monthly
                 </TabsTrigger>
@@ -209,7 +209,7 @@ export function Export() {
               <Button
                 onClick={handleDownload}
                 disabled={isGenerating || isLoading}
-                className="w-full bg-gradient-to-r from-[#059669] to-[#10b981] hover:from-[#19E68C] hover:via-[#10b981] hover:to-[#19E68C] text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
+                className="w-full bg-gradient-to-r from-[#059669] to-[#10b981] hover:from-[#1ED760] hover:via-[#10b981] hover:to-[#1ED760] text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
@@ -400,7 +400,7 @@ export function Export() {
             {/* Genre Distribution */}
             <div className="relative rounded-2xl p-6 shadow-xl overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
               <div className="relative flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #19E68C, #9f1239)' }}>
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #1ED760, #9f1239)' }}>
                   <Music className="h-5 w-5" style={{ color: '#ffffff' }} />
                 </div>
                 <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Genres</h3>

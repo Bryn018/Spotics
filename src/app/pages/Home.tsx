@@ -112,11 +112,11 @@ export function Home() {
         <div className="absolute inset-0 bg-black" />
         <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px]">
           <svg viewBox="0 0 400 400" className="w-full h-full opacity-20">
-            <circle cx="200" cy="200" r="180" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="150" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.1" />
-            <circle cx="200" cy="200" r="120" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="90" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.08" />
-            <circle cx="200" cy="200" r="60" fill="none" stroke="#00D9FF" strokeWidth="1" opacity="0.06" />
+            <circle cx="200" cy="200" r="180" fill="none" stroke="#22D3EE" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="150" fill="none" stroke="#22D3EE" strokeWidth="1" opacity="0.1" />
+            <circle cx="200" cy="200" r="120" fill="none" stroke="#22D3EE" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="90" fill="none" stroke="#22D3EE" strokeWidth="1" opacity="0.08" />
+            <circle cx="200" cy="200" r="60" fill="none" stroke="#22D3EE" strokeWidth="1" opacity="0.06" />
           </svg>
         </div>
 
@@ -129,10 +129,10 @@ export function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#0D3D2D] border border-[#00D9FF]"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-[20px] bg-[#121E21] border border-[#22D3EE]"
               >
-                <Sparkles className="h-4 w-4 text-[#00D9FF]" />
-                <span className="text-xs font-bold text-[#00D9FF] uppercase tracking-wider">Year in Review</span>
+                <Sparkles className="h-4 w-4 text-[#22D3EE]" />
+                <span className="text-xs font-bold text-[#22D3EE] uppercase tracking-wider">Year in Review</span>
               </motion.div>
 
               {/* Headline */}
@@ -145,7 +145,7 @@ export function Home() {
                 <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[0.95] tracking-tight">
                   <span className="relative inline-block">
                     Look
-                    <span className="absolute -bottom-2 left-0 w-[110px] h-1 bg-gradient-to-r from-[#00D9FF] to-[#00B88A] rounded-full" />
+                    <span className="absolute -bottom-2 left-0 w-[110px] h-1 bg-gradient-to-r from-[#22D3EE] to-[#00B88A] rounded-full" />
                   </span>{' '}
                   Back At It
                 </h1>
@@ -170,11 +170,11 @@ export function Home() {
                 ].map((stat, i) => (
                   <div
                     key={stat.label}
-                    className="rounded-xl p-6 bg-[#0D2B24] border border-[#1A4D3F]"
+                    className="rounded-xl p-6 bg-[#121E21] border border-[#282828]"
                   >
-                    <stat.icon className="h-5 w-5 text-[#00D9FF] mb-3" />
+                    <stat.icon className="h-5 w-5 text-[#22D3EE] mb-3" />
                     <p className="text-xs font-bold text-[#6B8E85] uppercase tracking-wider">{stat.label}</p>
-                    <p className="text-[36px] font-black text-[#00D9FF] leading-none">{stat.value}</p>
+                    <p className="text-[36px] font-black text-[#22D3EE] leading-none">{stat.value}</p>
                   </div>
                 ))}
               </motion.div>
@@ -193,8 +193,8 @@ export function Home() {
                       onClick={() => setActiveWrap(t)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
                           activeWrap === t
-                            ? 'bg-gradient-to-r from-[#C1145A] to-[#B8134F] text-white border border-[#C1145A]'
-                            : 'bg-transparent text-[#6B8E85] border border-[#1A4D3F]'
+                            ? 'bg-gradient-to-r from-[#A10E36] to-[#A10E36] text-white border border-[#A10E36]'
+                            : 'bg-transparent text-[#6B8E85] border border-[#282828]'
                         }`}
                     >
                       {t === 'daily' && <Calendar className="h-4 w-4" />}
@@ -207,7 +207,7 @@ export function Home() {
 
                 <Button
                   onClick={() => setDialogOpen(true)}
-                  className="bg-gradient-to-r from-[#00D9FF] to-[#00A878] text-black font-bold px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#00D9FF]/40 transition-all hover:shadow-[#00D9FF]/60"
+                  className="bg-gradient-to-r from-[#22D3EE] to-[#1DB954] text-black font-bold px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#22D3EE]/40 transition-all hover:shadow-[#22D3EE]/60"
                 >
                   <Play className="h-5 w-5 mr-2" fill="black" />
                   {activeWrap === 'daily' ? 'View Today' : activeWrap === 'weekly' ? 'View This Week' : 'View Your Year'}
@@ -225,9 +225,9 @@ export function Home() {
                 className="relative"
               >
                 {/* Floating Top 1% */}
-                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#0D3D2D] border border-[#1A4D3F] shadow-xl">
+                <div className="absolute -top-4 right-8 px-4 py-3 rounded-2xl bg-[#121E21] border border-[#282828] shadow-xl">
                   <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-[#00D9FF]" fill="#00D9FF" />
+                    <Star className="h-5 w-5 text-[#22D3EE]" fill="#22D3EE" />
                     <div>
                       <p className="text-xs text-[#6B8E85]">Top 1%</p>
                       <p className="text-lg font-black text-white">Listener</p>
@@ -236,9 +236,9 @@ export function Home() {
                 </div>
 
                 {/* Floating Active Days */}
-                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#0D3D2D] border border-[#1A4D3F] shadow-xl">
+                <div className="absolute -bottom-4 right-0 px-4 py-3 rounded-2xl bg-[#121E21] border border-[#282828] shadow-xl">
                   <div className="flex items-center gap-2">
-                    <Signal className="h-5 w-5 text-[#00A878]" />
+                    <Signal className="h-5 w-5 text-[#1DB954]" />
                     <div>
                       <p className="text-xs text-[#6B8E85]">Active Days</p>
                       <p className="text-lg font-black text-white">{stats.currentStreak > 0 ? stats.currentStreak * 7 : 342}</p>
@@ -259,14 +259,14 @@ export function Home() {
             <h2 className="text-2xl font-bold text-white">Your Music Stats</h2>
             <p className="text-sm text-[#6B8E85] mt-1">Track your listening habits and discover your musical journey</p>
           </div>
-          <div className="flex bg-[#0D2B24] rounded-lg p-1">
+          <div className="flex bg-[#121E21] rounded-lg p-1">
             {(['short_term', 'medium_term', 'long_term'] as TimeRange[]).map((range) => (
               <button
                 key={range}
                 onClick={() => handleTimeRangeChange(range)}
                 className={`px-4 py-2 rounded-md text-sm font-semibold transition-all ${
                   timeRange === range
-                    ? 'bg-[#1A4D3F] text-[#00D9FF]'
+                    ? 'bg-[#282828] text-[#22D3EE]'
                     : 'text-[#6B8E85] hover:text-white'
                 }`}
               >
@@ -288,14 +288,14 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="rounded-xl p-6 bg-[#0D2B24] border border-[#1A4D3F]"
+                className="rounded-xl p-6 bg-[#121E21] border border-[#282828]"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <stat.icon className="h-5 w-5 text-[#00D9FF]" />
+                  <stat.icon className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <p className="text-xs text-[#6B8E85] mb-1">{stat.label}</p>
                 <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-                <p className="text-xs text-[#00D9FF]">{stat.change}</p>
+                <p className="text-xs text-[#22D3EE]">{stat.change}</p>
               </motion.div>
             ))}
           </div>
@@ -304,7 +304,7 @@ export function Home() {
       {/* ── TOP ALBUMS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#00D9FF] to-[#00A878] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#22D3EE] to-[#1DB954] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Albums</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -316,7 +316,7 @@ export function Home() {
               transition={{ delay: i * 0.1 }}
               className="group"
             >
-              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#0D2B24] border border-[#1A4D3F]">
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-3 bg-[#121E21] border border-[#282828]">
                 <img
                   src={album.image || '/placeholder-album.svg'}
                   alt={album.name}
@@ -343,14 +343,14 @@ export function Home() {
       {/* ── TOP TRACKS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#00D9FF] to-[#00A878] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#22D3EE] to-[#1DB954] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Tracks</h2>
         </div>
-        <div className="rounded-2xl bg-[#0D2B24] border border-[#1A4D3F] overflow-hidden">
+        <div className="rounded-2xl bg-[#121E21] border border-[#282828] overflow-hidden">
           {(payload?.topTracks ?? []).slice(0, 5).map((track, i) => (
             <div
               key={track.id}
-              className="flex items-center gap-4 px-4 py-3 hover:bg-[#1A4D3F]/50 transition-colors border-b border-[#1A4D3F] last:border-b-0"
+              className="flex items-center gap-4 px-4 py-3 hover:bg-[#282828]/50 transition-colors border-b border-[#282828] last:border-b-0"
             >
               <span className="text-sm font-bold text-[#6B8E85] w-6 text-center">{i + 1}</span>
               <div className="relative flex-shrink-0">
@@ -390,7 +390,7 @@ export function Home() {
       {/* ── TOP ARTISTS ── */}
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#00D9FF] to-[#00A878] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#22D3EE] to-[#1DB954] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Top Artists</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -400,10 +400,10 @@ export function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]"
+                className="rounded-xl p-4 bg-[#121E21] border border-[#282828]"
               >
                 <div className="relative mb-3">
-                  <div className="aspect-square rounded-full overflow-hidden bg-[#1A4D3F]">
+                  <div className="aspect-square rounded-full overflow-hidden bg-[#282828]">
                   <img
                     src={artist.image || '/placeholder-artist.svg'}
                     alt={artist.name}
@@ -440,14 +440,14 @@ export function Home() {
 
       <section className="max-w-7xl mx-auto px-6 lg:px-12 pb-16">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-8 bg-gradient-to-r from-[#C1145A] to-[#FF6B9D] rounded-full" />
+          <div className="h-1 w-8 bg-gradient-to-r from-[#A10E36] to-[#FF6B9D] rounded-full" />
           <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
         </div>
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Now Playing + Quick Stats */}
           <div className="space-y-4">
             {/* Now Playing */}
-            <div className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]">
+            <div className="rounded-xl p-4 bg-[#121E21] border border-[#282828]">
               {nowPlaying?.isPlaying && nowPlaying.track ? (
                 <div className="flex items-center gap-3">
                   <img
@@ -459,7 +459,7 @@ export function Home() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="h-2 w-2 rounded-full bg-[#1ED760] animate-pulse" />
-                      <span className="text-xs text-[#00D9FF] font-semibold">Now Playing</span>
+                      <span className="text-xs text-[#22D3EE] font-semibold">Now Playing</span>
                     </div>
                     <p className="text-sm font-semibold text-white truncate">{nowPlaying.track.title}</p>
                     <p className="text-xs text-[#6B8E85] truncate">{nowPlaying.track.artist}</p>
@@ -480,19 +480,19 @@ export function Home() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]">
+              <div className="rounded-xl p-4 bg-[#121E21] border border-[#282828]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#00D9FF]" />
-                  <span className="text-xs text-[#00D9FF] font-bold">+8</span>
+                  <TrendingUp className="h-4 w-4 text-[#22D3EE]" />
+                  <span className="text-xs text-[#22D3EE] font-bold">+8</span>
                 </div>
                 <p className="text-xs text-[#6B8E85]">tracks</p>
                 <p className="text-sm font-semibold text-white">Today</p>
                 <p className="text-xl font-bold text-white">{stats.songsThisWeek > 0 ? Math.round(stats.songsThisWeek / 7) : 42}</p>
               </div>
-              <div className="rounded-xl p-4 bg-[#0D2B24] border border-[#1A4D3F]">
+              <div className="rounded-xl p-4 bg-[#121E21] border border-[#282828]">
                 <div className="flex items-center gap-2 mb-1">
-                  <TrendingUp className="h-4 w-4 text-[#00D9FF]" />
-                  <span className="text-xs text-[#00D9FF] font-bold">+24</span>
+                  <TrendingUp className="h-4 w-4 text-[#22D3EE]" />
+                  <span className="text-xs text-[#22D3EE] font-bold">+24</span>
                 </div>
                 <p className="text-xs text-[#6B8E85]">tracks</p>
                 <p className="text-sm font-semibold text-white">This Week</p>
@@ -544,7 +544,7 @@ export function Home() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-[#00D9FF]">
+            <div className="flex items-center gap-1 text-[#22D3EE]">
               <TrendingUp className="h-4 w-4" />
               <span className="text-sm font-bold">+0.5</span>
             </div>
@@ -570,13 +570,13 @@ export function Home() {
             <div className="rounded-2xl p-6 bg-[#1A2233] border border-[#2E3B52]">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-[#00D9FF]" />
+                  <Clock className="h-5 w-5 text-[#22D3EE]" />
                   <div>
                     <h3 className="text-lg font-bold text-white">Listening Activity</h3>
                     <p className="text-xs text-[#6B8E85]">Your listening time this week</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-[#00D9FF]">
+                <div className="flex items-center gap-1 text-[#22D3EE]">
                   <TrendingUp className="h-4 w-4" />
                   <span className="text-sm font-bold">+12%</span>
                   <span className="text-xs text-[#6B8E85]">vs last week</span>
@@ -590,9 +590,9 @@ export function Home() {
                   { label: 'Average', value: `${Math.round((payload?.listeningChart?.reduce((a, b) => a + b.minutes, 0) ?? 0) / 7)}m` },
                   { label: 'Peak Day', value: payload?.listeningChart?.reduce((a, b) => a.minutes > b.minutes ? a : b, payload?.listeningChart[0] ?? { label: 'Sat', minutes: 0 })?.label ?? 'Sat' },
                 ].map((s) => (
-                  <div key={s.label} className="rounded-lg p-3 bg-[#121E24]">
+                  <div key={s.label} className="rounded-lg p-3 bg-[#121E21]">
                     <p className="text-xs text-[#6B8E85] mb-1">{s.label}</p>
-                    <p className="text-lg font-bold text-[#00D9FF]">{s.value}</p>
+                    <p className="text-lg font-bold text-[#22D3EE]">{s.value}</p>
                   </div>
                 ))}
               </div>
@@ -640,7 +640,7 @@ export function Home() {
                   { icon: Calendar, label: 'Best Day', value: stats.bestDay || 'Saturday', sub: 'Weekend vibes', color: 'from-[#8b5cf6] to-[#7c3aed]' },
                   { icon: Music, label: 'Songs This Week', value: String(stats.songsThisWeek || 156), sub: 'Unique tracks', color: 'from-[#a855f7] to-[#9333ea]' },
                 ].map((insight, i) => (
-                  <div key={insight.label} className="rounded-xl p-4 bg-[#121E24] border border-[#282828] flex items-center gap-3">
+                  <div key={insight.label} className="rounded-xl p-4 bg-[#121E21] border border-[#282828] flex items-center gap-3">
                     <div className={`h-10 w-10 rounded-lg bg-gradient-to-br ${insight.color} flex items-center justify-center flex-shrink-0`}>
                       <insight.icon className="h-5 w-5 text-white" />
                     </div>
@@ -680,9 +680,9 @@ export function Home() {
 
           {/* Right Column - Genre Distribution (1/3) */}
           <div className="space-y-6">
-            <div className="rounded-2xl p-6 bg-[#121E24] border border-[#282828]">
+            <div className="rounded-2xl p-6 bg-[#121E21] border border-[#282828]">
               <div className="flex items-center gap-3 mb-6">
-                <Music className="h-5 w-5 text-[#00D9FF]" />
+                <Music className="h-5 w-5 text-[#22D3EE]" />
                 <div>
                   <h3 className="text-lg font-bold text-white">Genre Distribution</h3>
                   <p className="text-xs text-[#6B8E85]">Your most listened genres</p>
@@ -698,7 +698,7 @@ export function Home() {
               {/* Total Plays */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-[#00D9FF]" />
+                  <BarChart3 className="h-4 w-4 text-[#22D3EE]" />
                   <span className="text-xs text-[#6B8E85]">Total Plays</span>
                 </div>
                 <span className="text-lg font-bold text-white">
@@ -742,7 +742,7 @@ export function Home() {
       {/* Footer */}
       <footer className="border-t border-[#374151] py-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
-          <p className="text-sm text-[#00D9FF]">&copy; 2026 Insights</p>
+          <p className="text-sm text-[#22D3EE]">&copy; 2026 Insights</p>
         </div>
       </footer>
 

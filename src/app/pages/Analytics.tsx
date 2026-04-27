@@ -24,7 +24,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Headphones,
 };
 
-const GENRE_COLORS = ['#1DB954', '#19E68C', '#1DB95499', '#19E68C99', '#1DB95477', '#19E68C77', '#1DB954', '#19E68C', '#1DB954', '#19E68C'];
+const GENRE_COLORS = ['#1DB954', '#1ED760', '#1DB95499', '#1ED76099', '#1DB95477', '#1ED76077', '#1DB954', '#1ED760', '#1DB954', '#1ED760'];
 
 function getIcon(name: string) {
   return ICON_MAP[name] ?? Music;
@@ -71,7 +71,7 @@ export function Analytics() {
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-1 w-12 bg-gradient-to-r from-[#1DB954] to-[#19E68C] rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#1DB954] to-[#1ED760] rounded-full"></div>
           <h1 className="text-4xl font-bold text-white">Analytics</h1>
         </div>
         <p className="text-[#94A3B8]">Deep dive into your listening patterns and music preferences</p>
@@ -454,7 +454,7 @@ export function Analytics() {
       {/* Milestones */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-[#3B82F6] to-[#19E68C] rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#3B82F6] to-[#1ED760] rounded-full"></div>
           <h2 className="text-2xl font-bold text-white">Milestones</h2>
         </div>
 
@@ -498,7 +498,7 @@ export function Analytics() {
       {/* Yearly Highlights */}
       <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-[#19E68C] to-[#7F1D1D] rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-[#1ED760] to-[#7F1D1D] rounded-full"></div>
           <h2 className="text-2xl font-bold text-white">Highlights</h2>
         </div>
 

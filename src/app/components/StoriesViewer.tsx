@@ -296,7 +296,7 @@ export function StoriesViewer({ open, onClose, timeframe, report, isLoading }: S
       {/* Header */}
       <div className="absolute top-6 left-0 right-0 z-30 flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1DB954] to-[#19E68C] flex items-center justify-center ring-2 ring-white/20">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1DB954] to-[#1ED760] flex items-center justify-center ring-2 ring-white/20">
             <Music2 className="h-4 w-4 text-white" />
           </div>
           <div>
@@ -510,7 +510,7 @@ function TopSongSlide({ slide }: { slide: any }) {
         transition={{ type: 'spring', delay: 0.1 }}
       >
         <div className="relative mx-auto w-64 h-64">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954] to-[#19E68C] rounded-2xl blur-2xl opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1DB954] to-[#1ED760] rounded-2xl blur-2xl opacity-50" />
           <ImageWithFallback
             src={slide.content.image}
             alt={slide.content.track}
@@ -886,7 +886,7 @@ function ThankYouSlide({ slide }: { slide: any }) {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring' }}
-        className="inline-block p-5 rounded-full bg-gradient-to-br from-[#1DB954]/30 to-[#19E68C]/30"
+        className="inline-block p-5 rounded-full bg-gradient-to-br from-[#1DB954]/30 to-[#1ED760]/30"
       >
         <Heart className="h-14 w-14 text-[#1DB954]" />
       </motion.div>
