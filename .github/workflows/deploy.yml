@@ -1,6 +1,9 @@
 name: Deploy to Railway
 
 on:
+  push:
+    branches:
+      - feature/fullstack-ready
   workflow_dispatch:
     inputs:
       environment:
@@ -45,25 +48,25 @@ jobs:
         run: |
           mkdir -p ~/.railway
           cat > ~/.railway/config.json << 'EOF'
-{
-  "user": {
-    "accessToken": "${{ secrets.RAILWAY_TOKEN }}",
-    "refreshToken": "",
-    "tokenExpiresAt": 0
-  },
-  "projects": {
-    "/home/runner/work/spotics/spotics": {
-      "projectPath": "/home/runner/work/spotics/spotics",
-      "name": "wonderful-determination",
-      "project": "46451ed9-f824-4c07-92d5-ab39ac22a0ae",
-      "environment": "848a9a7f-9c58-4d4b-b23c-f71a92172b4d",
-      "environmentName": "production",
-      "service": "281be3e2-7209-4015-b659-e08a6b7326cd"
-    }
-  },
-  "linkedFunctions": {}
-}
-EOF
+          {
+            "user": {
+              "accessToken": "${{ secrets.RAILWAY_TOKEN }}",
+              "refreshToken": "",
+              "tokenExpiresAt": 0
+            },
+            "projects": {
+              "/home/runner/work/spotics/spotics": {
+                "projectPath": "/home/runner/work/spotics/spotics",
+                "name": "wonderful-determination",
+                "project": "46451ed9-f824-4c07-92d5-ab39ac22a0ae",
+                "environment": "848a9a7f-9c58-4d4b-b23c-f71a92172b4d",
+                "environmentName": "production",
+                "service": "281be3e2-7209-4015-b659-e08a6b7326cd"
+              }
+            },
+            "linkedFunctions": {}
+          }
+          EOF
           chmod 600 ~/.railway/config.json
           railway whoami
 
