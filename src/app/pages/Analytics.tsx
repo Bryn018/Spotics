@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown, Clock, Music, Calendar, Award, Target, Zap, U
 import { Badge } from "../components/ui/badge";
 import { motion } from "motion/react";
 import { useId, useMemo } from "react";
-import { useAnalyticsData } from "~/context/DashboardContext";
+import { useAnalyticsData } from "../context/DashboardContext";
 
 export function Analytics() {
   const { data, isLoading, error } = useAnalyticsData();

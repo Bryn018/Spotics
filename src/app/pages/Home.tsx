@@ -1,12 +1,11 @@
-import { DashboardLayout } from "~/components/layout/DashboardLayout";
-import { StatsOverview } from "~/components/StatsOverview";
-import { TopTracks } from "~/components/TopTracks";
-import { TopArtists } from "~/components/TopArtists";
-import { TopAlbums } from "~/components/TopAlbums";
-import { ListeningChart } from "~/components/ListeningChart";
-import { GenreDistribution } from "~/components/GenreDistribution";
-import { RecentActivity } from "~/components/RecentActivity";
-import { useDashboardData } from "~/context/DashboardContext";
+import { StatsOverview } from "../components/StatsOverview";
+import { TopTracks } from "../components/TopTracks";
+import { TopArtists } from "../components/TopArtists";
+import { TopAlbums } from "../components/TopAlbums";
+import { ListeningChart } from "../components/ListeningChart";
+import { GenreDistribution } from "../components/GenreDistribution";
+import { RecentActivity } from "../components/RecentActivity";
+import { useDashboardData } from "../context/DashboardContext";
 import { Loader2 } from "lucide-react";
 
 export function Home() {
@@ -14,31 +13,31 @@ export function Home() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="h-8 w-8 animate-spin text-white/50" />
         </div>
-      </DashboardLayout>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
         <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-gray-400">Error loading data: {error.message}</p>
         </div>
-      </DashboardLayout>
+      </main>
     );
   }
 
   if (!data || !data.summary) {
     return (
-      <DashboardLayout>
+      <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
         <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-gray-400">No data available</p>
         </div>
-      </DashboardLayout>
+      </main>
     );
   }
 
@@ -49,7 +48,7 @@ export function Home() {
   const genreCount = payload?.genreDistribution?.length || 0;
 
   return (
-    <DashboardLayout>
+    <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
       <div className="space-y-8">
         <StatsOverview
           totals={summary.totals}
@@ -82,6 +81,6 @@ export function Home() {
           />
         </div>
       </div>
-    </DashboardLayout>
+    </main>
   );
 }
