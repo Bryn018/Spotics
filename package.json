@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "postinstall": "cd server && npm ci",
+    "build": "cd server && npm run build && cd .. && vite build",
+    "start": "node server/dist/index.js",
     "dev": "vite"
   },
   "dependencies": {
