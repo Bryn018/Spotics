@@ -24,12 +24,12 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0B111B]/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-gray-800/50 bg-black/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 lg:px-12">
           <div className="flex items-center gap-8">
             <Link to="/dashboard" className="flex items-center gap-3">
-              <Music className="h-7 w-7 text-[#1DB954]" />
-              <h1 className="text-2xl font-bold text-white tracking-tight">
+              <SpoticsLogo className="h-10 w-10" />
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                 Spotics
               </h1>
             </Link>
@@ -37,30 +37,30 @@ export function Header() {
             <nav className="hidden md:flex items-center gap-8">
               <Link
                 to="/dashboard"
-                className={`text-sm font-medium transition-colors pb-1 ${
+                className={`text-sm font-medium transition-colors ${
                   isActive('/dashboard')
-                    ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
-                    : 'text-[#B3B3B3] hover:text-white border-b-2 border-transparent'
+                    ? 'text-green-400'
+                    : 'text-gray-400 hover:text-white'
                 }`}
               >
                 Dashboard
               </Link>
               <Link
                 to="/dashboard/analytics"
-                className={`text-sm font-medium transition-colors pb-1 ${
+                className={`text-sm font-medium transition-colors ${
                   isActive('/dashboard/analytics')
-                    ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
-                    : 'text-[#B3B3B3] hover:text-white border-b-2 border-transparent'
+                    ? 'text-blue-400'
+                    : 'text-gray-400 hover:text-white'
                 }`}
               >
                 Analytics
               </Link>
               <Link
                 to="/dashboard/export"
-                className={`text-sm font-medium transition-colors pb-1 ${
+                className={`text-sm font-medium transition-colors ${
                   isActive('/dashboard/export')
-                    ? 'text-[#1DB954] border-b-2 border-[#1DB954]'
-                    : 'text-[#B3B3B3] hover:text-white border-b-2 border-transparent'
+                    ? 'text-rose-800'
+                    : 'text-gray-400 hover:text-white'
                 }`}
               >
                 Export
@@ -122,8 +122,8 @@ export function Header() {
                     to="/dashboard"
                     className={`text-sm font-medium py-2 transition-colors ${
                       isActive('/dashboard')
-                        ? 'text-[#1DB954]'
-                        : 'text-[#B3B3B3] hover:text-white'
+                        ? 'text-green-400'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     Dashboard
@@ -132,8 +132,8 @@ export function Header() {
                     to="/dashboard/analytics"
                     className={`text-sm font-medium py-2 transition-colors ${
                       isActive('/dashboard/analytics')
-                        ? 'text-[#1DB954]'
-                        : 'text-[#B3B3B3] hover:text-white'
+                        ? 'text-blue-400'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     Analytics
@@ -142,8 +142,8 @@ export function Header() {
                     to="/dashboard/export"
                     className={`text-sm font-medium py-2 transition-colors ${
                       isActive('/dashboard/export')
-                        ? 'text-[#1DB954]'
-                        : 'text-[#B3B3B3] hover:text-white'
+                        ? 'text-rose-800'
+                        : 'text-gray-400 hover:text-white'
                     }`}
                   >
                     Export
