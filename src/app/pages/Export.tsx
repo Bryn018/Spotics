@@ -1,500 +1,216 @@
-import { useState, useRef } from 'react';
-import { Card, CardContent } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Download, Loader2, Clock, Music, Headphones, TrendingUp, Calendar, Play, Sparkles, Share2, Image as ImageIcon } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import { SpoticsLogo } from '../components/SpoticsLogo';
-import { motion, AnimatePresence } from 'motion/react';
-import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Clock, Music, Headphones, TrendingUp, Loader2, FileJson, Share2 } from "lucide-react";
+import { useExportData } from "~/context/DashboardContext";
 
-type ExportTimeRange = 'weekly' | 'monthly' | 'alltime';
+type RangeKey = "weekly" | "monthly" | "alltime";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Clock,
+  Music,
+  Headphones,
+  TrendingUp,
+};
 
 export function Export() {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedRange, setSelectedRange] = useState<ExportTimeRange>('weekly');
-  const [downloadComplete, setDownloadComplete] = useState(false);
-  const exportRef = useRef<HTMLDivElement>(null);
+  const { data: exportData, isLoading, error } = useExportData();
+  const [activeRange, setActiveRange] = useState<RangeKey>("weekly");
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const dataByRange = {
-    weekly: {
-      title: 'Weekly',
-      period: 'Last 7 Days',
-      stats: [
-        { icon: Clock, label: 'Total Time', value: '23h 15m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '412', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '87', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '198 mins', color: 'from-green-600 to-blue-500' }
-      ],
-      topTracks: [
-        { title: 'Anti-Hero', artist: 'Taylor Swift', plays: 34 },
-        { title: 'Flowers', artist: 'Miley Cyrus', plays: 28 },
-        { title: 'Vampire', artist: 'Olivia Rodrigo', plays: 25 }
-      ],
-      topArtists: [
-        { name: 'Taylor Swift', plays: 89 },
-        { name: 'The Weeknd', plays: 67 },
-        { name: 'Harry Styles', plays: 54 }
-      ],
-      genres: [
-        { name: 'Pop', value: 35, color: '#10b981' },
-        { name: 'Hip Hop', value: 22, color: '#3b82f6' },
-        { name: 'Rock', value: 18, color: '#881337' },
-        { name: 'Electronic', value: 15, color: '#059669' },
-        { name: 'Indie', value: 10, color: '#1e40af' }
-      ]
-    },
-    monthly: {
-      title: 'Monthly',
-      period: 'Last 30 Days',
-      stats: [
-        { icon: Clock, label: 'Total Time', value: '87h 42m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '1,523', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '245', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '175 mins', color: 'from-green-600 to-blue-500' }
-      ],
-      topTracks: [
-        { title: 'Blinding Lights', artist: 'The Weeknd', plays: 127 },
-        { title: 'Stay', artist: 'The Kid LAROI, Justin Bieber', plays: 98 },
-        { title: 'As It Was', artist: 'Harry Styles', plays: 86 }
-      ],
-      topArtists: [
-        { name: 'The Weeknd', plays: 287 },
-        { name: 'Harry Styles', plays: 198 },
-        { name: 'Dua Lipa', plays: 167 }
-      ],
-      genres: [
-        { name: 'Pop', value: 32, color: '#10b981' },
-        { name: 'Hip Hop', value: 24, color: '#3b82f6' },
-        { name: 'Rock', value: 18, color: '#881337' },
-        { name: 'Electronic', value: 16, color: '#059669' },
-        { name: 'Indie', value: 10, color: '#1e40af' }
-      ]
-    },
-    alltime: {
-      title: 'All Time',
-      period: 'Since You Joined',
-      stats: [
-        { icon: Clock, label: 'Total Time', value: '1,247h 56m', color: 'from-green-500 to-green-600' },
-        { icon: Music, label: 'Tracks', value: '18,923', color: 'from-blue-500 to-blue-600' },
-        { icon: Headphones, label: 'Artists', value: '892', color: 'from-rose-800 to-rose-900' },
-        { icon: TrendingUp, label: 'Avg Daily', value: '156 mins', color: 'from-green-600 to-blue-500' }
-      ],
-      topTracks: [
-        { title: 'Blinding Lights', artist: 'The Weeknd', plays: 1247 },
-        { title: 'Stay', artist: 'The Kid LAROI, Justin Bieber', plays: 987 },
-        { title: 'As It Was', artist: 'Harry Styles', plays: 856 }
-      ],
-      topArtists: [
-        { name: 'The Weeknd', plays: 3487 },
-        { name: 'Harry Styles', plays: 2356 },
-        { name: 'Dua Lipa', plays: 1998 }
-      ],
-      genres: [
-        { name: 'Pop', value: 32, color: '#10b981' },
-        { name: 'Hip Hop', value: 24, color: '#3b82f6' },
-        { name: 'Rock', value: 18, color: '#881337' },
-        { name: 'Electronic', value: 14, color: '#059669' },
-        { name: 'Indie', value: 12, color: '#1e40af' }
-      ]
-    }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-white/50" />
+      </div>
+    );
+  }
+
+  if (error || !exportData) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-gray-400">Error loading export data</p>
+      </div>
+    );
+  }
+
+  const rangeData = exportData[activeRange];
+
+  // Map stats to include icon component
+  const statsWithIcons = rangeData.stats.map((stat) => ({
+    ...stat,
+    Icon: iconMap[stat.icon] || TrendingUp,
+  }));
+
+  const handleDownloadJSON = async () => {
+    setIsDownloading(true);
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `spotics-export-${activeRange}-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setIsDownloading(false);
   };
 
-  const currentData = dataByRange[selectedRange];
-  const stats = currentData.stats;
-  const topTracks = currentData.topTracks;
-  const topArtists = currentData.topArtists;
-  const genres = currentData.genres;
-
-  const handleDownload = async () => {
-    if (!exportRef.current) return;
-
-    setIsGenerating(true);
-    setDownloadComplete(false);
-
-    try {
-      // Wait a bit for any animations to complete
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      const canvas = await html2canvas(exportRef.current, {
-        backgroundColor: '#000000',
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        allowTaint: true
-      });
-
-      const link = document.createElement('a');
-      link.download = `spotics-${selectedRange}-insights-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-
-      setDownloadComplete(true);
-      setTimeout(() => setDownloadComplete(false), 3000);
-    } catch (error) {
-      console.error('Error generating image:', error);
-    } finally {
-      setIsGenerating(false);
+  const handleShare = async () => {
+    const text = `My ${activeRange} listening summary on Spotics: ${rangeData.title} (${rangeData.period}). ${rangeData.topTracks.length} top tracks, ${rangeData.genres.length} genres explored!`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "My Spotics Summary", text });
+      } catch {
+        // ignore
+      }
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert("Summary copied to clipboard!");
     }
   };
 
   return (
     <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1400px]">
-      {/* Hero Section with improved design */}
+      {/* Hero */}
       <div className="mb-12 relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-500/10 via-teal-500/10 to-blue-500/10 border border-green-500/20 p-8 lg:p-12">
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-500/20 to-transparent rounded-full blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-          <motion.div
-            className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-500/20 to-transparent rounded-full blur-3xl"
-            animate={{
-              scale: [1.2, 1, 1.2],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            }}
-          />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-500/20 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-500/20 to-transparent rounded-full blur-3xl" />
         </div>
-
-        <div className="relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 mb-4"
-          >
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30">
-              <ImageIcon className="h-6 w-6 text-green-400" />
-            </div>
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-green-500/20 to-blue-500/20 backdrop-blur-sm border border-green-500/30">
+            <svg className="h-6 w-6 text-green-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </div>
+          <div>
             <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-green-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">
               Export Your Insights
             </h1>
-          </motion.div>
-          <p className="text-gray-300 text-lg max-w-2xl">
-            Create beautiful, shareable snapshots of your music journey
-          </p>
-
-          {/* Stats preview cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-black/40 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-green-500/30 transition-all"
-              >
-                <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20 w-fit mb-2`}>
-                  <stat.icon className="h-4 w-4 text-white" />
-                </div>
-                <p className="text-gray-400 text-xs mb-1">{stat.label}</p>
-                <p className="text-white font-bold text-lg">{stat.value}</p>
-              </motion.div>
-            ))}
+            <p className="text-gray-300 text-lg mt-2">
+              Download your listening history and share your music journey.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Control Panel */}
-      <div className="grid lg:grid-cols-2 gap-6 mb-8">
-        {/* Time Range Selector */}
-        <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border-gray-700/50 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="h-5 w-5 text-green-400" />
-              <h3 className="text-lg font-semibold text-white">Select Time Range</h3>
-            </div>
-            <Tabs value={selectedRange} onValueChange={(value) => setSelectedRange(value as ExportTimeRange)}>
-              <TabsList className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50 p-1 w-full">
-                <TabsTrigger
-                  value="weekly"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/30 data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
-                >
-                  Weekly
-                </TabsTrigger>
-                <TabsTrigger
-                  value="monthly"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-blue-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/30 data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
-                >
-                  Monthly
-                </TabsTrigger>
-                <TabsTrigger
-                  value="alltime"
-                  className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-500/30 data-[state=inactive]:text-gray-400 data-[state=inactive]:hover:text-white transition-all px-4 py-2.5 text-sm font-semibold"
-                >
-                  All Time
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <p className="text-gray-400 text-sm mt-3">
-              {currentData.period}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Download Action Card */}
-        <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border-gray-700/50 backdrop-blur-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Share2 className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Download & Share</h3>
-            </div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                onClick={handleDownload}
-                disabled={isGenerating}
-                className="w-full bg-gradient-to-r from-green-600 via-teal-600 to-blue-600 hover:from-green-700 hover:via-teal-700 hover:to-blue-700 text-white font-semibold px-6 py-6 text-base rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all relative overflow-hidden group"
-              >
-                {/* Animated gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generating Image...
-                  </>
-                ) : downloadComplete ? (
-                  <>
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Downloaded Successfully!
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-5 w-5" />
-                    Download as PNG
-                  </>
-                )}
-              </Button>
-            </motion.div>
-            <p className="text-gray-400 text-xs mt-3 text-center">
-              High-quality 2x resolution • Perfect for social sharing
-            </p>
-          </CardContent>
-        </Card>
+      {/* Range selector */}
+      <div className="mb-8">
+        <Tabs value={activeRange} onValueChange={(v) => setActiveRange(v as RangeKey)}>
+          <TabsList className="bg-white/5 border border-white/10">
+            <TabsTrigger value="weekly" className="data-[state=active]:bg-green-600">Weekly</TabsTrigger>
+            <TabsTrigger value="monthly" className="data-[state=active]:bg-green-600">Monthly</TabsTrigger>
+            <TabsTrigger value="alltime" className="data-[state=active]:bg-green-600">All Time</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
-      {/* Export Preview */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="relative"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-teal-500/5 to-blue-500/5 rounded-2xl blur-xl" />
-        <div className="relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm rounded-2xl p-4 lg:p-8 border border-gray-700/50 shadow-2xl">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-gray-400 text-sm font-medium">Preview</p>
+      {/* Summary Card */}
+      <Card className="mb-8 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/[0.08]">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl text-white">{rangeData.title} Summary</CardTitle>
+              <p className="text-gray-400 mt-1">{rangeData.period}</p>
+            </div>
             <div className="flex gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500/50" />
-              <div className="h-3 w-3 rounded-full bg-yellow-500/50" />
-              <div className="h-3 w-3 rounded-full bg-green-500/50" />
+              <Button variant="secondary" size="sm" onClick={handleDownloadJSON} disabled={isDownloading}>
+                <FileJson className="h-4 w-4 mr-2" />
+                {isDownloading ? "Generating..." : "Download JSON"}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </Button>
             </div>
           </div>
-
-          <div ref={exportRef} className="rounded-2xl p-8 lg:p-12 max-w-4xl mx-auto shadow-2xl" style={{ background: 'linear-gradient(to bottom right, #000000, #111827, #000000)', border: '1px solid rgba(31, 41, 55, 0.5)' }}>
-            {/* Header with Logo */}
-            <div className="flex items-center justify-between mb-8 pb-8" style={{ borderBottom: '1px solid #374151' }}>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <SpoticsLogo className="h-14 w-14" />
-                </div>
-                <div>
-                  <h2 className="text-3xl lg:text-4xl font-bold mb-1" style={{ color: '#22c55e' }}>
-                    Spotics
-                  </h2>
-                  <p className="text-sm font-medium" style={{ color: '#9ca3af' }}>Music Listening Insights</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl" style={{ background: 'linear-gradient(to right, rgba(31, 41, 55, 0.8), rgba(55, 65, 81, 0.8))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
-                  <Calendar className="h-4 w-4" style={{ color: '#22c55e' }} />
-                  <span className="text-sm font-medium" style={{ color: '#d1d5db' }}>{currentData.period}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats Grid with enhanced design */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-8">
-              {stats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="relative rounded-xl p-4 lg:p-5 shadow-lg overflow-hidden"
-                  style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(31, 41, 55, 0.8), rgba(17, 24, 39, 0.8))', border: '1px solid rgba(55, 65, 81, 0.5)' }}
-                >
-                  <div className={`relative h-10 w-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3 shadow-lg`}>
-                    <stat.icon className="h-5 w-5" style={{ color: '#ffffff' }} />
+        </CardHeader>
+        <CardContent>
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            {statsWithIcons.map((stat) => {
+              const Icon = stat.Icon;
+              return (
+                <div key={stat.label} className="space-y-2">
+                  <div className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Icon className="h-4 w-4" />
+                    <span>{stat.label}</span>
                   </div>
-                  <p className="relative text-xs font-medium mb-1 uppercase tracking-wide" style={{ color: '#9ca3af' }}>{stat.label}</p>
-                  <p className="relative text-2xl lg:text-3xl font-bold" style={{ color: '#ffffff' }}>{stat.value}</p>
+                  <div className="text-3xl font-bold text-white">{stat.value}</div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
 
-            {/* Content Grid with refined cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-8">
-              {/* Top Tracks */}
-              <div className="relative rounded-2xl p-6 shadow-xl overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
-                <div className="relative flex items-center gap-3 mb-6">
-                  <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #22c55e, #14b8a6)' }}>
-                    <Play className="h-5 w-5" style={{ color: '#ffffff' }} />
-                  </div>
-                  <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Tracks</h3>
-                </div>
-                <div className="relative space-y-4">
-                  {topTracks.map((track, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-xl transition-all" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, rgba(34, 197, 94, 0.2), rgba(20, 184, 166, 0.2))' }}>
-                          <span className="font-bold text-sm" style={{ color: '#22c55e' }}>#{index + 1}</span>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold truncate" style={{ color: '#ffffff' }}>{track.title}</p>
-                          <p className="text-sm truncate" style={{ color: '#9ca3af' }}>{track.artist}</p>
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 text-right ml-4">
-                        <p className="font-bold text-lg" style={{ color: '#22c55e' }}>{track.plays}</p>
-                        <p className="text-xs uppercase tracking-wide" style={{ color: '#6b7280' }}>plays</p>
-                      </div>
+          {/* Sections: Top Tracks, Top Artists, Genres */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Top Tracks */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Music className="h-5 w-5 text-purple-400" />
+                Top Tracks
+              </h3>
+              <div className="space-y-3">
+                {rangeData.topTracks.map((track, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-white truncate">{track.title}</p>
+                      <p className="text-sm text-gray-400 truncate">{track.artist}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Top Artists */}
-              <div className="relative rounded-2xl p-6 shadow-xl overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
-                <div className="relative flex items-center gap-3 mb-6">
-                  <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #3b82f6, #6366f1)' }}>
-                    <Headphones className="h-5 w-5" style={{ color: '#ffffff' }} />
-                  </div>
-                  <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Artists</h3>
-                </div>
-                <div className="relative space-y-4">
-                  {topArtists.map((artist, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-xl transition-all" style={{ background: 'rgba(31, 41, 55, 0.4)', border: '1px solid rgba(55, 65, 81, 0.3)' }}>
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, rgba(59, 130, 246, 0.3), rgba(99, 102, 241, 0.3))', border: '2px solid rgba(59, 130, 246, 0.3)' }}>
-                          <span className="font-bold" style={{ color: '#3b82f6' }}>{index + 1}</span>
-                        </div>
-                        <p className="font-semibold truncate flex-1 min-w-0" style={{ color: '#ffffff' }}>{artist.name}</p>
-                      </div>
-                      <div className="flex-shrink-0 text-right ml-4">
-                        <p className="font-bold text-lg" style={{ color: '#3b82f6' }}>{artist.plays}</p>
-                        <p className="text-xs uppercase tracking-wide" style={{ color: '#6b7280' }}>plays</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Genre Distribution with enhanced styling */}
-            <div className="relative rounded-2xl p-6 shadow-xl overflow-hidden" style={{ background: 'linear-gradient(to bottom right, rgba(17, 24, 39, 0.9), rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9))', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
-              <div className="relative flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, #881337, #9f1239)' }}>
-                  <Music className="h-5 w-5" style={{ color: '#ffffff' }} />
-                </div>
-                <h3 className="text-xl font-bold" style={{ color: '#ffffff' }}>Top Genres</h3>
-              </div>
-              <div className="relative space-y-4">
-                {genres.map((genre, index) => (
-                  <div key={index}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold" style={{ color: '#ffffff' }}>{genre.name}</span>
-                      <span className="text-sm font-bold" style={{ color: '#d1d5db' }}>{genre.value}%</span>
-                    </div>
-                    <div className="h-3 rounded-full overflow-hidden shadow-inner" style={{ background: 'rgba(31, 41, 55, 0.6)', border: '1px solid rgba(55, 65, 81, 0.5)' }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-500 shadow-lg relative overflow-hidden"
-                        style={{
-                          width: `${genre.value * 3.125}%`,
-                          background: `linear-gradient(90deg, ${genre.color}, ${genre.color}dd)`
-                        }}
-                      >
-                        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent)' }} />
-                      </div>
-                    </div>
+                    <Badge variant="outline" className="shrink-0">{track.plays} plays</Badge>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Footer with enhanced styling */}
-            <div className="mt-8 pt-6" style={{ borderTop: '1px solid #374151' }}>
-              <div className="flex items-center justify-center gap-2">
-                <p className="text-sm" style={{ color: '#9ca3af' }}>
-                  Generated with
-                </p>
-                <span style={{ color: '#ef4444' }}>❤️</span>
-                <p className="text-sm" style={{ color: '#9ca3af' }}>
-                  by <span className="font-semibold" style={{ color: '#22c55e' }}>Spotics</span>
-                </p>
-                <span style={{ color: '#4b5563' }}>•</span>
-                <p className="text-sm" style={{ color: '#6b7280' }}>
-                  {new Date().toLocaleDateString()}
-                </p>
+            {/* Top Artists */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Headphones className="h-5 w-5 text-blue-400" />
+                Top Artists
+              </h3>
+              <div className="space-y-3">
+                {rangeData.topArtists.map((artist, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-white truncate">{artist.name}</p>
+                    </div>
+                    <Badge variant="secondary" className="shrink-0">{artist.plays} plays</Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Genres */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-400" />
+                Genres
+              </h3>
+              <div className="space-y-3">
+                {rangeData.genres.map((genre) => (
+                  <div key={genre.name} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-300 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: genre.color }}></span>
+                        {genre.name}
+                      </span>
+                      <span className="text-gray-400">{genre.value}%</span>
+                    </div>
+                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${genre.value}%`, backgroundColor: genre.color }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      </motion.div>
-
-      {/* Instructions */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card className="mt-8 bg-gradient-to-br from-gray-900/80 to-gray-800/80 border-gray-700/50 backdrop-blur-sm shadow-xl">
-          <CardContent className="p-6 lg:p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500/20 to-blue-500/20 flex items-center justify-center border border-green-500/30">
-                <ImageIcon className="h-5 w-5 text-green-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white">How to Use</h3>
-            </div>
-            <div className="grid gap-4 lg:grid-cols-2">
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-green-500/20">
-                  1
-                </div>
-                <p className="text-gray-300 text-sm">Select your preferred time range: Weekly, Monthly, or All Time stats</p>
-              </div>
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
-                  2
-                </div>
-                <p className="text-gray-300 text-sm">Click the "Download as PNG" button to generate a high-quality image</p>
-              </div>
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
-                  3
-                </div>
-                <p className="text-gray-300 text-sm">Share your music taste on social media with friends and followers</p>
-              </div>
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">
-                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-rose-800 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-rose-800/20">
-                  4
-                </div>
-                <p className="text-gray-300 text-sm">Image includes stats, top tracks, artists, and genre distribution</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+        </CardContent>
+      </Card>
     </main>
   );
 }

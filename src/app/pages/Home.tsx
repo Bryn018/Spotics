@@ -1,84 +1,87 @@
-import { WrappedSelector } from '../components/WrappedSelector';
-import { TimeRangeSelector } from '../components/TimeRangeSelector';
-import { StatsOverview } from '../components/StatsOverview';
-import { TopTracks } from '../components/TopTracks';
-import { TopArtists } from '../components/TopArtists';
-import { TopAlbums } from '../components/TopAlbums';
-import { ListeningChart } from '../components/ListeningChart';
-import { GenreDistribution } from '../components/GenreDistribution';
-import { RecentActivity } from '../components/RecentActivity';
+import { DashboardLayout } from "~/components/layout/DashboardLayout";
+import { StatsOverview } from "~/components/StatsOverview";
+import { TopTracks } from "~/components/TopTracks";
+import { TopArtists } from "~/components/TopArtists";
+import { TopAlbums } from "~/components/TopAlbums";
+import { ListeningChart } from "~/components/ListeningChart";
+import { GenreDistribution } from "~/components/GenreDistribution";
+import { RecentActivity } from "~/components/RecentActivity";
+import { useDashboardData } from "~/context/DashboardContext";
+import { Loader2 } from "lucide-react";
 
 export function Home() {
+  const { data, isLoading, error } = useDashboardData();
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-white/50" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-gray-400">Error loading data: {error.message}</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!data || !data.summary) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-gray-400">No data available</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const { summary, activities } = data;
+  const payload = summary.payload;
+
+  // Compute genre count from payload if available
+  const genreCount = payload?.genreDistribution?.length || 0;
+
   return (
-    <main className="container mx-auto px-4 lg:px-6 py-6 lg:py-10 max-w-[1600px]">
-      {/* Hero Section */}
-      <div className="mb-10">
-        <WrappedSelector />
-      </div>
-      
-      {/* Time Range Selector */}
-      <div className="mb-8">
-        <TimeRangeSelector />
-      </div>
-      
-      {/* Stats Overview */}
-      <div className="mb-12">
-        <StatsOverview />
-      </div>
-      
-      {/* Top Albums Section */}
-      <div className="mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"></div>
-          <h2 className="text-2xl font-bold text-white light:text-gray-900">Top Albums</h2>
+    <DashboardLayout>
+      <div className="space-y-8">
+        <StatsOverview
+          totals={summary.totals}
+          stats={payload?.stats || null}
+          genreCount={genreCount}
+        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <TopTracks
+            items={payload?.topTracks || []}
+            trend={summary.trends?.tracks || []}
+          />
+          <TopArtists
+            items={payload?.topArtists || []}
+          />
         </div>
-        <TopAlbums />
-      </div>
-      
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 mb-12">
-        {/* Left Column - Tracks & Artists */}
-        <div className="xl:col-span-8 space-y-8">
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-full"></div>
-              <h2 className="text-2xl font-bold text-white light:text-gray-900">Top Tracks</h2>
-            </div>
-            <TopTracks />
-          </div>
-          
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-1 w-12 bg-gradient-to-r from-green-600 to-blue-600 rounded-full"></div>
-              <h2 className="text-2xl font-bold text-white light:text-gray-900">Top Artists</h2>
-            </div>
-            <TopArtists />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <TopAlbums
+            items={payload?.topAlbums || []}
+          />
+          <ListeningChart
+            data={payload?.listeningChart || []}
+          />
         </div>
-        
-        {/* Right Column - Recent Activity */}
-        <div className="xl:col-span-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-1 w-12 bg-gradient-to-r from-rose-900 to-rose-800 rounded-full"></div>
-            <h2 className="text-2xl font-bold text-white light:text-gray-900">Recent Activity</h2>
-          </div>
-          <div className="xl:sticky xl:top-24">
-            <RecentActivity />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <GenreDistribution
+            items={payload?.genreDistribution || []}
+          />
+          <RecentActivity
+            activities={activities || []}
+          />
         </div>
       </div>
-      
-      {/* Analytics Section */}
-      <div className="mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
-          <h2 className="text-2xl font-bold text-white light:text-gray-900">Analytics</h2>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-          <ListeningChart />
-          <GenreDistribution />
-        </div>
-      </div>
-    </main>
+    </DashboardLayout>
   );
 }
