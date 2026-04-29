@@ -52,7 +52,8 @@ jobs:
             "user": {
               "accessToken": "${{ secrets.RAILWAY_TOKEN }}",
               "refreshToken": "",
-              "tokenExpiresAt": 0
+              "tokenExpiresAt": 0,
+              "token": null
             },
             "projects": {
               "/home/runner/work/spotics/spotics": {
