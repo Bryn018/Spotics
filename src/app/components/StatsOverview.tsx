@@ -66,3 +66,4 @@ export function OverviewCards({ totals, stats, genreCount = 0 }: OverviewCardsPr
     </div>
   );
 }
+export const StatsOverview = OverviewCards;
