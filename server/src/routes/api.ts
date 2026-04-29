@@ -22,11 +22,11 @@ const router = Router();
 
 const timeframeSchema = z
   .enum(['short_term', 'medium_term', 'long_term'])
-  .default('medium_term') satisfies z.ZodType<TimeRange>;
+  .default('medium_term');
 
 const wrapTimeframeSchema = z
   .enum(['daily', 'weekly', 'yearly'])
-  .default('daily') satisfies z.ZodType<WrapTimeframe>;
+  .default('daily');
 
 const paginationSchema = z.object({
   limit: z.coerce.number().min(1).max(50).default(10),

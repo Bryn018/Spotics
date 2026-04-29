@@ -43,40 +43,40 @@
 }
 
 .dark {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 100%;
-  --card: 164 41% 12%;
+  --background: 223 47% 15%; /* #0f172a */
+  --foreground: 0 0% 100%; /* white */
+  --card: 217 33% 17%; /* #1e293b */
   --card-foreground: 0 0% 100%;
-  --popover: 164 41% 12%;
+  --popover: 217 33% 17%; /* #1e293b */
   --popover-foreground: 0 0% 100%;
-  --primary: 187 100% 50%;
+  --primary: 160 84% 39%; /* #10b981 (Figma emerald) */
   --primary-foreground: 0 0% 0%;
-  --secondary: 165 100% 33%;
+  --secondary: 217 33% 25%; /* darker card variant */
   --secondary-foreground: 0 0% 100%;
-  --muted: 164 48% 20%;
-  --muted-foreground: 164 16% 56%;
-  --accent: 187 100% 50%;
+  --muted: 217 33% 20%; /* muted bg */
+  --muted-foreground: 214 20% 65%; /* #94a3b8 */
+  --accent: 160 84% 39%; /* #10b981 */
   --accent-foreground: 0 0% 0%;
   --destructive: 0 75.7% 59.6%;
   --destructive-foreground: 0 0% 100%;
-  --border: 164 48% 20%;
-  --input: 164 41% 12%;
-  --ring: 187 100% 50%;
+  --border: 217 33% 20%; /* card border */
+  --input: 217 33% 17%; /* input bg */
+  --ring: 160 84% 39%; /* primary for focus rings */
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: 187 100% 50%;
-  --chart-2: 165 100% 41%;
-  --chart-3: 165 100% 33%;
-  --chart-4: 185 100% 60%;
-  --chart-5: 182 100% 43%;
-  --sidebar: 164 41% 12%;
+  --chart-1: 160 84% 39%; /* primary green */
+  --chart-2: 165 100% 33%; /* secondary purple */
+  --chart-3: 214 20% 65%; /* muted text */
+  --chart-4: 185 100% 60%; /* teal */
+  --chart-5: 182 100% 43%; /* blue */
+  --sidebar: 223 47% 15%; /* background */
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-primary: 187 100% 50%;
+  --sidebar-primary: 160 84% 39%; /* primary */
   --sidebar-primary-foreground: 0 0% 0%;
-  --sidebar-accent: 165 100% 33%;
+  --sidebar-accent: 217 33% 25%; /* secondary */
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 164 48% 20%;
-  --sidebar-ring: 187 100% 50%;
+  --sidebar-border: 217 33% 20%;
+  --sidebar-ring: 160 84% 39%; /* primary */
 }
 
 @theme inline {

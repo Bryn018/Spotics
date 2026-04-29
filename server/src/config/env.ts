@@ -14,7 +14,7 @@ const candidates = [
 for (const file of candidates) {
   const fullPath = path.join(cwd, file);
   if (fs.existsSync(fullPath)) {
-    dotenv.config({ path: fullPath, override: true });
+    dotenv.config({ path: fullPath });
   }
 }
 
