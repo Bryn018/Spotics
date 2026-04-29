@@ -42,29 +42,3 @@ jobs:
           test -f server/dist/index.js || (echo "Server build missing" && exit 1)
           test -f dist/index.html || (echo "Frontend build missing" && exit 1)
           echo "Build verified successfully"
-
-  deploy:
-    needs: build
-    if: github.ref == 'refs/heads/feature/fullstack-ready' || github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.x"
-          cache: "npm"
-
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway up --ci \
-            --project 46451ed9-f824-4c07-92d5-ab39ac22a0ae \
-            --service 281be3e2-7209-4015-b659-e08a6b7326cd \
-            --environment production
