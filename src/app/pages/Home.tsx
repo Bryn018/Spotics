@@ -7,6 +7,7 @@ import { TopAlbums } from '../components/TopAlbums';
 import { ListeningChart } from '../components/ListeningChart';
 import { GenreDistribution } from '../components/GenreDistribution';
 import { RecentActivity } from '../components/RecentActivity';
+import { ListeningScore } from '../components/ListeningScore';
 
 export function Home() {
   return (
@@ -74,6 +75,12 @@ export function Home() {
           <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full"></div>
           <h2 className="text-2xl font-bold text-white light:text-gray-900">Analytics</h2>
         </div>
+
+        {/* Listening Score */}
+        <div className="mb-8">
+          <ListeningScore />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <ListeningChart />
           <GenreDistribution />

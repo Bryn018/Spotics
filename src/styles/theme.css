@@ -43,40 +43,40 @@
 }
 
 .dark {
-  --background: 223 47% 15%; /* #0f172a */
+  --background: 220 47% 10%; /* #0A0E27 - dark navy */
   --foreground: 0 0% 100%; /* white */
-  --card: 217 33% 17%; /* #1e293b */
+  --card: 240 20% 15%; /* #1A1A2E - very dark blue */
   --card-foreground: 0 0% 100%;
-  --popover: 217 33% 17%; /* #1e293b */
+  --popover: 240 20% 15%; /* #1A1A2E */
   --popover-foreground: 0 0% 100%;
-  --primary: 160 84% 39%; /* #10b981 (Figma emerald) */
+  --primary: 180 100% 50%; /* #00D9FF - cyan/turquoise */
   --primary-foreground: 0 0% 0%;
-  --secondary: 217 33% 25%; /* darker card variant */
+  --secondary: 220 25% 18%; /* #1C2536 - dark slate */
   --secondary-foreground: 0 0% 100%;
-  --muted: 217 33% 20%; /* muted bg */
-  --muted-foreground: 214 20% 65%; /* #94a3b8 */
-  --accent: 160 84% 39%; /* #10b981 */
+  --muted: 240 20% 12%; /* muted bg darker */
+  --muted-foreground: 214 20% 65%; /* #A0A9B8 */
+  --accent: 130 100% 55%; /* #1FFF89 - bright green */
   --accent-foreground: 0 0% 0%;
-  --destructive: 0 75.7% 59.6%;
+  --destructive: 340 80% 45%; /* #D41159 - magenta/pink */
   --destructive-foreground: 0 0% 100%;
-  --border: 217 33% 20%; /* card border */
-  --input: 217 33% 17%; /* input bg */
-  --ring: 160 84% 39%; /* primary for focus rings */
+  --border: 220 25% 18%; /* #1C2536 - dark slate */
+  --input: 240 20% 15%; /* #1A1A2E */
+  --ring: 180 100% 50%; /* #00D9FF - cyan */
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: 160 84% 39%; /* primary green */
-  --chart-2: 165 100% 33%; /* secondary purple */
-  --chart-3: 214 20% 65%; /* muted text */
-  --chart-4: 185 100% 60%; /* teal */
+  --chart-1: 180 100% 50%; /* cyan */
+  --chart-2: 340 80% 45%; /* magenta */
+  --chart-3: 130 100% 55%; /* green */
+  --chart-4: 180 25% 25%; /* teal */
   --chart-5: 182 100% 43%; /* blue */
-  --sidebar: 223 47% 15%; /* background */
+  --sidebar: 220 47% 10%; /* background */
   --sidebar-foreground: 0 0% 100%;
-  --sidebar-primary: 160 84% 39%; /* primary */
+  --sidebar-primary: 180 100% 50%; /* primary */
   --sidebar-primary-foreground: 0 0% 0%;
-  --sidebar-accent: 217 33% 25%; /* secondary */
+  --sidebar-accent: 220 25% 18%; /* secondary */
   --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-border: 217 33% 20%;
-  --sidebar-ring: 160 84% 39%; /* primary */
+  --sidebar-border: 220 25% 18%;
+  --sidebar-ring: 180 100% 50%; /* primary */
 }
 
 @theme inline {
