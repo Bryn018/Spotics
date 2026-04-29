@@ -3,7 +3,8 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "build": "vite build && npm -C server run build",
+    "prebuild": "cd server && npm ci",
+    "build": "npm run build:client && npm -C server run build",
     "build:client": "vite build",
     "dev": "vite",
     "start": "node server/dist/index.js",
