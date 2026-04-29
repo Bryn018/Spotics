@@ -1,5 +1,9 @@
 # Multi-stage spotics build
 FROM node:22-alpine AS builder
+ARG CACHE_BUSTER=unused
+ARG BUILD_TIMESTAMP
+ENV BUILD_TIMESTAMP=${BUILD_TIMESTAMP:-unknown}
+ARG SOURCE_DATE_EPOCH
 
 WORKDIR /app
 COPY package*.json ./
@@ -9,6 +13,8 @@ COPY server/package*.json ./server/
 RUN cd server && npm ci
 
 COPY . .
+# Note: CACHE_BUSTER forces rebuild when source changes
+
 
 # Build frontend and server
 RUN npm run build
