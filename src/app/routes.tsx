@@ -1,39 +1,22 @@
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router";
 import { Home } from "./pages/Home";
 import { Analytics } from "./pages/Analytics";
 import { Login } from "./pages/Login";
 import { Export } from "./pages/Export";
 import { RootLayout } from "./layouts/RootLayout";
-import { AuthGuard } from "./components/AuthGuard";
-
-function ProtectedLayout() {
-  return (
-    <AuthGuard>
-      <RootLayout />
-    </AuthGuard>
-  );
-}
-
-function PublicLogin() {
-  return (
-    <AuthGuard>
-      <Login />
-    </AuthGuard>
-  );
-}
 
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: <PublicLogin />,
+    Component: Login,
   },
   {
     path: "/",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/login" replace />,
   },
   {
     path: "/dashboard",
-    element: <ProtectedLayout />,
+    Component: RootLayout,
     children: [
       { index: true, Component: Home },
       { path: "analytics", Component: Analytics },

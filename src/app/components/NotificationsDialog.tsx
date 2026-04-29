@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Bell, Music, TrendingUp, Heart, Users, Check } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface NotificationsDialogProps {
   open: boolean;

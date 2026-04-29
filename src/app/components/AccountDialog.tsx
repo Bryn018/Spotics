@@ -2,8 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { User, Mail, Calendar, Music, TrendingUp, LogOut, Edit, Shield } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { useNavigate } from 'react-router';
 
 interface AccountDialogProps {
   open: boolean;
