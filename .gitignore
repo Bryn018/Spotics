@@ -20,3 +20,5 @@ public/
 
 # Frontend build cache (not used)
 dist/
+
+# Trigger deployment
