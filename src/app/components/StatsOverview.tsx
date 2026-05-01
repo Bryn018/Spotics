@@ -17,23 +17,28 @@ interface OverviewCardsProps {
 }
 
 export function OverviewCards({ totals, stats, genreCount = 0 }: OverviewCardsProps) {
+  const safeTotals = {
+    tracks: Number.isFinite(Number(totals?.tracks)) ? totals.tracks : 0,
+    artists: Number.isFinite(Number(totals?.artists)) ? totals.artists : 0,
+    minutes: Number.isFinite(Number(totals?.minutes)) ? totals.minutes : 0,
+  };
   const cards = [
     {
       icon: Headphones,
       label: "Tracks Played",
-      value: totals.tracks.toLocaleString(),
+      value: safeTotals.tracks.toLocaleString(),
       color: "from-purple-500 to-purple-600",
     },
     {
       icon: Music,
       label: "Artists Discovered",
-      value: totals.artists.toLocaleString(),
+      value: safeTotals.artists.toLocaleString(),
       color: "from-blue-500 to-blue-600",
     },
     {
       icon: Radio,
       label: "Minutes Listened",
-      value: `${Math.round(totals.minutes / 60)}h ${totals.minutes % 60}m`,
+      value: `${Math.round(safeTotals.minutes / 60)}h ${safeTotals.minutes % 60}m`,
       color: "from-green-500 to-green-600",
     },
     {

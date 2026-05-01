@@ -54,7 +54,7 @@ export function TopTracks({ items, trend }: TopTracksProps) {
                 <p className="text-sm text-gray-400 truncate">{track.artist}</p>
               </div>
               <div className="text-right">
-                <div className="text-white font-semibold">{track.plays.toLocaleString()}</div>
+                <div className="text-white font-semibold">{(() => { const n = Number(track.plays); return Number.isFinite(n) ? n.toLocaleString() : '0'; })()}</div>
                 <div className="text-xs text-gray-400">plays</div>
               </div>
             </div>

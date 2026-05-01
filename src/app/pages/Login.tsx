@@ -1,13 +1,10 @@
-import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { Button } from '../components/ui/button';
 import { SpoticsLogo } from '../components/SpoticsLogo';
 
 export function Login() {
-  const navigate = useNavigate();
-
   const handleSpotifyLogin = () => {
-    navigate('/dashboard');
+    window.location.href = '/api/auth/login';
   };
 
   return (

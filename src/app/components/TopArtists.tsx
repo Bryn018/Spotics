@@ -53,7 +53,7 @@ export function TopArtists({ items }: TopArtistsProps) {
                 </p>
               </div>
               <div className="text-right text-sm text-gray-500">
-                {artist.plays.toLocaleString()} plays
+                {(() => { const n = Number(artist.plays); return Number.isFinite(n) ? n.toLocaleString() : '0'; })()} plays
               </div>
             </div>
           ))}

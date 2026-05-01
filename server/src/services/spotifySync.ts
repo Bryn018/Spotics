@@ -37,6 +37,7 @@ type SimplifiedArtist = {
 
 type RecentItem = {
   track: {
+    id: string;
     name: string;
     artists: { name: string }[];
     album: { name: string; images?: { url: string }[] };
@@ -197,6 +198,7 @@ export async function syncRecentActivity(client: SpotifyWebApi, userId: string) 
         title: item.track.name,
         subtitle: item.track.artists.map((artist) => artist.name).join(', '),
         metadata: {
+          spotify_track_id: item.track.id,
           image: item.track.album.images?.[0]?.url ?? null,
           album: item.track.album.name,
           durationMs: item.track.duration_ms,
@@ -219,14 +221,22 @@ export async function syncRecentActivity(client: SpotifyWebApi, userId: string) 
 
   if (allActivities.length === 0) return;
 
-  // Deduplicate against existing DB rows by occurred_at
+  // Deduplicate against existing DB rows by occurred_at and spotify_track_id
   const existingResult = await pool.query(
-    'SELECT occurred_at FROM activities WHERE user_id = $1 AND occurred_at >= $2',
+    'SELECT occurred_at, metadata->>"spotify_track_id" as spotify_track_id FROM activities WHERE user_id = $1 AND occurred_at >= $2',
     [userId, cutoffDate.toISOString()],
   );
-  const existingTimestamps = new Set(existingResult.rows.map((r) => new Date(r.occurred_at).toISOString()));
-
-  const newActivities = allActivities.filter((a) => !existingTimestamps.has(a.occurred_at));
+  const existingKeys = new Set(
+    existingResult.rows.map(
+      (r) => `${new Date(r.occurred_at).toISOString()}|${r.spotify_track_id}`
+    )
+  );
+  const newActivities = allActivities.filter(
+    (a) =>
+      !existingKeys.has(
+        `${new Date(a.occurred_at).toISOString()}|${a.metadata.spotify_track_id}`
+      )
+  );
   if (newActivities.length === 0) return;
 
   // Bulk insert
