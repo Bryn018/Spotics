@@ -12,12 +12,13 @@ const router = Router();
 const STATE_COOKIE = 'spotify_auth_state';
 const isProd = env.nodeEnv === 'production';
 
-const cookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProd,
-  sameSite: 'lax',
-  path: '/',
-};
+    // Session cookie options - use 'none' with secure for OAuth cross-site compatibility
+    const cookieOptions: CookieOptions = {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'none',  // Cross-site OAuth requires SameSite=None
+      path: '/',
+    };
 
 router.get('/login', (_req: Request, res: Response) => {
   const state = crypto.randomBytes(16).toString('hex');
