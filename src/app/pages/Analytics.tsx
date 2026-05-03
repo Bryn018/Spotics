@@ -315,6 +315,7 @@ export function Analytics() {
           </CardContent>
         </Card>
       )}
-    </div>
-  );
+    </motion.div>
+  </main>
+);
 }
