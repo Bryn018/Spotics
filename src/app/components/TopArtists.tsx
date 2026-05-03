@@ -1,4 +1,5 @@
 import { TrendingUp } from "lucide-react";
+import { Badge } from "./ui/badge";
 
 interface ArtistStat {
   id: string;
@@ -16,48 +17,77 @@ interface TopArtistsProps {
 export function TopArtists({ items }: TopArtistsProps) {
   if (!items || items.length === 0) {
     return (
-      <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/[0.08] p-6 backdrop-blur-xl">
+      <div>
         <h3 className="text-lg font-semibold text-white mb-4">Top Artists</h3>
-        <p className="text-gray-400">No artists data available</p>
+        <p className="text-gray-400">No artist data available</p>
       </div>
     );
   }
 
   return (
-    <div className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/[0.08] p-6 backdrop-blur-xl">
-      <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-white" />
-      <div className="relative">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-white">Top Artists</h3>
-        </div>
-        <div className="space-y-3">
-          {items.map((artist, index) => (
+    <div>
+      <h3 className="text-lg font-semibold text-white mb-4">Top Artists</h3>
+      <div className="space-y-3">
+        {items.slice(0, 6).map((artist, index) => {
+          const plays = Number.isFinite(Number(artist.plays)) ? artist.plays : 0;
+          const hours = Number.isFinite(Number(artist.hours)) ? artist.hours : 0;
+          
+          return (
             <div
               key={artist.id || index}
-              className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group/artist"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-800/40 to-gray-900/40 border border-gray-700/30 p-4 hover:from-purple-900/20 hover:to-pink-900/20 hover:border-purple-500/30 transition-all"
             >
-              <div className="w-8 h-8 flex items-center justify-center text-lg font-bold text-blue-400">
-                {index + 1}
-              </div>
-              {artist.image && (
-                <img
-                  src={artist.image}
-                  alt={artist.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-              )}
-              <div className="flex-1 min-w-0">
-                <h4 className="text-white font-medium truncate">{artist.name}</h4>
-                <p className="text-sm text-gray-400 truncate">
-                  {artist.genres?.slice(0, 2).join(", ") || ""}
-                </p>
-              </div>
-              <div className="text-right text-sm text-gray-500">
-                {(() => { const n = Number(artist.plays); return Number.isFinite(n) ? n.toLocaleString() : '0'; })()} plays
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-900/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="relative flex items-center gap-4">
+                {/* Rank Badge - top right positioned absolutely on avatar */}
+                <div className="relative flex-shrink-0">
+                  {artist.image ? (
+                    <div className="relative">
+                      <img
+                        src={artist.image}
+                        alt={artist.name}
+                        className="h-14 w-14 rounded-full object-cover ring-2 ring-purple-500/30 group-hover:ring-purple-500/50 transition-all shadow-lg"
+                      />
+                      {/* Floating badge indicator */}
+                      <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 border-gray-900 flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-white">{index + 1}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-14 w-14 rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 flex items-center justify-center">
+                      <span className="text-xl font-bold text-purple-300">{index + 1}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Artist Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-white truncate">{artist.name}</h4>
+                  <p className="text-sm text-purple-400 font-medium">{plays.toLocaleString()} plays</p>
+                </div>
+
+                {/* Listening Time */}
+                <div className="hidden sm:block text-right">
+                  <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Listening time</div>
+                  <div className="text-sm font-semibold text-white">{hours}h</div>
+                </div>
+
+                {/* Genre Badges */}
+                <div className="flex gap-1.5 flex-wrap justify-end">
+                  {artist.genres?.slice(0, 2).map((genre, i) => (
+                    <Badge
+                      key={i}
+                      className="text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 transition-all"
+                    >
+                      {genre}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </div>
   );

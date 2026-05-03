@@ -83,13 +83,27 @@ export function Analytics() {
   const uniqueId = useMemo(() => `${reactId}-${Math.random().toString(36).substr(2, 9)}`, [reactId]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Analytics</h1>
-      </div>
+    <main className="container mx-auto px-4 lg:px-6 py-10 max-w-[1600px]">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="space-y-8"
+      >
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Analytics
+            </h1>
+            <p className="text-gray-400 text-sm mt-1">
+              Deep dive into your listening habits
+            </p>
+          </div>
+        </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statsCards.map((stat, i) => {
           const IconComponent = (() => {
             switch (stat.icon) {
@@ -131,7 +145,7 @@ export function Analytics() {
       </div>
 
       {/* Listening over time */}
-      <Card className="bg-white/5 border-white/10">
+      <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -142,14 +156,14 @@ export function Analytics() {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
                 <XAxis dataKey="month" stroke="#888" />
                 <YAxis stroke="#888" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }}
                   labelStyle={{ color: '#fff' }}
                 />
-                <Line type="monotone" dataKey="minutes" stroke="#8884d8" strokeWidth={2} />
+                <Line type="monotone" dataKey="minutes" stroke="#a855f7" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -157,7 +171,7 @@ export function Analytics() {
       </Card>
 
       {/* Hourly distribution */}
-      <Card className="bg-white/5 border-white/10">
+      <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -168,14 +182,20 @@ export function Analytics() {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <defs>
+              <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#ec4899" />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
                 <XAxis dataKey="hour" stroke="#888" />
                 <YAxis stroke="#888" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }}
                   labelStyle={{ color: '#fff' }}
                 />
-                <Bar dataKey="plays" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="plays" fill="url(#barGradient)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -185,7 +205,7 @@ export function Analytics() {
       {/* Two column layout for music taste and genres */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Music Taste Radar */}
-        <Card className="bg-white/5 border-white/10">
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Music className="h-5 w-5" />
@@ -196,10 +216,10 @@ export function Analytics() {
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={musicTasteData}>
-                  <PolarGrid stroke="#333" />
-                  <PolarAngleAxis dataKey="category" tick={{ fill: '#ccc', fontSize: 12 }} />
-                  <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: '#888' }} />
-                  <Radar name="Taste" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                  <PolarGrid stroke="rgba(255,255,255,0.2)" />
+                  <PolarAngleAxis dataKey="category" tick={{ fill: 'white', fontSize: 12 }} />
+                  <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'white' }} />
+                  <Radar name="Taste" dataKey="value" stroke="#a855f7" fill="#a855f7" fillOpacity={0.3} fillOpacity={0.6} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -207,7 +227,7 @@ export function Analytics() {
         </Card>
 
         {/* Top Genres */}
-        <Card className="bg-white/5 border-white/10">
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5" />
@@ -240,7 +260,7 @@ export function Analytics() {
 
       {/* Achievements */}
       {(data.achievements?.length || 0) > 0 && (
-        <Card className="bg-white/5 border-white/10">
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-yellow-500" />
@@ -269,7 +289,7 @@ export function Analytics() {
 
       {/* Milestones & Highlights (if present) */}
       {(data.milestones?.length || 0) > 0 && (
-        <Card className="bg-white/5 border-white/10">
+        <Card className="bg-gradient-to-br from-gray-900/50 to-gray-800/50 border-gray-800/50 shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Star className="h-5 w-5" />

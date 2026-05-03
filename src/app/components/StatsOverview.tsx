@@ -54,16 +54,16 @@ export function OverviewCards({ totals, stats, genreCount = 0 }: OverviewCardsPr
       {cards.map((card) => (
         <div
           key={card.label}
-          className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/[0.08] p-6 backdrop-blur-xl hover:border-white/[0.2] transition-all duration-300"
+          className="relative group overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900/30 to-gray-800/20 border border-gray-800/30 shadow-xl p-6 backdrop-blur-xl hover:border-emerald-500/30 hover:from-emerald-900/20 hover:to-emerald-800/20 transition-all duration-300"
         >
           <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-white" />
           <div className="relative">
             <div
-              className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-4 shadow-lg`}
+              className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-4 shadow-lg ring-1 ring-white/10`}
             >
               <card.icon className="w-6 h-6 text-white" />
             </div>
-            <div className="text-3xl font-bold text-white mb-1">{card.value}</div>
+            <div className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent mb-1">{card.value}</div>
             <div className="text-sm text-gray-400">{card.label}</div>
           </div>
         </div>
