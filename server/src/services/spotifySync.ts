@@ -223,7 +223,7 @@ export async function syncRecentActivity(client: SpotifyWebApi, userId: string) 
 
   // Deduplicate against existing DB rows by occurred_at and spotify_track_id
   const existingResult = await pool.query(
-    'SELECT occurred_at, metadata->>"spotify_track_id" as spotify_track_id FROM activities WHERE user_id = $1 AND occurred_at >= $2',
+    "SELECT occurred_at, metadata->>'spotify_track_id' AS spotify_track_id FROM activities WHERE user_id = $1 AND occurred_at >= $2",
     [userId, cutoffDate.toISOString()],
   );
   const existingKeys = new Set(
