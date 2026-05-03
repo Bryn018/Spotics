@@ -48,7 +48,7 @@ export function Login() {
             <div>
               <Button
                 onClick={handleSpotifyLogin}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-7 rounded-2xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 text-lg group relative overflow-hidden"
+                className="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white font-semibold py-7 rounded-2xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 text-lg group relative overflow-hidden"
               >
                 <span className="relative flex items-center justify-center gap-3">
                   <svg 
@@ -65,7 +65,7 @@ export function Login() {
 
             {/* Info Section */}
             <div className="mt-10 text-center space-y-4">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-400">
                 By connecting, you agree to share your Spotify listening data
               </p>
               
@@ -92,7 +92,7 @@ export function Login() {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-500">
             Spotics is not affiliated with Spotify AB or any of its partners
           </p>
         </div>
