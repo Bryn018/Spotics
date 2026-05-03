@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, type ElementType } from "react";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -35,7 +35,20 @@ export function Export() {
 
   const rangeData = exportData[activeRange];
 
+  // Map stats icons from lucide-react based on JSON icon names
+  const iconMap: Record<string, ElementType> = {
+    Clock,
+    Music,
+    Headphones,
+    TrendingUp,
+  };
+  const statsWithIcons = rangeData.stats.map((stat) => ({
+    ...stat,
+    Icon: iconMap[stat.icon] || Clock,
+  }));
+
   const handleDownload = async () => {
+
     if (!exportRef.current) return;
     setIsGenerating(true);
     try {
