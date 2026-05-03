@@ -141,6 +141,14 @@ router.get(
       return res.json({ authenticated: true, user });
     } catch (err: any) {
       console.error('Session verification failed:', err.message, 'TokenLen:', token?.length, 'TokenStart:', token?.slice(0, 20));
+      // Try to decode without verifying to see payload
+      const jwt_mod = require('jsonwebtoken');
+      try {
+        const decoded = jwt_mod.decode(token, { complete: true });
+        console.error('Token payload (unverified):', JSON.stringify(decoded?.payload));
+      } catch (e: any) {
+        console.error('Token decode also failed:', e.message);
+      }
       res.clearCookie(env.sessionCookieName, { ...cookieOptions, maxAge: 0 });
       return res.json({
         authenticated: false,
