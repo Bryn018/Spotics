@@ -140,7 +140,7 @@ router.get(
       const user = result.rows[0] ?? null;
       return res.json({ authenticated: true, user });
     } catch (err: any) {
-      console.error('Session verification failed:', err.message);
+      console.error('Session verification failed:', err.message, 'TokenLen:', token?.length, 'TokenStart:', token?.slice(0, 20));
       res.clearCookie(env.sessionCookieName, { ...cookieOptions, maxAge: 0 });
       return res.json({
         authenticated: false,
