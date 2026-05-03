@@ -7,9 +7,8 @@ ARG SOURCE_DATE_EPOCH
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
-
 COPY server/package*.json ./server/
+RUN npm ci --ignore-scripts
 RUN cd server && npm ci
 
 COPY . .
@@ -25,9 +24,8 @@ WORKDIR /app
 
 # Copy only production dependencies
 COPY --from=builder /app/package*.json ./
-RUN npm ci --omit=dev
-
 COPY --from=builder /app/server/package*.json ./server/
+RUN npm ci --omit=dev --ignore-scripts
 RUN cd server && npm ci --omit=dev
 
 # Copy built artifacts (frontend -> public for express.static, server dist)
