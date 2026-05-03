@@ -16,7 +16,7 @@ const isProd = env.nodeEnv === 'production';
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: isProd,
-      sameSite: 'none',  // Cross-site OAuth requires SameSite=None
+      sameSite: isProd ? 'none' : 'lax', // Cross-site OAuth requires None in prod
       path: '/',
     };
 
