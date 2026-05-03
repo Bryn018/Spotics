@@ -139,9 +139,12 @@ router.get(
       );
       const user = result.rows[0] ?? null;
       return res.json({ authenticated: true, user });
-    } catch {
-      res.clearCookie(env.sessionCookieName);
-      return res.json({ authenticated: false });
+    } catch (err: any) {
+      console.error('Session verification failed:', err.message);
+      res.clearCookie(env.sessionCookieName, { ...cookieOptions, maxAge: 0 });
+      return res.json({
+        authenticated: false,
+      });
     }
   }),
 );
