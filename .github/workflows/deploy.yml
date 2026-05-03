@@ -1,9 +1,6 @@
 name: Deploy to Railway
 
 on:
-  push:
-    branches:
-      - feature/fullstack-ready
   workflow_dispatch:
     inputs:
       environment:
@@ -18,6 +15,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -42,10 +41,13 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Deploy to Railway (optional)
         run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "RAILWAY_TOKEN is not configured; skipping manual deploy. Railway autoDeploy handles push deployments."
+            exit 0
+          fi
+
           railway up --ci \
             -p 46451ed9-f824-4c07-92d5-ab39ac22a0ae \
             -s 281be3e2-7209-4015-b659-e08a6b7326cd \
