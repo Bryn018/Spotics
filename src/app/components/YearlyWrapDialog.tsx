@@ -183,7 +183,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
                 className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-8"
               >
                 <Music className="h-10 w-10 text-purple-400 mb-4 mx-auto" />
-                <p className="text-4xl font-bold text-white mb-2">{slide.content.totalTracks.toLocaleString()}</p>
+                <p className="text-4xl font-bold text-white mb-2">{(slide.content.totalTracks ?? 0).toLocaleString()}</p>
                 <p className="text-sm text-gray-400">Songs Played</p>
               </motion.div>
               
@@ -192,7 +192,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
                 className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-pink-500/30 rounded-2xl p-8"
               >
                 <Clock className="h-10 w-10 text-pink-400 mb-4 mx-auto" />
-                <p className="text-4xl font-bold text-white mb-2">{slide.content.totalHours.toLocaleString()}</p>
+                <p className="text-4xl font-bold text-white mb-2">{(slide.content.totalHours ?? 0).toLocaleString()}</p>
                 <p className="text-sm text-gray-400">Hours Listened</p>
               </motion.div>
 
@@ -253,7 +253,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4">
                   <Music className="h-6 w-6 text-purple-400 mb-2 mx-auto" />
-                  <p className="text-2xl font-bold text-white mb-1">{slide.content.plays.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-white mb-1">{(slide.content.plays ?? 0).toLocaleString()}</p>
                   <p className="text-xs text-gray-400">Plays</p>
                 </div>
 
@@ -532,7 +532,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
             <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
               <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-6">
                 <Clock className="h-8 w-8 text-purple-400 mb-3" />
-                <p className="text-3xl font-bold text-white mb-1">{slide.content.totalMinutes.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-white mb-1">{(slide.content.totalMinutes ?? 0).toLocaleString()}</p>
                 <p className="text-sm text-gray-400">Minutes listened</p>
               </div>
 

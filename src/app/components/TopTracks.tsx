@@ -68,7 +68,7 @@ export function TopTracks({ items, trend }: TopTracksProps) {
 
                 {/* Plays */}
                 <div className="text-right shrink-0">
-                  <div className="text-white font-semibold text-sm">{plays.toLocaleString()}</div>
+                  <div className="text-white font-semibold text-sm">{(plays ?? 0).toLocaleString()}</div>
                   <div className="text-xs text-gray-400">plays</div>
                 </div>
 

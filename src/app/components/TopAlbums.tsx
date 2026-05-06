@@ -56,7 +56,7 @@ export function TopAlbums({ items }: TopAlbumsProps) {
               <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
                 <span className="text-xs text-gray-500">{album.year || '2020'}</span>
                 <span className="text-xs text-purple-400 font-semibold">
-                  {Number(album.plays).toLocaleString()} plays
+                  {Number(album.plays ?? 0).toLocaleString()} plays
                 </span>
               </div>
             </div>

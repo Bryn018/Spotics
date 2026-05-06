@@ -599,7 +599,7 @@ function TopArtistSlide({ slide }: { slide: any }) {
         <h3 className="text-3xl font-black text-white leading-tight drop-shadow-lg">{slide.content.artist}</h3>
         <div className="flex items-center justify-center gap-3 mt-4">
           <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-3">
-            <p className="text-xl font-black text-white drop-shadow">{slide.content.plays.toLocaleString()}</p>
+            <p className="text-xl font-black text-white drop-shadow">{slide.content.plays?.toLocaleString() ?? '0'}</p>
             <p className="text-[10px] text-[#B3B3B3] uppercase tracking-wider">Plays</p>
           </div>
           <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-3">
@@ -699,7 +699,7 @@ function StatsSlide({ slide }: { slide: any }) {
   const content = slide.content;
   const stats = Object.entries(content).map(([key, value]) => ({
     label: key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase()),
-    value: typeof value === 'number' ? value.toLocaleString() : String(value),
+    value: typeof value === 'number' ? (value ?? 0).toLocaleString() : String(value ?? ''),
   }));
 
   return (
@@ -863,7 +863,7 @@ function TimelineSlide({ slide }: { slide: any }) {
             <div className="flex-1 bg-black/20 border border-white/10 rounded-xl p-3 text-left">
               <p className="text-white font-bold text-sm drop-shadow">{item.highlight}</p>
               <div className="flex items-center gap-2 mt-1 text-xs text-[#B3B3B3]">
-                <span>{item.plays.toLocaleString()} plays</span>
+                <span>{(item.plays ?? 0).toLocaleString()} plays</span>
                 <span>•</span>
                 <span className="text-purple-400">{item.mood}</span>
               </div>

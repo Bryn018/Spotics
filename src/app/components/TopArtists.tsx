@@ -64,7 +64,7 @@ export function TopArtists({ items }: TopArtistsProps) {
                 {/* Artist Info */}
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-white truncate">{artist.name}</h4>
-                  <p className="text-sm text-purple-400 font-medium">{plays.toLocaleString()} plays</p>
+                  <p className="text-sm text-purple-400 font-medium">{(plays ?? 0).toLocaleString()} plays</p>
                 </div>
 
                 {/* Listening Time */}
