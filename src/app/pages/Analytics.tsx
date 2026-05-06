@@ -9,6 +9,7 @@ import { useAnalyticsData } from "../context/DashboardContext";
 export function Analytics() {
   const { data, isLoading, error } = useAnalyticsData();
   const reactId = useId();
+  const uniqueId = useMemo(() => `${reactId}-${Math.random().toString(36).substr(2, 9)}`, [reactId]);
 
   if (isLoading) {
     return (
@@ -79,8 +80,6 @@ export function Analytics() {
     color: s.color,
     bgColor: s.bgColor,
   }));
-
-  const uniqueId = useMemo(() => `${reactId}-${Math.random().toString(36).substr(2, 9)}`, [reactId]);
 
   return (
     <main className="container mx-auto px-4 lg:px-6 py-10 max-w-[1600px]">

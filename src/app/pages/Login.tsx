@@ -1,11 +1,30 @@
 import { motion } from 'motion/react';
 import { Button } from '../components/ui/button';
 import { SpoticsLogo } from '../components/SpoticsLogo';
+import { useSession } from '../context/SessionContext';
+import { useNavigate } from 'react-router';
+import { useEffect } from 'react';
+import { isDevPreviewEnabled } from '../lib/devPreview';
 
 export function Login() {
+  const { authenticated, isLoading } = useSession();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Redirect to dashboard if authenticated or in dev preview mode
+    if (!isLoading && (authenticated || isDevPreviewEnabled())) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [authenticated, isLoading, navigate]);
+
   const handleSpotifyLogin = () => {
     window.location.href = '/api/auth/login';
   };
+
+  // Don't render login form if we're about to redirect
+  if (authenticated || isDevPreviewEnabled()) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
