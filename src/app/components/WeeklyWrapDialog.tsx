@@ -16,7 +16,7 @@ export function WeeklyWrapDialog({ open, onOpenChange }: WeeklyWrapDialogProps) 
   const slides = [
     {
       id: 1,
-      type: 'intro',
+      type: 'intro' as const,
       title: "This Week's Soundtrack",
       subtitle: 'March 14 - March 20, 2026',
       content: {
@@ -29,7 +29,7 @@ export function WeeklyWrapDialog({ open, onOpenChange }: WeeklyWrapDialogProps) 
     },
     {
       id: 2,
-      type: 'top-tracks',
+      type: 'top-tracks' as const,
       title: 'Your Top 3 Tracks',
       content: [
         {
@@ -57,7 +57,7 @@ export function WeeklyWrapDialog({ open, onOpenChange }: WeeklyWrapDialogProps) 
     },
     {
       id: 3,
-      type: 'top-artist',
+      type: 'top-artist' as const,
       title: 'Artist of the Week',
       content: {
         artist: 'The Weeknd',
@@ -70,7 +70,7 @@ export function WeeklyWrapDialog({ open, onOpenChange }: WeeklyWrapDialogProps) 
     },
     {
       id: 4,
-      type: 'stats',
+      type: 'stats' as const,
       title: 'Week in Numbers',
       content: {
         dailyAverage: 44.5,
@@ -83,7 +83,7 @@ export function WeeklyWrapDialog({ open, onOpenChange }: WeeklyWrapDialogProps) 
     },
     {
       id: 5,
-      type: 'achievements',
+      type: 'achievements' as const,
       title: 'Weekly Achievements',
       content: [
         { icon: Trophy, title: 'Music Marathon', desc: 'Listened for 18+ hours', color: 'from-yellow-500 to-orange-500' },
@@ -91,7 +91,7 @@ export function WeeklyWrapDialog({ open, onOpenChange }: WeeklyWrapDialogProps) 
         { icon: Flame, title: 'Perfect Week', desc: '7-day listening streak', color: 'from-red-500 to-orange-500' }
       ]
     }
-  ];
+  ] as const;
 
   const currentSlideData = slides[currentSlide];
 

@@ -16,7 +16,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
   const slides = [
     {
       id: 1,
-      type: 'intro',
+      type: 'intro' as const,
       title: 'Your 2026 Wrapped',
       subtitle: 'A Year in Music',
       content: {
@@ -28,7 +28,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 2,
-      type: 'top-artist',
+      type: 'top-artist' as const,
       title: 'Your #1 Artist',
       content: {
         artist: 'The Weeknd',
@@ -42,7 +42,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 3,
-      type: 'top-songs',
+      type: 'top-songs' as const,
       title: 'Your Top 5 Songs of 2026',
       content: [
         { rank: 1, track: 'Blinding Lights', artist: 'The Weeknd', plays: 234, image: 'https://images.unsplash.com/photo-1616663395403-2e0052b8e595?w=400' },
@@ -54,7 +54,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 4,
-      type: 'genres',
+      type: 'genres' as const,
       title: 'Your Genre Journey',
       content: {
         topGenre: 'Pop',
@@ -70,7 +70,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 5,
-      type: 'listening-habits',
+      type: 'listening-habits' as const,
       title: 'Your Listening Personality',
       content: {
         type: 'The Explorer',
@@ -89,7 +89,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 6,
-      type: 'timeline',
+      type: 'timeline' as const,
       title: 'Year in Review',
       content: [
         { month: 'Jan', highlight: 'Started the year with R&B', plays: 892, mood: 'Chill' },
@@ -101,7 +101,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 7,
-      type: 'achievements',
+      type: 'achievements' as const,
       title: 'Your 2026 Achievements',
       content: [
         { icon: Crown, title: 'Top Listener', desc: "Top 1% of The Weeknd's listeners", color: 'from-yellow-500 to-orange-500' },
@@ -112,7 +112,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 8,
-      type: 'stats',
+      type: 'stats' as const,
       title: 'By The Numbers',
       content: {
         totalMinutes: 29220,
@@ -125,7 +125,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
     },
     {
       id: 9,
-      type: 'thank-you',
+      type: 'thank-you' as const,
       title: 'Thank You for Listening',
       subtitle: "Here's to another year of great music!",
       content: {
@@ -134,7 +134,7 @@ export function YearlyWrapDialog({ open, onOpenChange }: YearlyWrapDialogProps) 
         shareMessage: 'Share your 2026 Wrapped'
       }
     }
-  ];
+  ] as const;
 
   const currentSlideData = slides[currentSlide];
 

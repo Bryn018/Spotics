@@ -219,7 +219,7 @@ export function Analytics() {
                   <PolarGrid stroke="rgba(255,255,255,0.2)" />
                   <PolarAngleAxis dataKey="category" tick={{ fill: 'white', fontSize: 12 }} />
                   <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'white' }} />
-                  <Radar name="Taste" dataKey="value" stroke="#a855f7" fill="#a855f7" fillOpacity={0.3} fillOpacity={0.6} />
+                  <Radar name="Taste" dataKey="value" stroke="#a855f7" fill="#a855f7" fillOpacity={0.6} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>

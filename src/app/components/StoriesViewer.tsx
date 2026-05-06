@@ -514,7 +514,6 @@ function TopSongSlide({ slide }: { slide: any }) {
           <ImageWithFallback
             src={slide.content.image}
             alt={slide.content.track}
-            gradientSeed={slide.content.track}
             className="relative w-full h-full rounded-3xl object-cover shadow-2xl ring-2 ring-white/20"
           />
         </div>
@@ -561,7 +560,6 @@ function TopTracksSlide({ slide }: { slide: any }) {
             <ImageWithFallback
               src={track.image}
               alt={track.track}
-              gradientSeed={track.track}
               className="w-12 h-12 rounded-xl object-cover shrink-0"
             />
             <div className="flex-1 text-left min-w-0">
@@ -590,7 +588,6 @@ function TopArtistSlide({ slide }: { slide: any }) {
           <ImageWithFallback
             src={slide.content.image}
             alt={slide.content.artist}
-            gradientSeed={slide.content.artist}
             className="relative w-full h-full rounded-full object-cover shadow-2xl ring-4 ring-white/10"
           />
           <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center shadow-lg">
@@ -676,8 +673,7 @@ function DiscoverySlide({ slide }: { slide: any }) {
         <ImageWithFallback
           src={slide.content.image}
           alt={slide.content.track}
-          gradientSeed={slide.content.track}
-            className="relative w-full h-full rounded-xl object-cover shadow-2xl ring-2 ring-white/10"
+          className="relative w-full h-full rounded-xl object-cover shadow-2xl ring-2 ring-white/10"
         />
       </div>
       <div>

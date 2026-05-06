@@ -70,10 +70,8 @@ export function NowPlaying({ nowPlaying }: NowPlayingProps) {
             <div className="relative shrink-0">
               <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 shadow-md">
                 <ImageWithFallback
-                  src={track.image}
-                  alt={track.album}
-                  gradientSeed={track.id}
-                  trackId={track.id}
+                  src={track.image || undefined}
+                  alt={track.track}
                   className="w-full h-full object-cover"
                 />
               </div>
