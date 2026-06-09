@@ -1,54 +1,39 @@
-name: Deploy to Railway
+name: Deploy to GitHub Pages
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Deployment environment"
-        required: true
-        default: "production"
-        type: choice
-        options:
-          - production
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
-          cache: "npm"
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
 
-      - name: Install dependencies
-        run: |
-          cd server && npm ci
-          cd .. && npm ci
-
-      - name: Build server
-        run: cd server && npm run build
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy to Railway (optional)
-        run: |
-          if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "RAILWAY_TOKEN is not configured; skipping manual deploy. Railway autoDeploy handles push deployments."
-            exit 0
-          fi
-
-          railway up --ci \
-            -p 46451ed9-f824-4c07-92d5-ab39ac22a0ae \
-            -s 281be3e2-7209-4015-b659-e08a6b7326cd \
-            -e 848a9a7f-9c58-4d4b-b23c-f71a92172b4d
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
