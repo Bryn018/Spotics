@@ -57,3 +57,4 @@ jobs:
 
           # Go back to source branch
           git checkout feature/fullstack-ready
+
