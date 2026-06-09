@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import { Terminal, BarChart3, Home, Download, ScrollText } from 'lucide-react';
+import { Terminal, BarChart3, Home, Download, ScrollText, Activity } from 'lucide-react';
 
 interface NavBarProps {
-  currentPage: 'dashboard' | 'analytics' | 'wraps' | 'export';
+  currentPage: 'dashboard' | 'analytics' | 'wraps' | 'export' | 'live';
 }
 
 export function NavBar({ currentPage }: NavBarProps) {
@@ -15,6 +15,7 @@ export function NavBar({ currentPage }: NavBarProps) {
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home, path: '/dashboard' },
     { id: 'analytics' as const, label: 'Analytics', icon: BarChart3, path: '/analytics' },
+    { id: 'live' as const, label: 'Live', icon: Activity, path: '/live' },
     { id: 'wraps' as const, label: 'Wraps', icon: ScrollText, path: '/wraps' },
     { id: 'export' as const, label: 'Export', icon: Download, path: '/export' },
   ];

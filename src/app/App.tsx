@@ -5,6 +5,7 @@ import { Dashboard } from "../pages/Dashboard";
 import { Analytics } from "../pages/Analytics";
 import { WrapReports } from "../pages/WrapReports";
 import { Export } from "../pages/Export";
+import { LiveAnalytics } from "../pages/LiveAnalytics";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/live" element={<LiveAnalytics />} />
           <Route path="/wraps" element={<WrapReports />} />
           <Route path="/export" element={<Export />} />
         </Routes>

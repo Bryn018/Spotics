@@ -1,0 +1,27 @@
+name = "spotics-scrobble-server"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Enable workers.dev subdomain (required for the worker to be accessible)
+workers_dev = true
+
+# Custom domain route
+routes = [
+  { pattern = "api.spotics.insights.autos/*", zone_id = "72a5582051503f9b404a802d5c40ba9d" }
+]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "spotics-scrobbles"
+database_id = "1b557c79-e1af-4f1d-930c-312fe90ad802"
+
+# Environment variables (non-secret config)
+[vars]
+# Add non-secret config here
+
+# Routes - the Worker will be accessible at this route
+# Replace with your actual Cloudflare zone
+# routes = [
+#   { pattern = "api.spotics.insights.autos/*", zone_name = "insights.autos" }
+# ]

@@ -1,38 +1,26 @@
 # Spotics
 
-Lightweight Spotify listening analytics. No server, no database, no API keys.
-
-Upload your Spotify GDPR export ZIP and get instant visual analytics directly in the browser. Everything runs client-side.
+Lightweight Spotify listening analytics. Two modes: GDPR export upload (fully client-side) and live scrobbling via browser extension.
 
 Live: https://spotics.insights.autos
 
 ---
 
-## What it does
+## Two Modes
 
-- Parses Spotify GDPR export ZIPs entirely in-browser
-- Computes listening stats, top tracks/artists/albums, genres, streaks, and listening patterns
-- Renders terminal-noir analytics dashboards with interactive charts
+### GDPR Export (Client-Side)
+Upload your Spotify GDPR export ZIP and get instant visual analytics directly in the browser. Everything runs client-side — nothing leaves the browser.
 
-## Principles
-
-- Client-side only — nothing leaves the browser
-- No Spotify OAuth token required
-- No backend, no database, no SDKs
-- No environment variables for the frontend build
+### Live Scrobbler (Extension + Server)
+Install the Spotics Scrobbler browser extension to track your listening in real time on Spotify Web Player. Scrobbles are sent to your Spotics dashboard with full analytics.
 
 ## Tech Stack
 
-- React + TypeScript
-- Vite
-- Tailwind CSS v4
-- Recharts
-- JSZip
-- html2canvas
-- date-fns
-- Lucide icons
-- react-router-dom (HashRouter)
-- GitHub Pages (static deploy)
+- **Frontend:** React + TypeScript + Vite + Tailwind CSS v4 + Recharts
+- **Extension:** Chrome Manifest V3 (content script + service worker)
+- **Server:** Cloudflare Worker + D1 database (free tier)
+- **Auth:** API keys (register via server or extension popup)
+- **Hosting:** GitHub Pages (frontend) + Cloudflare Workers (API)
 
 ## Getting Started
 
@@ -43,30 +31,53 @@ npm install
 npm run build
 ```
 
-Open `docs/index.html` from the build output, or serve the static files with any HTTP file server.
-
-## Usage
-
-1. Request your Spotify data from Spotify Account Privacy settings
-2. Wait for the GDPR export email and download the ZIP
-3. Open Spotics and upload the ZIP
-4. Browse analytics across Dashboard, Analytics, Wraps, and Export
-
 ## Pages
 
-- Landing — drag-and-drop ZIP upload
-- Dashboard — stats overview, top tracks, artists, albums, charts
-- Analytics — hourly distribution, genre breakdown, listening heatmap, streaks
-- Wraps — shareable weekly / monthly / all-time summaries
-- Export — PNG snapshot download via html2canvas
+- **Landing** — choose between GDPR upload or Live Scrobbler
+- **Dashboard** — GDPR data: stats overview, top tracks, artists, albums, charts
+- **Analytics** — hourly distribution, genre breakdown, listening heatmap, streaks
+- **Live** — real-time scrobbling dashboard with now-playing, stats, heatmap
+- **Wraps** — shareable weekly / monthly / all-time summaries
+- **Export** — PNG snapshot download
 
-## Deployment
+## Deploying the Scrobble Server
 
-Static output is built to `docs/`. Deployed via GitHub Actions to a custom domain.
+See `server/README.md` for Cloudflare Worker + D1 setup.
 
-## Status
+## Loading the Extension (Development)
 
-Production-ready on `feature/fullstack-ready`.
+1. Run `npm run build` to build the frontend
+2. Go to `chrome://extensions`
+3. Enable "Developer mode"
+4. Click "Load unpacked" → select the `extension/` folder
+5. Configure API key in the popup
+
+## Architecture
+
+```
+Spotify Web Player
+       │
+       ▼
+┌─────────────────────────┐
+│  Scrobbler Extension    │
+│  (content.js observes   │
+│   DOM, background.js    │
+│   POSTs to API)         │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│  Cloudflare Worker      │
+│  (scrobble API + D1 DB) │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│  Spotics Frontend       │
+│  (GitHub Pages,        │
+│   reads from API)       │
+└─────────────────────────┘
+```
 
 ## License
 

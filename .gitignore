@@ -21,4 +21,10 @@ public/
 # Frontend build cache (not used)
 dist/
 
+# Wrangler local state
+server/.wrangler/
+
+# Temp files
+/tmp/
+
 # Trigger deployment

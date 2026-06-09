@@ -1,8 +1,10 @@
 import { useState, useCallback, type DragEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
-import { Upload, FileArchive, AlertCircle, Loader2, Terminal, ChevronRight } from 'lucide-react';
+import { Upload, FileArchive, AlertCircle, Loader2, Terminal, ChevronRight, Activity } from 'lucide-react';
 import { useData, RawTrack } from '../context/DataContext';
+
+type LandingMode = 'choose' | 'gdpr' | 'live';
 
 export function Landing() {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ export function Landing() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [mode, setMode] = useState<LandingMode>('choose');
 
   const processZip = useCallback(async (file: File) => {
     setIsProcessing(true);
@@ -129,105 +132,175 @@ export function Landing() {
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
         style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.1) 2px, rgba(0,255,0,0.1) 4px)' }} />
 
-      {/* Terminal header */}
       <div className="relative z-10 w-full max-w-2xl">
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Terminal className="h-6 w-6 text-green-500" />
-            <span className="text-green-500 font-mono text-sm">v2.0.0-static</span>
+            <span className="text-green-500 font-mono text-sm">v2.1.0</span>
           </div>
           <h1 className="text-5xl font-bold font-mono mb-3 text-green-400 tracking-tight">
             spotics
           </h1>
           <p className="text-gray-400 text-lg font-mono">
-            your music data. your browser. no servers.
+            your music data. your browser. your control.
           </p>
         </div>
 
-        {/* Upload area */}
-        <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          className={`
-            relative rounded-lg border-2 border-dashed p-12 text-center transition-all duration-300 cursor-pointer
-            ${isDragging
-              ? 'border-green-400 bg-green-500/10 scale-[1.02]'
-              : 'border-gray-700 hover:border-green-500/50 hover:bg-green-500/5'}
-            ${isProcessing ? 'pointer-events-none opacity-60' : ''}
-          `}
-          onClick={() => document.getElementById('file-input')?.click()}
-        >
-          <input
-            id="file-input"
-            type="file"
-            accept=".zip"
-            onChange={handleFileInput}
-            className="hidden"
-          />
-
-          {isProcessing ? (
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-12 w-12 text-green-500 animate-spin" />
-              <div>
-                <p className="text-green-400 font-mono text-lg">Processing {fileName}...</p>
-                <p className="text-gray-500 font-mono text-sm mt-1">Parsing your listening history</p>
+        {/* Mode Selection */}
+        {mode === 'choose' ? (
+          <div className="space-y-4">
+            {/* Live Scrobbler Option */}
+            <button
+              onClick={() => navigate('/live')}
+              className="w-full rounded-lg border-2 border-dashed border-green-500/30 bg-green-500/5 p-8 text-center transition-all duration-300 hover:border-green-400 hover:bg-green-500/10 cursor-pointer group"
+            >
+              <div className="flex flex-col items-center gap-3">
+                <Activity className="h-10 w-10 text-green-400 group-hover:scale-110 transition-transform" />
+                <div>
+                  <p className="text-green-400 font-mono text-lg font-semibold">Live Scrobbler</p>
+                  <p className="text-gray-400 font-mono text-sm mt-1">
+                    Track your listening in real time with the browser extension
+                  </p>
+                </div>
+                <span className="text-green-500/60 font-mono text-xs group-hover:text-green-400 transition-colors">
+                  Install extension → Connect → Start listening
+                </span>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4">
-              {isDragging ? (
-                <FileArchive className="h-12 w-12 text-green-400" />
-              ) : (
-                <Upload className="h-12 w-12 text-gray-500" />
-              )}
-              <div>
-                <p className="text-gray-200 text-lg font-mono">
-                  {isDragging ? 'Drop your ZIP here' : 'Upload Spotify GDPR Export'}
-                </p>
-                <p className="text-gray-500 font-mono text-sm mt-2">
-                  Drag & drop or click to browse
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+            </button>
 
-        {/* Error */}
-        {error && (
-          <div className="mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-red-400 font-mono text-sm">{error}</p>
+            {/* GDPR Upload Option */}
+            <button
+              onClick={() => setMode('gdpr')}
+              className="w-full rounded-lg border-2 border-dashed border-gray-700 bg-gray-900/30 p-8 text-center transition-all duration-300 hover:border-blue-500/50 hover:bg-blue-500/5 cursor-pointer group"
+            >
+              <div className="flex flex-col items-center gap-3">
+                <FileArchive className="h-10 w-10 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                <div>
+                  <p className="text-gray-200 font-mono text-lg font-semibold group-hover:text-blue-400 transition-colors">
+                    Upload GDPR Export
+                  </p>
+                  <p className="text-gray-500 font-mono text-sm mt-1">
+                    Analyze your historical Spotify data from a GDPR export
+                  </p>
+                </div>
+                <span className="text-gray-600 font-mono text-xs group-hover:text-blue-400/60 transition-colors">
+                  Upload ZIP file → Instant analytics
+                </span>
+              </div>
+            </button>
+          </div>
+        ) : mode === 'live' ? (
+          <div className="text-center">
+            <button
+              onClick={() => setMode('choose')}
+              className="text-gray-500 font-mono text-sm hover:text-gray-300 transition-colors mb-6"
+            >
+              ← Back
+            </button>
+            <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-8">
+              <Activity className="h-10 w-10 text-green-400 mx-auto mb-4" />
+              <h2 className="text-green-400 font-mono text-xl font-semibold mb-2">Live Scrobbler</h2>
+              <p className="text-gray-400 font-mono text-sm mb-6">
+                Redirecting you to the Live Analytics page...
+              </p>
             </div>
           </div>
-        )}
+        ) : (
+          <>
+            {/* Back button */}
+            <button
+              onClick={() => { setMode('choose'); setError(null); }}
+              className="text-gray-500 font-mono text-sm hover:text-gray-300 transition-colors mb-4 flex items-center gap-1"
+            >
+              ← Back to options
+            </button>
 
-        {/* Instructions */}
-        <div className="mt-8 p-6 rounded-lg bg-gray-900/50 border border-gray-800">
-          <h2 className="text-green-400 font-mono text-sm mb-4 flex items-center gap-2">
-            <ChevronRight className="h-4 w-4" />
-            How to get your data
-          </h2>
-          <ol className="space-y-3 text-gray-400 font-mono text-sm">
-            <li className="flex items-start gap-3">
-              <span className="text-green-500 shrink-0">01.</span>
-              <span>Go to <span className="text-green-400">spotify.com/privacy</span> and log in</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-green-500 shrink-0">02.</span>
-              <span>Scroll to "Download your data" and request your extended streaming history</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-green-500 shrink-0">03.</span>
-              <span>Wait for Spotify to email you a download link (can take up to 30 days)</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="text-green-500 shrink-0">04.</span>
-              <span>Download the ZIP and upload it here — all processing happens in your browser</span>
-            </li>
-          </ol>
-        </div>
+            {/* Upload area */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              className={`
+                relative rounded-lg border-2 border-dashed p-12 text-center transition-all duration-300 cursor-pointer
+                ${isDragging
+                  ? 'border-green-400 bg-green-500/10 scale-[1.02]'
+                  : 'border-gray-700 hover:border-green-500/50 hover:bg-green-500/5'}
+                ${isProcessing ? 'pointer-events-none opacity-60' : ''}
+              `}
+              onClick={() => document.getElementById('file-input')?.click()}
+            >
+              <input
+                id="file-input"
+                type="file"
+                accept=".zip"
+                onChange={handleFileInput}
+                className="hidden"
+              />
+
+              {isProcessing ? (
+                <div className="flex flex-col items-center gap-4">
+                  <Loader2 className="h-12 w-12 text-green-500 animate-spin" />
+                  <div>
+                    <p className="text-green-400 font-mono text-lg">Processing {fileName}...</p>
+                    <p className="text-gray-500 font-mono text-sm mt-1">Parsing your listening history</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4">
+                  {isDragging ? (
+                    <FileArchive className="h-12 w-12 text-green-400" />
+                  ) : (
+                    <Upload className="h-12 w-12 text-gray-500" />
+                  )}
+                  <div>
+                    <p className="text-gray-200 text-lg font-mono">
+                      {isDragging ? 'Drop your ZIP here' : 'Upload Spotify GDPR Export'}
+                    </p>
+                    <p className="text-gray-500 font-mono text-sm mt-2">
+                      Drag & drop or click to browse
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-red-400 font-mono text-sm">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Instructions */}
+            <div className="mt-8 p-6 rounded-lg bg-gray-900/50 border border-gray-800">
+              <h2 className="text-green-400 font-mono text-sm mb-4 flex items-center gap-2">
+                <ChevronRight className="h-4 w-4" />
+                How to get your data
+              </h2>
+              <ol className="space-y-3 text-gray-400 font-mono text-sm">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 shrink-0">01.</span>
+                  <span>Go to <span className="text-green-400">spotify.com/privacy</span> and log in</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 shrink-0">02.</span>
+                  <span>Scroll to "Download your data" and request your extended streaming history</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 shrink-0">03.</span>
+                  <span>Wait for Spotify to email you a download link (can take up to 30 days)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 shrink-0">04.</span>
+                  <span>Download the ZIP and upload it here — all processing happens in your browser</span>
+                </li>
+              </ol>
+            </div>
+          </>
+        )}
 
         {/* Footer */}
         <div className="mt-8 text-center">
