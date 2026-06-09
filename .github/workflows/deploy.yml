@@ -5,35 +5,55 @@ on:
     branches: [feature/fullstack-ready]
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Prepare docs with CNAME
+        run: cp public/CNAME docs/CNAME
+
+      - name: Deploy to gh-pages branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create a temporary worktree for gh-pages
+          git fetch origin gh-pages || true
+          git checkout -b gh-pages origin/gh-pages 2>/dev/null || git checkout --orphan gh-pages
+
+          # Remove old files
+          git rm -rf . 2>/dev/null || true
+
+          # Copy docs content
+          cp -r docs/* .
+          rm -rf docs  # Don't nest docs inside itself
+          # Copy the rest of needed files from source
+          git checkout feature/fullstack-ready -- .gitignore README.md
+
+          # Remove source code that shouldn't be published
+          rm -rf src/ node_modules/ server/ .github/ package.json package-lock.json \
+                 tailwind.config.js tsconfig.json vite.config.ts postcss.config.js \
+                 index.html public/ tokens/ .railway/ 2>/dev/null || true
+
+          # Commit and push
+          git add -A
+          git commit -m "deploy: update GitHub Pages" --allow-empty
+          git push origin gh-pages --force
+
+          # Go back to source branch
+          git checkout feature/fullstack-ready
