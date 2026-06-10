@@ -15,43 +15,23 @@
   let lastScrobbledTrack = null;
   let observer = null;
   let statusIndicator = null;
+  let pollInterval = null;
 
   // --- DOM Selectors for Spotify Web Player ---
-  // These target the now-playing bar at the bottom of the player.
-  // Spotify uses data-testid attributes which are more stable than class names.
   const SELECTORS = {
-    // The now-playing widget container
     nowPlayingWidget: '[data-testid="now-playing-widget"]',
-    
-    // Track info container
     trackInfo: '[data-testid="context-item-info-title"]',
-    
-    // Fallback: the now-playing bar's track name link
     trackLink: 'a[data-testid="context-item-link"]',
-    
-    // Artist info
     artistInfo: '[data-testid="context-item-info-subtitles"]',
-    
-    // Fallback: artist links in now-playing bar
     artistLinks: 'a[href*="/artist/"]',
-    
-    // Playback controls — play button
     playButton: '[data-testid="control-button-playpause"]',
-    
-    // Album art image in now-playing bar
     albumArt: 'img[data-testid="cover-art-image"]',
-    
-    // Progress bar (to detect seeking/pausing)
     progressBar: '[data-testid="playback-progressbar"]',
-    
-    // Duration display
     playbarControls: '.playback-bar',
-    
-    // Track duration from playback bar
     duration: '[data-testid="playback-duration"]',
-    
-    // Currently playing indicator (the equalizer icon)
     nowPlayingIndicator: '[data-testid="now-playing"]',
+    nowPlayingBar: '[data-testid="now-playing-bar"]',
+    playbackControls: '[data-testid="playback-controls"]',
   };
 
   // --- Track Data Extraction ---
@@ -63,14 +43,12 @@
       if (widget) {
         const ariaLabel = widget.getAttribute('aria-label');
         if (ariaLabel) {
-          // Format is typically: "Track Name, Artist Name, Context Type"
           const parts = ariaLabel.split(',').map(s => s.trim());
           if (parts.length >= 2) {
             const title = parts[0];
             const artist = parts[1].replace(/\s+(by|from)\s+.*/, '').trim();
             const albumArtImg = widget.querySelector('img');
             const albumArt = albumArtImg ? albumArtImg.src : null;
-            
             return { title, artist, albumArt };
           }
         }
@@ -84,9 +62,8 @@
       if (trackLink) {
         const title = trackLink.textContent.trim();
         let artist = 'Unknown Artist';
-        
+
         if (artistEl) {
-          // May contain multiple artists
           const artistLinks = artistEl.querySelectorAll('a[href*="/artist/"]');
           if (artistLinks.length > 0) {
             artist = Array.from(artistLinks).map(a => a.textContent.trim()).join(', ');
@@ -94,13 +71,11 @@
             artist = artistEl.textContent.trim();
           }
         }
-        
-        // Get album art
+
         const albumArtImg = document.querySelector('.cover-art img') ||
                            document.querySelector('[data-testid="cover-art-image"]');
         const albumArt = albumArtImg ? albumArtImg.src : null;
-        
-        // Get duration from playback bar
+
         const durationEl = document.querySelector(SELECTORS.duration) ||
                           document.querySelector('.playback-bar__progress-time-elapsed');
         let durationMs = 0;
@@ -113,38 +88,14 @@
         }
       }
 
-      // Strategy 3: Use Spotify's internal player state via the __spotify global
-      if (window.__spotify && window.__spotify.player) {
-        try {
-          // Some Spotify versions expose playback state
-          const session = window.__spotify.session;
-          if (session) {
-            const track = session?.track;
-            if (track) {
-              return {
-                title: track.name || track.metadata?.title,
-                artist: track.metadata?.artist_name || track.artists?.[0]?.name || 'Unknown Artist',
-                albumArt: track.metadata?.image_url,
-                durationMs: track.metadata?.duration || track.duration || 0,
-              };
-            }
-          }
-        } catch (e) {
-          // Internal API access failed, continue with DOM approach
-        }
-      }
-
-      // Strategy 4: Extract from document title
-      // Spotify sets the tab title to "Artist - Track Name" or "Track Name - Artist"
-      const title = document.title;
-      if (title && title !== 'Spotify' && title !== 'Spotify – Web Player' && title !== 'Spotify - Web Player') {
-        // Common formats: "Song Name - Artist" or "Artist - Song Name" or "Song Name · Artist"
+      // Strategy 3: Extract from document title
+      const docTitle = document.title;
+      if (docTitle && docTitle !== 'Spotify' && docTitle !== 'Spotify – Web Player' && docTitle !== 'Spotify - Web Player') {
         const separators = [' - ', ' · ', ' \u2013 ', ' – '];
         for (const sep of separators) {
-          if (title.includes(sep)) {
-            const parts = title.split(sep).map(s => s.trim());
+          if (docTitle.includes(sep)) {
+            const parts = docTitle.split(sep).map(s => s.trim());
             if (parts.length === 2) {
-              // Heuristic: if one part looks like an artist (shorter, common patterns)
               return {
                 title: parts[0],
                 artist: parts[1],
@@ -179,7 +130,6 @@
 
   function getPlaybackState() {
     try {
-      // Check if Spotify is currently playing by looking at the play/pause button
       const playButton = document.querySelector(SELECTORS.playButton);
       if (playButton) {
         const ariaLabel = playButton.getAttribute('aria-label');
@@ -188,7 +138,6 @@
           if (label.includes('pause') || label === 'pause') return 'playing';
           if (label.includes('play') || label === 'play') return 'paused';
         }
-        // Check for SVG icon inside the button
         const svgTitle = playButton.querySelector('svg title');
         if (svgTitle) {
           const text = svgTitle.textContent.toLowerCase();
@@ -197,11 +146,9 @@
         }
       }
 
-      // Fallback: check if there's a now-playing indicator
       const indicator = document.querySelector(SELECTORS.nowPlayingIndicator);
       if (indicator) return 'playing';
 
-      // Default assumption
       return 'playing';
     } catch {
       return 'unknown';
@@ -219,19 +166,16 @@
   }
 
   function shouldScrobble(track, elapsedMs, durationMs) {
-    // Standard scrobble rules:
-    // 1. Track must have played for at least 50% of its duration OR 4 minutes (whichever is less)
-    // 2. Track must be longer than 30 seconds
-    // 3. Track must be different from the last scrobbled track
-
     if (!track || !track.title) return false;
     if (durationMs > 0 && durationMs < 30000) return false;
     if (isSameTrack({ title: track.title, artist: track.artist }, lastScrobbledTrack)) return false;
 
-    const halfDuration = durationMs > 0 ? durationMs / 2 : 240000;
-    const scrobbleThreshold = Math.min(halfDuration, 240000); // 4 max minutes
+    // Threshold: 30 seconds OR 50% of track duration, whichever is less (min 30s)
+    const halfDuration = durationMs > 0 ? durationMs / 2 : 30000;
+    const scrobbleThreshold = Math.max(Math.min(halfDuration, 240000), 30000);
+    if (elapsedMs < scrobbleThreshold) return false;
 
-    return elapsedMs >= scrobbleThreshold;
+    return true;
   }
 
   // --- Communication with Background Script ---
@@ -240,8 +184,7 @@
     try {
       chrome.runtime.sendMessage(message, (response) => {
         if (chrome.runtime.lastError) {
-          // Background script might not be ready, that's okay
-          console.debug('[Spotics Scrobler] Background message deferred:', chrome.runtime.lastError.message);
+          console.debug('[Spotics Scrobbler] Background message deferred:', chrome.runtime.lastError.message);
         }
       });
     } catch (error) {
@@ -249,13 +192,12 @@
     }
   }
 
-  // --- Main Observer ---
+  // --- Status Indicator ---
 
   function updateStatus(state, trackInfo) {
     if (!statusIndicator) createStatusIndicator();
-    
     if (!statusIndicator) return;
-    
+
     if (state === 'active' && trackInfo) {
       statusIndicator.style.display = 'flex';
       statusIndicator.querySelector('.spotics-indicator-text').textContent =
@@ -299,7 +241,7 @@
       pointer-events: none;
       transition: all 0.3s ease;
     `;
-    
+
     const dot = document.createElement('style');
     dot.textContent = `
       .spotics-indicator-dot {
@@ -318,16 +260,17 @@
     document.body.appendChild(statusIndicator);
   }
 
+  // --- Main Check ---
+
   function checkPlayback() {
     const state = getPlaybackState();
     const trackData = extractTrackData();
 
     if (state === 'playing' && trackData && trackData.title) {
       if (!isSameTrack(trackData, currentTrack)) {
-        // New track started
         const now = Date.now();
 
-        // Scrobble the previous track if it existed
+        // Scrobble previous track if it qualifies
         if (currentTrack && trackStartTime) {
           const elapsed = now - trackStartTime;
           if (shouldScrobble(currentTrack, elapsed, currentTrack.durationMs || 0)) {
@@ -344,6 +287,7 @@
               }
             });
             lastScrobbledTrack = { title: currentTrack.title, artist: currentTrack.artist };
+            console.log('[Spotics Scrobbler] Scrobbled:', currentTrack.artist, '-', currentTrack.title);
           }
         }
 
@@ -351,7 +295,6 @@
         currentTrack = trackData;
         trackStartTime = now;
 
-        // Also send "now playing" notification
         sendToBackground({
           type: 'NOW_PLAYING',
           data: {
@@ -364,9 +307,10 @@
           }
         });
 
+        console.log('[Spotics Scrobbler] Now playing:', trackData.artist, '-', trackData.title);
         updateStatus('active', trackData);
       } else {
-        // Still playing same track — check if it should be scrobbled
+        // Same track still playing — check for scrobble
         if (currentTrack && trackStartTime) {
           const elapsed = Date.now() - trackStartTime;
           if (shouldScrobble(currentTrack, elapsed, currentTrack.durationMs || 0)) {
@@ -383,8 +327,8 @@
               }
             });
             lastScrobbledTrack = { title: currentTrack.title, artist: currentTrack.artist };
-            // Reset start time to avoid double scrobble
             trackStartTime = Date.now();
+            console.log('[Spotics Scrobbler] Scrobbled:', currentTrack.artist, '-', currentTrack.title);
           }
         }
       }
@@ -393,22 +337,18 @@
     }
   }
 
-  // --- MutationObserver Setup ---
+  // --- Observer Setup ---
 
   function startObserving() {
-    // Initial check
     checkPlayback();
 
-    // Set up a MutationObserver to detect DOM changes in the playbar
     const targetNode = document.body;
-    
+
     if (observer) observer.disconnect();
-    
-    observer = new MutationObserver((mutations) => {
-      // Throttle checks to avoid excessive polling
+
+    observer = new MutationObserver(() => {
       if (window.__SPOTICS_CHECK_PENDING) return;
       window.__SPOTICS_CHECK_PENDING = true;
-      
       requestAnimationFrame(() => {
         checkPlayback();
         window.__SPOTICS_CHECK_PENDING = false;
@@ -423,10 +363,10 @@
       characterData: false,
     });
 
-    // Also poll periodically as a backup (Spotify may re-render without triggering mutations)
-    window.__SPOTICS_POLL_INTERVAL = setInterval(checkPlayback, 5000);
+    // Poll every 3s as backup
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(checkPlayback, 3000);
 
-    // Listen for visibility changes
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         checkPlayback();
@@ -438,25 +378,17 @@
     updateStatus('waiting', null);
   }
 
-  // --- Spotify Web Player Detection ---
+  // --- Spotify Detection ---
 
   function waitForSpotify() {
     const check = () => {
-      // Look for the Spotify Web Player's now-playing bar
-      const playbar = document.querySelector('[data-testid="now-playing-bar"]') ||
-                      document.querySelector('[data-testid="now-playing-widget"]') ||
-                      document.querySelector('.Root__now-playing-bar') ||
-                      document.querySelector('[data-testid="playback-controls"]');
-
-      if (playbar) {
+      if (document.querySelector(SELECTORS.nowPlayingWidget) ||
+          document.querySelector(SELECTORS.trackLink) ||
+          document.querySelector(SELECTORS.playButton) ||
+          document.title.includes('Spotify') ||
+          document.title.includes('•')) {
         return true;
       }
-
-      // Also check if title contains Spotify-specific text
-      if (document.title.includes('Spotify') || document.title.includes('spotify')) {
-        return true;
-      }
-
       return false;
     };
 
@@ -465,24 +397,20 @@
       return;
     }
 
-    // Wait for Spotify to load its player UI
-    const observer = new MutationObserver((_, obs) => {
+    const obs = new MutationObserver((_, o) => {
       if (check()) {
-        obs.disconnect();
+        o.disconnect();
         startObserving();
       }
     });
 
-    observer.observe(document.body || document.documentElement, {
+    obs.observe(document.body || document.documentElement, {
       childList: true,
       subtree: true,
     });
 
-    // Timeout after 30s
     setTimeout(() => {
-      observer.disconnect();
-      if (!window.__SPOTICS_SCROBBLER_LOADED) return;
-      console.warn('[Spotics Scrobbler] Timed out waiting for Spotify player UI');
+      obs.disconnect();
     }, 30000);
   }
 
