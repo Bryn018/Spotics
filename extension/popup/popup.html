@@ -26,18 +26,30 @@
     <!-- Setup State (no API key) -->
     <div id="setup-section" class="section">
       <h2>Connect to Spotics</h2>
-      <p class="subtitle">Enter your Spotics API key to start scrobbling.</p>
+      <p class="subtitle">Link the extension to your Spotics dashboard to start tracking your listening.</p>
       
+      <!-- Option 1: Get key from website -->
+      <div class="get-key-section">
+        <p class="text-gray-400 font-mono text-sm mb-3">Don't have an API key?</p>
+        <a id="get-key-link" href="https://spotics.insights.autos/#/live" target="_blank" rel="noopener" class="btn btn-primary flex items-center justify-center gap-2">
+          <Key class="h-4 w-4" />
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          Get API Key from Spotics
+        </a>
+        <p class="text-gray-500 font-mono text-xs mt-2">This opens the Spotics Live page where you can generate your key.</p>
+      </div>
+
+      <div class="divider">
+        <span>or paste existing key</span>
+      </div>
+
+      <!-- Option 2: Paste key directly -->
       <div class="form-group">
         <label for="api-key">API Key</label>
         <input type="password" id="api-key" placeholder="spotics_live_..." autocomplete="off">
-        <p class="help">
-          Get your key from <a href="https://spotics.insights.autos" target="_blank" rel="noopener">spotics.insights.autos</a> 
-          → Settings → API Keys
-        </p>
       </div>
       
-      <button id="connect-btn" class="btn btn-primary">
+      <button id="connect-btn" class="btn btn-secondary">
         Connect
       </button>
       
@@ -60,23 +72,18 @@
       </div>
 
       <div class="now-playing-section">
-        <h3>Now Playing</h3>
-        <div id="now-playing" class="now-playing-info">
-          <div class="track-placeholder">
-            <span>Start playing music on Spotify</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="last-scrobble-section">
         <h3>Last Scrobble</h3>
-        <div id="last-scrobble" class="last-scrobble-info">
+        <div id="last-scrobble" class="now-playing-info">
           <span class="text-muted">Nothing scrobbled yet</span>
         </div>
       </div>
 
       <div class="actions">
-        <button id="disconnect-btn" class="btn btn-secondary">
+        <a href="https://spotics.insights.autos/#/live" target="_blank" rel="noopener" class="btn btn-dashboard flex items-center justify-center gap-2">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Open Dashboard
+        </a>
+        <button id="disconnect-btn" class="btn-text">
           Disconnect
         </button>
       </div>
@@ -84,9 +91,9 @@
 
     <!-- Footer -->
     <div class="footer">
-      <a href="https://spotics.insights.autos" target="_blank" rel="noopener">
-        Open Spotics Dashboard →
-      </a>
+      <p class="text-gray-600 font-mono text-xs">
+        Make sure Spotify Web Player is open in a tab.
+      </p>
     </div>
   </div>
 

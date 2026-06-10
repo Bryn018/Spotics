@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const statusText = document.getElementById('status-text');
   const scrobbleCountEl = document.getElementById('scrobble-count');
   const sessionCountEl = document.getElementById('session-count');
-  const nowPlayingEl = document.getElementById('now-playing');
   const lastScrobbleEl = document.getElementById('last-scrobble');
 
   // Check current state
@@ -47,8 +46,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         headers: { 'X-API-Key': key },
       });
 
-      // Even if the health endpoint doesn't exist, a 401/403 means bad key
-      // A 200 or 404 means the key format is accepted
       if (response.status === 401 || response.status === 403) {
         throw new Error('Invalid API key. Please check and try again.');
       }
@@ -92,10 +89,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusBadge.className = 'status-badge connected';
     statusText.textContent = 'Connected';
 
-    scrobbleCountEl.textContent = scrobbleCount.toLocaleString();
+    scrobbleCountEl.textContent = (scrobbleCount || 0).toLocaleString();
 
-    const { sessionScrobbles = 0 } = chrome.storage.local.get(['sessionScrobbles']) || {};
-    sessionCountEl.textContent = sessionScrobbles;
+    const sessionData = chrome.storage.local.get(['sessionScrobbles']);
+    sessionCountEl.textContent = '0';
 
     // Show last scrobble
     if (lastScrobble) {
@@ -131,7 +128,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // --- Polling for live updates ---
 
   function startPolling() {
-    // Update stats every 3 seconds
     const interval = setInterval(async () => {
       const { apiKey: currentKey } = await chrome.storage.local.get(['apiKey']);
       if (!currentKey) {
@@ -145,8 +141,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       scrobbleCountEl.textContent = (count || 0).toLocaleString();
 
-      if (last && last !== lastScrobble) {
-        lastScrobble = last;
+      if (last && last !== window._lastScrobbleTitle) {
+        window._lastScrobbleTitle = last;
         lastScrobbleEl.innerHTML = `
           <div class="track-info">
             ${last.album_art ? `<img class="track-art" src="${escapeHtml(last.album_art)}" alt="">` : ''}
