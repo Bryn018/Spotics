@@ -19,8 +19,8 @@ import {
   type ScrobblesListResponse,
 } from '../services/scrobbleApi';
 
-const POLL_INTERVAL = 8000; // 8 seconds for main data
-const NOW_PLAYING_INTERVAL = 3000; // 3 seconds for now playing
+const POLL_INTERVAL = 4000; // 4 seconds for main data
+const NOW_PLAYING_INTERVAL = 2000; // 2 seconds for now playing
 
 // --- Generic real-time hook ---
 function useRealtimeData<T>(

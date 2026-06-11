@@ -22,7 +22,7 @@ export function LiveAnalytics() {
   const { data: topTracks, loading: tracksLoading } = useTopTracks(period, 10);
   const { data: listeningStats, loading: listeningLoading } = useListeningStats(period);
   const { data: heatmapData, loading: heatmapLoading } = useHeatmap(period);
-  const { data: nowPlayingData } = useNowPlaying(3000);
+  const { data: nowPlayingData } = useNowPlaying(2000);
   const { data: recentScrobbles, loading: recentLoading } = useRecentScrobbles(20);
 
   const [isConnected, setIsConnected] = useState(false);
@@ -120,7 +120,7 @@ export function LiveAnalytics() {
               </div>
             </div>
             <p className="text-gray-500 font-mono text-sm">
-              Real-time listening insights — refreshes every 8s
+              Real-time listening insights — refreshes every 4s
               {statsUpdated && (
                 <span className="text-gray-600 ml-2">
                   · Last update: {statsUpdated.toLocaleTimeString()}
