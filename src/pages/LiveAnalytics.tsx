@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useScrobbleStats, useTopArtists, useTopTracks, useListeningStats, useHeatmap, useNowPlaying } from '../hooks/useScrobbleData';
 import { ScrobblerConnect } from '../components/ScrobblerConnect';
 import { NavBar } from '../components/NavBar';
-import { Loader2, Music, Clock, Users, Disc3, TrendingUp, Calendar, Activity } from 'lucide-react';
+import { Loader2, Music, Clock, Users, Disc3, TrendingUp, Calendar, Activity, Wifi, WifiOff } from 'lucide-react';
 
 type Period = '7d' | '30d' | '90d' | '1y' | 'all';
 
@@ -16,14 +16,15 @@ const PERIODS: { value: Period; label: string }[] = [
 
 export function LiveAnalytics() {
   const [period, setPeriod] = useState<Period>('30d');
-  const { stats, loading: statsLoading } = useScrobbleStats(period);
+  const { data: stats, loading: statsLoading, lastUpdated: statsUpdated } = useScrobbleStats(period);
   const { data: topArtists, loading: artistsLoading } = useTopArtists(period, 10);
   const { data: topTracks, loading: tracksLoading } = useTopTracks(period, 10);
   const { data: listeningStats, loading: listeningLoading } = useListeningStats(period);
   const { data: heatmapData, loading: heatmapLoading } = useHeatmap(period);
-  const { data: nowPlayingData } = useNowPlaying(15000);
+  const { data: nowPlayingData } = useNowPlaying(3000);
 
   const [isConnected, setIsConnected] = useState(!!localStorage.getItem('spotics_api_key'));
+  const [liveIndicator, setLiveIndicator] = useState(false);
 
   // Poll for API key in case the extension bridge syncs it after mount
   useEffect(() => {
@@ -36,6 +37,15 @@ export function LiveAnalytics() {
     }, 1000);
     return () => clearInterval(interval);
   }, [isConnected]);
+
+  // Live indicator pulse — flashes when data updates
+  useEffect(() => {
+    if (statsUpdated) {
+      setLiveIndicator(true);
+      const timeout = setTimeout(() => setLiveIndicator(false), 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [statsUpdated]);
 
   if (!isConnected) {
     return (
@@ -52,6 +62,8 @@ export function LiveAnalytics() {
     );
   }
 
+  const isLoading = statsLoading && !stats;
+
   return (
     <div className="min-h-screen bg-black">
       <NavBar currentPage="live" />
@@ -59,8 +71,27 @@ export function LiveAnalytics() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold font-mono text-green-400 mb-1">Live Analytics</h1>
-            <p className="text-gray-500 font-mono text-sm">Real-time listening insights from your scrobbler</p>
+            <div className="flex items-center gap-3 mb-1">
+              <h1 className="text-3xl font-bold font-mono text-green-400">Live Analytics</h1>
+              <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-mono transition-all duration-300 ${
+                liveIndicator
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : 'bg-gray-800 text-gray-500 border border-gray-700'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  liveIndicator ? 'bg-green-400 animate-pulse' : 'bg-gray-600'
+                }`}></span>
+                {liveIndicator ? 'LIVE' : 'IDLE'}
+              </div>
+            </div>
+            <p className="text-gray-500 font-mono text-sm">
+              Real-time listening insights — refreshes every 8s
+              {statsUpdated && (
+                <span className="text-gray-600 ml-2">
+                  · Last update: {statsUpdated.toLocaleTimeString()}
+                </span>
+              )}
+            </p>
           </div>
 
           {/* Period Selector */}
@@ -100,7 +131,7 @@ export function LiveAnalytics() {
         )}
 
         {/* Stats Overview */}
-        {statsLoading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-green-500" />
           </div>
@@ -111,24 +142,28 @@ export function LiveAnalytics() {
               label="Total Scrobbles"
               value={stats.total_scrobbles.toLocaleString()}
               color="text-green-400"
+              loading={statsLoading}
             />
             <StatCard
               icon={<Clock className="h-5 w-5" />}
               label="Listening Time"
               value={`${stats.total_listening_hours}h`}
               color="text-blue-400"
+              loading={statsLoading}
             />
             <StatCard
               icon={<Users className="h-5 w-5" />}
               label="Unique Artists"
               value={stats.unique_artists.toLocaleString()}
               color="text-purple-400"
+              loading={statsLoading}
             />
             <StatCard
               icon={<Disc3 className="h-5 w-5" />}
               label="Unique Tracks"
               value={stats.unique_tracks.toLocaleString()}
               color="text-orange-400"
+              loading={statsLoading}
             />
           </div>
         ) : null}
@@ -142,7 +177,7 @@ export function LiveAnalytics() {
                 <TrendingUp className="h-4 w-4 text-purple-400" />
                 Top Artists
               </h2>
-              {artistsLoading ? (
+              {artistsLoading && !topArtists ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-5 w-5 animate-spin text-green-500" />
                 </div>
@@ -159,7 +194,7 @@ export function LiveAnalytics() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-600 font-mono text-sm text-center py-8">No data yet</p>
+                <p className="text-gray-600 font-mono text-sm text-center py-8">No data yet — start playing music!</p>
               )}
             </div>
           </div>
@@ -171,7 +206,7 @@ export function LiveAnalytics() {
                 <Music className="h-4 w-4 text-green-400" />
                 Top Tracks
               </h2>
-              {tracksLoading ? (
+              {tracksLoading && !topTracks ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-5 w-5 animate-spin text-green-500" />
                 </div>
@@ -189,7 +224,7 @@ export function LiveAnalytics() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-600 font-mono text-sm text-center py-8">No data yet</p>
+                <p className="text-gray-600 font-mono text-sm text-center py-8">No data yet — start playing music!</p>
               )}
             </div>
           </div>
@@ -301,9 +336,14 @@ export function LiveAnalytics() {
   );
 }
 
-function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: string }) {
+function StatCard({ icon, label, value, color, loading }: { icon: ReactNode; label: string; value: string; color: string; loading?: boolean }) {
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
+    <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-4 relative overflow-hidden">
+      {loading && (
+        <div className="absolute top-2 right-2">
+          <Loader2 className="h-3 w-3 animate-spin text-gray-600" />
+        </div>
+      )}
       <div className={`${color} mb-2`}>{icon}</div>
       <p className={`font-mono text-2xl font-bold ${color}`}>{value}</p>
       <p className="text-gray-500 font-mono text-xs mt-1">{label}</p>
