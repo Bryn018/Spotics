@@ -1,5 +1,0 @@
-spotapi>=1.2.0
-flask>=3.0.0
-flask-cors>=6.0.0
-flask-socketio>=5.6.0
-python-socketio>=5.16.0

@@ -1,10 +1,10 @@
 import { useState, useCallback, type DragEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
-import { Upload, FileArchive, AlertCircle, Loader2, Terminal, ChevronRight, Activity } from 'lucide-react';
+import { Upload, FileArchive, AlertCircle, Loader2, Terminal, ChevronRight, Activity, ChevronLeft, LogIn, Zap } from 'lucide-react';
 import { useData, RawTrack } from '../context/DataContext';
 
-type LandingMode = 'choose' | 'gdpr' | 'live';
+type LandingMode = 'choose' | 'gdpr' | 'spotify';
 
 export function Landing() {
   const navigate = useNavigate();
@@ -24,8 +24,6 @@ export function Landing() {
       const zip = await JSZip.loadAsync(file);
 
       // Spotify GDPR exports contain JSON files with streaming history
-      // Look for files like "StreamingHistory0.json", "StreamingHistory1.json", etc.
-      // Also support "Streaming_History_Audio_*.json" (newer format)
       const allFiles = Object.keys(zip.files);
 
       let historyFiles = allFiles.filter(name => {
@@ -50,7 +48,6 @@ export function Landing() {
         if (jsonFiles.length === 0) {
           throw new Error('No JSON files found in ZIP. Please upload a Spotify GDPR export.');
         }
-        // Try to find one with track-like data
         for (const jf of jsonFiles.slice(0, 5)) {
           const content = await zip.files[jf].async('string');
           try {
@@ -79,14 +76,13 @@ export function Landing() {
         if (!Array.isArray(data)) continue;
 
         for (const item of data) {
-          // Support both old and new Spotify GDPR formats
           const track: RawTrack = {
             ts: item.ts || item.endTime || item.timestamp || '',
             ms_played: item.ms_played || item.msPlayed || 0,
             master_metadata_track_name: item.master_metadata_track_name || item.trackName || item.track_name || 'Unknown Track',
             master_metadata_album_artist_name: item.master_metadata_album_artist_name || item.artistName || item.artist_name || 'Unknown Artist',
             master_metadata_album_album_name: item.master_metadata_album_album_name || item.albumName || item.album_name || 'Unknown Album',
-            platform: item.platform || item.platform || undefined,
+            platform: item.platform || undefined,
             reason_start: item.reason_start || item.reasonStart || undefined,
             reason_end: item.reason_end || item.reasonEnd || undefined,
             skipped: item.skipped || (item.ms_played < 30000),
@@ -126,6 +122,15 @@ export function Landing() {
     if (file) processZip(file);
   }, [processZip]);
 
+  // Spotify Connect handlers
+  const handleSpotifyConnect = () => {
+    setMode('spotify');
+  };
+
+  const handleGdprUpload = () => {
+    setMode('gdpr');
+  };
+
   return (
     <div className="min-h-screen bg-black text-gray-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Scanline effect */}
@@ -146,63 +151,90 @@ export function Landing() {
           </p>
         </div>
 
-        {/* Mode Selection */}
+        {/* Mode Selection - Only Spotify Connect and GDPR Upload */}
         {mode === 'choose' ? (
           <div className="space-y-4">
-            {/* Live Scrobbler Option */}
+            {/* Spotify Connect Option */}
             <button
-              onClick={() => navigate('/live')}
+              onClick={handleSpotifyConnect}
               className="w-full rounded-lg border-2 border-dashed border-green-500/30 bg-green-500/5 p-8 text-center transition-all duration-300 hover:border-green-400 hover:bg-green-500/10 cursor-pointer group"
             >
               <div className="flex flex-col items-center gap-3">
-                <Activity className="h-10 w-10 text-green-400 group-hover:scale-110 transition-transform" />
+                <div className="flex items-center gap-2">
+                  <Activity className="h-10 w-10 text-green-400 group-hover:scale-110 transition-transform" />
+                  <Zap className="h-6 w-6 text-green-400/50" />
+                </div>
                 <div>
-                  <p className="text-green-400 font-mono text-lg font-semibold">Live Scrobbler</p>
+                  <p className="text-green-400 font-mono text-lg font-semibold">Connect Spotify Account</p>
                   <p className="text-gray-400 font-mono text-sm mt-1">
-                    Track your listening in real time with the browser extension
+                    Sign in with Spotify to see your live listening data
                   </p>
                 </div>
                 <span className="text-green-500/60 font-mono text-xs group-hover:text-green-400 transition-colors">
-                  Install extension → Connect → Start listening
+                  OAuth → Connect → Real-time analytics
                 </span>
+                <p className="text-gray-500 font-mono text-xs mt-4">
+                  ✓ No extension · ✓ Works everywhere · ✓ Real-time now-playing
+                </p>
               </div>
             </button>
 
             {/* GDPR Upload Option */}
             <button
-              onClick={() => setMode('gdpr')}
-              className="w-full rounded-lg border-2 border-dashed border-gray-700 bg-gray-900/30 p-8 text-center transition-all duration-300 hover:border-blue-500/50 hover:bg-blue-500/5 cursor-pointer group"
+              onClick={handleGdprUpload}
+              className="w-full rounded-lg border-2 border-dashed border-blue-500/30 bg-blue-500/5 p-8 text-center transition-all duration-300 hover:border-blue-400 hover:bg-blue-500/5 cursor-pointer group"
             >
               <div className="flex flex-col items-center gap-3">
-                <FileArchive className="h-10 w-10 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                <FileArchive className="h-10 w-10 text-blue-400 group-hover:text-blue-400 transition-colors" />
                 <div>
-                  <p className="text-gray-200 font-mono text-lg font-semibold group-hover:text-blue-400 transition-colors">
+                  <p className="text-blue-400 font-mono text-lg font-semibold group-hover:text-blue-400 transition-colors">
                     Upload GDPR Export
                   </p>
                   <p className="text-gray-500 font-mono text-sm mt-1">
                     Analyze your historical Spotify data from a GDPR export
                   </p>
                 </div>
-                <span className="text-gray-600 font-mono text-xs group-hover:text-blue-400/60 transition-colors">
-                  Upload ZIP file → Instant analytics
+                <span className="text-blue-500/60 font-mono text-xs group-hover:text-blue-400 transition-colors">
+                  Upload ZIP → Instant analytics
                 </span>
+                <p className="text-gray-500 font-mono text-xs mt-4">
+                  Works without Spotify Premium · Full historical analysis
+                </p>
               </div>
             </button>
           </div>
-        ) : mode === 'live' ? (
+        ) : mode === 'spotify' ? (
           <div className="text-center">
             <button
               onClick={() => setMode('choose')}
-              className="text-gray-500 font-mono text-sm hover:text-gray-300 transition-colors mb-6"
+              className="text-gray-500 font-mono text-sm hover:text-gray-300 transition-colors mb-6 flex items-center gap-1 justify-center"
             >
-              ← Back
+              <ChevronLeft className="h-4 w-4" />
+              Back
             </button>
             <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-8">
-              <Activity className="h-10 w-10 text-green-400 mx-auto mb-4" />
-              <h2 className="text-green-400 font-mono text-xl font-semibold mb-2">Live Scrobbler</h2>
+              <div className="flex items-center gap-2 justify-center mb-4">
+                <Activity className="h-10 w-10 text-green-400" />
+                <Zap className="h-6 w-6 text-green-400/50" />
+              </div>
+              <h2 className="text-green-400 font-mono text-xl font-semibold mb-2">Connect Spotify</h2>
               <p className="text-gray-400 font-mono text-sm mb-6">
-                Redirecting you to the Live Analytics page...
+                You'll be redirected to Spotify to authorize access.
               </p>
+              <button
+                onClick={() => {
+                  const clientId = localStorage.getItem('spotify_client_id');
+                  if (clientId) {
+                    window.location.href = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}&scope=user-read-currently-playing%20user-read-recently-played%20user-top-read&state=${Math.random().toString(36).substring(7)}&code_challenge_method=S256&code_challenge=`;
+                  } else {
+                    window.location.href = '/live';
+                  }
+                }}
+                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-mono text-base transition-colors"
+              >
+                <LogIn className="h-5 w-5" />
+                Connect to Spotify
+              </button>
             </div>
           </div>
         ) : (
@@ -212,7 +244,8 @@ export function Landing() {
               onClick={() => { setMode('choose'); setError(null); }}
               className="text-gray-500 font-mono text-sm hover:text-gray-300 transition-colors mb-4 flex items-center gap-1"
             >
-              ← Back to options
+              <ChevronLeft className="h-4 w-4" />
+              Back to options
             </button>
 
             {/* Upload area */}
@@ -220,13 +253,7 @@ export function Landing() {
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
-              className={`
-                relative rounded-lg border-2 border-dashed p-12 text-center transition-all duration-300 cursor-pointer
-                ${isDragging
-                  ? 'border-green-400 bg-green-500/10 scale-[1.02]'
-                  : 'border-gray-700 hover:border-green-500/50 hover:bg-green-500/5'}
-                ${isProcessing ? 'pointer-events-none opacity-60' : ''}
-              `}
+              className={`relative rounded-lg border-2 border-dashed p-12 text-center transition-all duration-300 cursor-pointer ${isDragging ? 'border-green-400 bg-green-500/10 scale-[1.02]' : 'border-gray-700 hover:border-green-500/50 hover:bg-green-500/5'} ${isProcessing ? 'pointer-events-none opacity-60' : ''}`}
               onClick={() => document.getElementById('file-input')?.click()}
             >
               <input
