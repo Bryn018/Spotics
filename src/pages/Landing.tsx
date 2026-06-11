@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 import { Upload, FileArchive, AlertCircle, Loader2, Terminal, ChevronRight, Activity, ChevronLeft, LogIn, Zap } from 'lucide-react';
 import { useData, RawTrack } from '../context/DataContext';
+import { startSpotifyAuth } from '../services/spotifyApi';
 
 type LandingMode = 'choose' | 'gdpr' | 'spotify';
 
@@ -222,14 +223,7 @@ export function Landing() {
                 You'll be redirected to Spotify to authorize access.
               </p>
               <button
-                onClick={() => {
-                  const clientId = localStorage.getItem('spotify_client_id');
-                  if (clientId) {
-                    window.location.href = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}&scope=user-read-currently-playing%20user-read-recently-played%20user-top-read&state=${Math.random().toString(36).substring(7)}&code_challenge_method=S256&code_challenge=`;
-                  } else {
-                    window.location.href = '/live';
-                  }
-                }}
+                onClick={startSpotifyAuth}
                 className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-mono text-base transition-colors"
               >
                 <LogIn className="h-5 w-5" />
