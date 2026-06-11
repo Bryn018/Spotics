@@ -101,9 +101,11 @@ export async function handleSpotifyCallback(): Promise<boolean> {
   const code = params.get('code');
   const state = params.get('state');
   const error = params.get('error');
+  const errorDescription = params.get('error_description');
 
   if (error) {
-    console.error('[Spotify] Auth error:', error);
+    console.error('[Spotify] Auth error:', error, errorDescription);
+    alert(`Spotify auth error: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
     return false;
   }
 
@@ -112,17 +114,22 @@ export async function handleSpotifyCallback(): Promise<boolean> {
   const savedState = sessionStorage.getItem('spotify_auth_state');
   if (state !== savedState) {
     console.error('[Spotify] State mismatch');
+    alert('Authentication failed: state mismatch. Please try again.');
     return false;
   }
 
   const verifier = localStorage.getItem(VERIFIER_KEY);
   if (!verifier) {
     console.error('[Spotify] No code verifier found');
+    alert('Authentication failed: missing verifier. Please try again.');
     return false;
   }
 
   const clientId = localStorage.getItem('spotify_client_id');
-  if (!clientId) return false;
+  if (!clientId) {
+    alert('Spotify Client ID not configured. Go to Settings to add it.');
+    return false;
+  }
 
   const body = new URLSearchParams({
     client_id: clientId,
@@ -139,7 +146,10 @@ export async function handleSpotifyCallback(): Promise<boolean> {
   });
 
   if (!response.ok) {
-    console.error('[Spotify] Token exchange failed:', response.status);
+    const errorData = await response.json().catch(() => ({}));
+    const errorMsg = errorData.error_description || errorData.error || `HTTP ${response.status}`;
+    console.error('[Spotify] Token exchange failed:', response.status, errorData);
+    alert(`Failed to get access token: ${errorMsg}\n\nMake sure your Spotify Developer Dashboard has the exact redirect URI: ${window.location.origin + window.location.pathname}`);
     return false;
   }
 

@@ -223,7 +223,17 @@ export function Landing() {
                 You'll be redirected to Spotify to authorize access.
               </p>
               <button
-                onClick={startSpotifyAuth}
+                onClick={async () => {
+                  try {
+                    await startSpotifyAuth();
+                  } catch (err) {
+                    if (err instanceof Error) {
+                      alert(err.message);
+                    } else {
+                      alert('Failed to start Spotify auth');
+                    }
+                  }
+                }}
                 className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-mono text-base transition-colors"
               >
                 <LogIn className="h-5 w-5" />

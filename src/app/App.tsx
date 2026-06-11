@@ -13,7 +13,12 @@ function SpotifyCallbackHandler({ children }: { children: ReactNode }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('code') && params.has('state')) {
-      handleSpotifyCallback();
+      handleSpotifyCallback().then((success) => {
+        if (success) {
+          // Redirect to Live Analytics page after successful auth
+          window.location.href = '/live';
+        }
+      });
     }
   }, []);
   return <>{children}</>;
