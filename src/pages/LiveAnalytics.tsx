@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { useScrobbleStats, useTopArtists, useTopTracks, useListeningStats, useHeatmap, useNowPlaying } from '../hooks/useScrobbleData';
+import { useScrobbleStats, useTopArtists, useTopTracks, useListeningStats, useHeatmap, useNowPlaying, useRecentScrobbles } from '../hooks/useScrobbleData';
 import { ScrobblerConnect } from '../components/ScrobblerConnect';
 import { NavBar } from '../components/NavBar';
 import { Loader2, Music, Clock, Users, Disc3, TrendingUp, Calendar, Activity, Wifi, WifiOff } from 'lucide-react';
@@ -22,6 +22,7 @@ export function LiveAnalytics() {
   const { data: listeningStats, loading: listeningLoading } = useListeningStats(period);
   const { data: heatmapData, loading: heatmapLoading } = useHeatmap(period);
   const { data: nowPlayingData } = useNowPlaying(3000);
+  const { data: recentScrobbles, loading: recentLoading } = useRecentScrobbles(20);
 
   const [isConnected, setIsConnected] = useState(!!localStorage.getItem('spotics_api_key'));
   const [liveIndicator, setLiveIndicator] = useState(false);
@@ -167,6 +168,36 @@ export function LiveAnalytics() {
             />
           </div>
         ) : null}
+
+        {/* Recent Scrobbles */}
+        <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6 mb-8">
+          <h2 className="text-gray-100 font-mono font-semibold mb-4 flex items-center gap-2">
+            <Clock className="h-4 w-4 text-cyan-400" />
+            Recent Scrobbles
+          </h2>
+          {recentLoading && !recentScrobbles ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-green-500" />
+            </div>
+          ) : recentScrobbles?.scrobbles?.length ? (
+            <div className="space-y-1">
+              {recentScrobbles.scrobbles.map((scrobble, idx) => (
+                <div key={`${scrobble.id}-${idx}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                  <span className="text-gray-600 font-mono text-xs w-6 text-right shrink-0">{idx + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-200 font-mono text-sm truncate">{scrobble.title}</p>
+                    <p className="text-gray-500 font-mono text-xs truncate">{scrobble.artist}</p>
+                  </div>
+                  <span className="text-gray-600 font-mono text-xs shrink-0">
+                    {new Date(scrobble.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600 font-mono text-sm text-center py-8">No scrobbles yet — start playing music!</p>
+          )}
+        </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 mb-8">
