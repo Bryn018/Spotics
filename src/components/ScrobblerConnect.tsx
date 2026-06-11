@@ -19,6 +19,7 @@ import {
   registerApiKey,
   checkHealth,
   revokeApiKey,
+  validateKey,
 } from '../services/scrobbleApi';
 
 interface ScrobblerConnectProps {
@@ -40,13 +41,26 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
     checkHealth().then(setServerHealthy);
     const key = localStorage.getItem('spotics_api_key');
     if (key) {
-      setExistingKey(key);
-      setIsConnected(true);
+      // Validate on mount — key may have been revoked
+      validateKey(key).then((valid) => {
+        if (valid) {
+          setExistingKey(key);
+          setIsConnected(true);
+        } else {
+          localStorage.removeItem('spotics_api_key');
+        }
+      });
     }
 
-    const handleKeySynced = (e: Event) => {
+    const handleKeySynced = async (e: Event) => {
       const custom = e as CustomEvent<string>;
       const syncedKey = custom.detail;
+      // Validate key before accepting — extension may have synced a revoked key
+      const valid = await validateKey(syncedKey);
+      if (!valid) {
+        localStorage.removeItem('spotics_api_key');
+        return;
+      }
       setExistingKey(syncedKey);
       setApiKey(syncedKey);
       setIsConnected(true);
@@ -54,9 +68,16 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
 
     window.addEventListener('spotics-key-synced', handleKeySynced as EventListener);
 
-    const pollInterval = setInterval(() => {
+    const pollInterval = setInterval(async () => {
       const currentKey = localStorage.getItem('spotics_api_key');
       if (currentKey && currentKey !== existingKey) {
+        const valid = await validateKey(currentKey);
+        if (!valid) {
+          localStorage.removeItem('spotics_api_key');
+          setExistingKey(null);
+          setIsConnected(false);
+          return;
+        }
         setExistingKey(currentKey);
         setApiKey(currentKey);
         setIsConnected(true);

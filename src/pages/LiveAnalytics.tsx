@@ -3,6 +3,7 @@ import { useScrobbleStats, useTopArtists, useTopTracks, useListeningStats, useHe
 import { ScrobblerConnect } from '../components/ScrobblerConnect';
 import { NavBar } from '../components/NavBar';
 import { Loader2, Music, Clock, Users, Disc3, TrendingUp, Calendar, Activity, Wifi, WifiOff } from 'lucide-react';
+import { validateKey } from '../services/scrobbleApi';
 
 type Period = '7d' | '30d' | '90d' | '1y' | 'all';
 
@@ -24,16 +25,40 @@ export function LiveAnalytics() {
   const { data: nowPlayingData } = useNowPlaying(3000);
   const { data: recentScrobbles, loading: recentLoading } = useRecentScrobbles(20);
 
-  const [isConnected, setIsConnected] = useState(!!localStorage.getItem('spotics_api_key'));
+  const [isConnected, setIsConnected] = useState(false);
+  const [checkingKey, setCheckingKey] = useState(true);
   const [liveIndicator, setLiveIndicator] = useState(false);
+
+  // Validate stored key on mount — reject revoked keys
+  useEffect(() => {
+    const key = localStorage.getItem('spotics_api_key');
+    if (key) {
+      validateKey(key).then((valid) => {
+        if (valid) {
+          setIsConnected(true);
+        } else {
+          localStorage.removeItem('spotics_api_key');
+        }
+        setCheckingKey(false);
+      });
+    } else {
+      setCheckingKey(false);
+    }
+  }, []);
 
   // Poll for API key in case the extension bridge syncs it after mount
   useEffect(() => {
     if (isConnected) return;
-    const interval = setInterval(() => {
-      if (localStorage.getItem('spotics_api_key')) {
-        setIsConnected(true);
-        clearInterval(interval);
+    const interval = setInterval(async () => {
+      const key = localStorage.getItem('spotics_api_key');
+      if (key) {
+        const valid = await validateKey(key);
+        if (valid) {
+          setIsConnected(true);
+          clearInterval(interval);
+        } else {
+          localStorage.removeItem('spotics_api_key');
+        }
       }
     }, 1000);
     return () => clearInterval(interval);
@@ -47,6 +72,15 @@ export function LiveAnalytics() {
       return () => clearTimeout(timeout);
     }
   }, [statsUpdated]);
+
+  if (checkingKey) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+        <p className="text-gray-400 font-mono">Verifying connection...</p>
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return (

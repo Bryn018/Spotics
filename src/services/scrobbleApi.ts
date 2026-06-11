@@ -152,6 +152,17 @@ export async function registerApiKey(): Promise<string> {
   return key;
 }
 
+export async function validateKey(key: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE}/stats?period=all`, {
+      headers: { 'X-API-Key': key },
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function revokeApiKey(): Promise<void> {
   const key = getApiKey();
   if (!key) return;
