@@ -1,23 +1,26 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import {
-  useScrobbleStats,
-  useTopArtists as useWorkerTopArtists,
-  useTopTracks as useWorkerTopTracks,
-  useListeningStats,
-  useHeatmap,
-  useNowPlaying as useWorkerNowPlaying,
-  useRecentScrobbles,
-} from '../hooks/useScrobbleData';
-import {
+  useSpotifyNowPlaying,
+  useSpotifyRecentlyPlayed,
   useSpotifyTopArtists,
   useSpotifyTopTracks,
-  useSpotifyRecentlyPlayed,
 } from '../hooks/useSpotifyData';
+import {
+  useServiceNowPlaying,
+  useServiceRecentlyPlayed,
+  useServicePlayerState,
+  useServiceHealth,
+} from '../hooks/useSpotifyService';
+import {
+  useScrobbleStats,
+  useListeningStats,
+  useHeatmap,
+} from '../hooks/useScrobbleData';
 import { ScrobblerConnect } from '../components/ScrobblerConnect';
 import { NavBar } from '../components/NavBar';
 import {
   Loader2, Music, Clock, Users, Disc3, TrendingUp, Calendar, Activity,
-  ExternalLink, Settings, LogOut, LogIn, Wifi, WifiOff, Database, Zap,
+  ExternalLink, Settings, LogOut, LogIn, Wifi, WifiOff,
 } from 'lucide-react';
 import {
   isSpotifyAuthenticated,
@@ -45,32 +48,34 @@ const TOP_RANGES: { value: TopTimeRange; label: string }[] = [
 ];
 
 export function LiveAnalytics() {
-  // --- Auth / Connection states ---
+  // --- Auth states ---
   const [spotifyConnected, setSpotifyConnected] = useState(false);
   const [scrobblerConnected, setScrobblerConnected] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
-  const [clientIdInput, setClientIdInput] = useState(localStorage.getItem('spotify_client_id') || '');
 
-  // --- Worker Data (primary - from your scrobbler extension) ---
-  const { data: workerNowPlaying, loading: npLoading } = useWorkerNowPlaying(3000); // 3s polling
-  const { data: recentScrobbles, loading: recentLoading } = useRecentScrobbles(20);
+  // --- Spotify data (primary) ---
+  const { data: nowPlayingData, loading: nowPlayingLoading } = useSpotifyNowPlaying();
+  const { data: recentlyPlayedData, loading: recentLoading } = useSpotifyRecentlyPlayed(20);
+  const { data: spotifyTopArtists, loading: spotifyArtistsLoading } = useSpotifyTopArtists('medium_term', 10);
+  const { data: spotifyTopTracks, loading: spotifyTracksLoading } = useSpotifyTopTracks('medium_term', 10);
+
+  // --- SpotAPI Service data (local Python service — faster now-playing + player state) ---
+  const { data: serviceNowPlaying } = useServiceNowPlaying();
+  const { data: serviceRecentlyPlayed } = useServiceRecentlyPlayed(20);
+  const { data: servicePlayerState } = useServicePlayerState();
+  const { data: serviceHealth } = useServiceHealth();
+  const serviceAvailable = serviceHealth?.status === 'ok';
+
+  // --- Worker data (supplementary — custom stats) ---
   const [period, setPeriod] = useState<Period>('30d');
+  const [topRange, setTopRange] = useState<TopTimeRange>('medium_term');
   const { data: stats, loading: statsLoading, lastUpdated: statsUpdated } = useScrobbleStats(period);
   const { data: listeningStats, loading: listeningLoading } = useListeningStats(period);
   const { data: heatmapData, loading: heatmapLoading } = useHeatmap(period);
 
-  // --- Spotify Web API Data (enhanced - from your Spotify account history) ---
-  const [topSource, setTopSource] = useState<'worker' | 'spotify'>('worker');
-  const [topRange, setTopRange] = useState<TopTimeRange>('medium_term');
-  const { data: workerTopArtists } = useWorkerTopArtists(period, 10);
-  const { data: workerTopTracks } = useWorkerTopTracks(period, 10);
-  const { data: spotifyTopArtists, loading: spotifyArtistsLoading } = useSpotifyTopArtists(topRange, 10);
-  const { data: spotifyTopTracks, loading: spotifyTracksLoading } = useSpotifyTopTracks(topRange, 10);
-  const { data: spotifyRecentlyPlayed, loading: spotifyRecentLoading } = useSpotifyRecentlyPlayed(20);
-
-  // --- UI State ---
   const [liveIndicator, setLiveIndicator] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [clientIdInput, setClientIdInput] = useState(localStorage.getItem('spotify_client_id') || '');
 
   // --- Auth initialization ---
   useEffect(() => {
@@ -78,7 +83,9 @@ export function LiveAnalytics() {
     const params = new URLSearchParams(window.location.search);
     if (params.has('code')) {
       handleSpotifyCallback().then((success) => {
-        if (success) setSpotifyConnected(true);
+        if (success) {
+          setSpotifyConnected(true);
+        }
       });
     } else {
       setSpotifyConnected(isSpotifyAuthenticated());
@@ -88,8 +95,11 @@ export function LiveAnalytics() {
     const key = localStorage.getItem('spotics_api_key');
     if (key) {
       validateKey(key).then((valid) => {
-        if (valid) setScrobblerConnected(true);
-        else localStorage.removeItem('spotics_api_key');
+        if (valid) {
+          setScrobblerConnected(true);
+        } else {
+          localStorage.removeItem('spotics_api_key');
+        }
         setCheckingAuth(false);
       });
     } else {
@@ -97,7 +107,7 @@ export function LiveAnalytics() {
     }
   }, []);
 
-  // Poll for scrobbler key (extension bridge sync)
+  // --- Poll for scrobbler key (extension bridge sync) ---
   useEffect(() => {
     if (scrobblerConnected) return;
     const interval = setInterval(async () => {
@@ -115,14 +125,14 @@ export function LiveAnalytics() {
     return () => clearInterval(interval);
   }, [scrobblerConnected]);
 
-  // Live indicator pulse
+  // --- Live indicator ---
   useEffect(() => {
-    if (statsUpdated || workerNowPlaying?.now_playing) {
+    if (statsUpdated) {
       setLiveIndicator(true);
       const timeout = setTimeout(() => setLiveIndicator(false), 1500);
       return () => clearTimeout(timeout);
     }
-  }, [statsUpdated, workerNowPlaying?.now_playing]);
+  }, [statsUpdated]);
 
   // --- Handlers ---
   const handleSpotifyConnect = async () => {
@@ -130,8 +140,11 @@ export function LiveAnalytics() {
       setShowSettings(true);
       return;
     }
-    try { await startSpotifyAuth(); } 
-    catch { alert('Failed to start Spotify auth'); }
+    try {
+      await startSpotifyAuth();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to start Spotify auth');
+    }
   };
 
   const handleSpotifyDisconnect = () => {
@@ -141,57 +154,43 @@ export function LiveAnalytics() {
 
   const handleSaveClientId = () => {
     if (clientIdInput.trim()) {
-      localStorage.setItem('spotify_client_id', clientIdInput.trim());
+      localStorage.setItem('spotics_client_id', clientIdInput.trim());
       setShowSettings(false);
     }
   };
 
-  // --- Loading ---
+  // --- Loading state ---
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-green-500" />
-        <p className="text-gray-400 font-mono">Verifying connections...</p>
+        <p className="text-gray-400 font-mono">Verifying connection...</p>
       </div>
     );
   }
 
-  // --- Not connected to anything ---
-  if (!scrobblerConnected && !spotifyConnected) {
+  // --- Not connected to either service ---
+  if (!spotifyConnected && !scrobblerConnected) {
     return (
       <div className="min-h-screen bg-black">
         <NavBar currentPage="live" />
         <main className="container mx-auto px-4 lg:px-6 py-10 max-w-[900px]">
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold font-mono text-green-400 mb-2">Live Analytics</h1>
-            <p className="text-gray-400 font-mono">Connect your scrobbler or Spotify to see listening data</p>
+            <p className="text-gray-400 font-mono">Connect to Spotify to see your listening data in real time</p>
           </div>
+
           <div className="space-y-4">
-            {/* Scrobbler Extension */}
-            <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                  <Database className="h-5 w-5 text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-gray-100 font-mono font-semibold mb-1">Option 1: Scrobbler Extension</h3>
-                  <p className="text-gray-400 font-mono text-sm mb-4">
-                    Real-time scrobbles from your browser extension. Instant now-playing, custom stats (heatmap, hourly distribution).
-                  </p>
-                  <ScrobblerConnect onConnected={() => setScrobblerConnected(true)} />
-                </div>
-              </div>
-            </div>
-            {/* Spotify Web API */}
+            {/* Spotify Connect */}
             <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-6">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                  <Zap className="h-5 w-5 text-green-400" />
+                  <Activity className="h-5 w-5 text-green-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-gray-100 font-mono font-semibold mb-1">Option 2: Spotify Account</h3>
+                  <h3 className="text-gray-100 font-mono font-semibold mb-1">Connect to Spotify</h3>
                   <p className="text-gray-400 font-mono text-sm mb-4">
-                    Connect your Spotify account via OAuth to see top artists, top tracks, and listening history from your Spotify data.
+                    Sign in with Spotify to see now playing, recently played, top artists, and top tracks — instantly.
                   </p>
                   <button
                     type="button"
@@ -204,23 +203,27 @@ export function LiveAnalytics() {
                 </div>
               </div>
             </div>
+
+            {/* Scrobbler Connect */}
+            <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                  <Settings className="h-5 w-5 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-gray-100 font-mono font-semibold mb-1">Scrobbler Extension</h3>
+                  <p className="text-gray-400 font-mono text-sm mb-4">
+                    For advanced stats (heatmap, hourly distribution, daily listening), connect the browser extension.
+                  </p>
+                  <ScrobblerConnect onConnected={() => setScrobblerConnected(true)} />
+                </div>
+              </div>
+            </div>
           </div>
         </main>
       </div>
     );
   }
-
-  // --- Determine data sources ---
-  const isPlaying = workerNowPlaying?.now_playing === true;
-  const currentTrack = workerNowPlaying?.track;
-  
-  // Use Spotify Web API data if connected, otherwise fall back to Worker
-  const topArtists = spotifyConnected && spotifyTopArtists?.items?.length ? spotifyTopArtists : workerTopArtists;
-  const topTracks = spotifyConnected && spotifyTopTracks?.items?.length ? spotifyTopTracks : workerTopTracks;
-  const recentlyPlayed = spotifyConnected && spotifyRecentlyPlayed?.items?.length ? spotifyRecentlyPlayed : recentScrobbles;
-  const recentLoadingEffective = spotifyConnected ? spotifyRecentLoading : recentLoading;
-  const artistsLoadingEffective = (spotifyArtistsLoading && spotifyConnected) || !topArtists?.items?.length;
-  const tracksLoadingEffective = (spotifyTracksLoading && spotifyConnected) || !topTracks?.items?.length;
 
   // --- Main Dashboard ---
   const isLoading = statsLoading && !stats && scrobblerConnected;
@@ -235,18 +238,22 @@ export function LiveAnalytics() {
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-3xl font-bold font-mono text-green-400">Live Analytics</h1>
               <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-mono transition-all duration-300 ${
-                liveIndicator ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-800 text-gray-500 border border-gray-700'
+                liveIndicator || (nowPlayingData?.is_playing)
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : 'bg-gray-800 text-gray-500 border border-gray-700'
               }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${liveIndicator ? 'bg-green-400 animate-pulse' : 'bg-gray-600'}`}></span>
-                {liveIndicator ? 'LIVE' : 'IDLE'}
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  liveIndicator || (nowPlayingData?.is_playing) ? 'bg-green-400 animate-pulse' : 'bg-gray-600'
+                }`}></span>
+                {nowPlayingData?.is_playing ? 'PLAYING' : 'IDLE'}
               </div>
             </div>
             <p className="text-gray-500 font-mono text-sm">
-              {scrobblerConnected && spotifyConnected
-                ? 'Scrobbler + Spotify connected — full analytics'
-                : scrobblerConnected
-                  ? 'Scrobbler connected — connect Spotify for history'
-                  : 'Spotify connected — connect scrobbler for live data'}
+              {spotifyConnected && scrobblerConnected
+                ? 'Spotify + Scrobbler connected — full analytics'
+                : spotifyConnected
+                  ? 'Spotify connected — connect scrobbler for advanced stats'
+                  : 'Scrobbler connected'}
               {statsUpdated && (
                 <span className="text-gray-600 ml-2">· Updated: {statsUpdated.toLocaleTimeString()}</span>
               )}
@@ -254,6 +261,7 @@ export function LiveAnalytics() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Period Selector (for scrobbler stats) */}
             {scrobblerConnected && (
               <div className="flex gap-1 bg-gray-900 rounded-lg p-1 border border-gray-800">
                 {PERIODS.map((p) => (
@@ -272,6 +280,7 @@ export function LiveAnalytics() {
               </div>
             )}
 
+            {/* Spotify status & settings */}
             <div className="flex items-center gap-2">
               {spotifyConnected && (
                 <button
@@ -304,7 +313,9 @@ export function LiveAnalytics() {
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="text-gray-400 font-mono text-xs block mb-2">Spotify Client ID</label>
+                <label className="text-gray-400 font-mono text-xs block mb-2">
+                  Spotify Client ID
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -333,34 +344,58 @@ export function LiveAnalytics() {
           </div>
         )}
 
-        {/* Now Playing — from Worker (real-time from your scrobbler) */}
-        {scrobblerConnected && currentTrack && (
-          <div className="mb-8 p-4 rounded-lg border border-green-500/20 bg-green-500/5">
-            <div className="flex items-center gap-4">
-              {currentTrack.album_art && (
-                <img src={currentTrack.album_art} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-green-400 font-mono text-xs mb-1 flex items-center gap-2">
-                  <Activity className="h-3 w-3 animate-pulse" />
-                  NOW PLAYING
-                  <span className="text-gray-600 text-[10px] ml-1">· Scrobbler</span>
-                </p>
-                <p className="text-gray-100 font-mono text-sm font-semibold truncate">{currentTrack.title}</p>
-                <p className="text-gray-400 font-mono text-xs truncate">{currentTrack.artist}</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-gray-500 font-mono text-xs">
-                  {Math.floor((workerNowPlaying!.progress_ms || 0) / 60000)}:{String(Math.floor(((workerNowPlaying!.progress_ms || 0) % 60000) / 1000)).padStart(2, '0')}
-                  {' / '}
-                  {Math.floor((currentTrack.duration_ms || 0) / 60000)}:{String(Math.floor(((currentTrack.duration_ms || 0) % 60000) / 1000)).padStart(2, '0')}
-                </p>
+        {/* Now Playing — prefer SpotAPI service (faster), fallback to Web API */}
+        {(() => {
+          const np = serviceAvailable && serviceNowPlaying?.is_playing ? serviceNowPlaying
+            : spotifyConnected && nowPlayingData?.is_playing ? nowPlayingData : null;
+          const track = np?.track;
+          if (!np || !track) return null;
+          return (
+            <div className="mb-8 p-4 rounded-lg border border-green-500/20 bg-green-500/5">
+              <div className="flex items-center gap-4">
+                {track.album?.images?.[0]?.url && (
+                  <img
+                    src={track.album.images[0].url}
+                    alt={track.album.name}
+                    className="w-14 h-14 rounded-lg object-cover shrink-0"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-green-400 font-mono text-xs mb-1 flex items-center gap-2">
+                    <Activity className="h-3 w-3 animate-pulse" />
+                    NOW PLAYING
+                    {serviceAvailable && <span className="text-gray-600 text-[10px] ml-1">· SpotAPI</span>}
+                  </p>
+                  <p className="text-gray-100 font-mono text-sm font-semibold truncate">
+                    {track.name}
+                  </p>
+                  <p className="text-gray-400 font-mono text-xs truncate">
+                    {track.artists.map(a => a.name).join(', ')}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-gray-500 font-mono text-xs">
+                    {Math.floor(np.progress_ms / 60000)}:{String(Math.floor((np.progress_ms % 60000) / 1000)).padStart(2, '0')}
+                    {' / '}
+                    {Math.floor(track.duration_ms / 60000)}:{String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}
+                  </p>
+                  {track.external_urls?.spotify && (
+                    <a
+                      href={track.external_urls.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-400 hover:text-green-300 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 mt-1" />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
-        {/* Stats Overview — from Worker */}
+        {/* Stats Overview — from Scrobbler or Spotify */}
         {scrobblerConnected && (stats ? (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard icon={<Music className="h-5 w-5" />} label="Total Scrobbles" value={stats.total_scrobbles.toLocaleString()} color="text-green-400" loading={statsLoading} />
@@ -369,52 +404,57 @@ export function LiveAnalytics() {
             <StatCard icon={<Disc3 className="h-5 w-5" />} label="Unique Tracks" value={stats.unique_tracks.toLocaleString()} color="text-orange-400" loading={statsLoading} />
           </div>
         ) : isLoading ? (
-          <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-green-500" /></div>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-green-500" />
+          </div>
         ) : null)}
 
-        {/* Recently Played — prefer Spotify Web API if connected, else Worker scrobbles */}
-        {(recentlyPlayed?.items?.length || recentLoadingEffective) && (
-          <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6 mb-8">
-            <h2 className="text-gray-100 font-mono font-semibold mb-4 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-cyan-400" />
-              Recently Played
-              <span className="text-gray-600 text-[10px] ml-1">
-                {spotifyConnected && spotifyRecentlyPlayed?.items?.length ? '· Spotify' : '· Scrobbler'}
-              </span>
-              {recentLoadingEffective && <Loader2 className="h-3 w-3 animate-spin text-gray-600 ml-2" />}
-            </h2>
-            {recentLoadingEffective && !recentlyPlayed?.items?.length ? (
-              <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-green-500" /></div>
-            ) : recentlyPlayed?.items?.length ? (
-              <div className="space-y-1">
-                {recentlyPlayed.items.map((item, idx) => {
-                  const track = item.track || item;
-                  const playedAt = item.played_at || item.timestamp;
-                  return (
-                    <div key={`${track.id || track.title}-${idx}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
-                      {track.album_art && (
-                        <img src={track.album_art} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
+        {/* Recently Played — prefer SpotAPI service, fallback to Web API */}
+        {(() => {
+          const recent = serviceAvailable && serviceRecentlyPlayed?.items?.length
+            ? serviceRecentlyPlayed
+            : spotifyConnected && recentlyPlayedData?.items?.length
+              ? recentlyPlayedData : null;
+          const loading = serviceAvailable ? false : recentLoading;
+          if (!recent && !loading) return null;
+          return (
+            <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6 mb-8">
+              <h2 className="text-gray-100 font-mono font-semibold mb-4 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-cyan-400" />
+                Recently Played
+                {loading && <Loader2 className="h-3 w-3 animate-spin text-gray-600 ml-2" />}
+              </h2>
+              {loading && !recent ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-green-500" />
+                </div>
+              ) : recent?.items?.length ? (
+                <div className="space-y-1">
+                  {recent.items.map((item, idx) => (
+                    <div key={`${item.track?.id}-${idx}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                      {item.track?.album?.images?.[2]?.url && (
+                        <img src={item.track.album.images[2].url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
                       )}
                       <span className="text-gray-600 font-mono text-xs w-6 text-right shrink-0">{idx + 1}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-gray-200 font-mono text-sm truncate">{track.title || track.name}</p>
-                        <p className="text-gray-500 font-mono text-xs truncate">{track.artist || track.artists?.[0]?.name}</p>
+                        <p className="text-gray-200 font-mono text-sm truncate">{item.track?.name}</p>
+                        <p className="text-gray-500 font-mono text-xs truncate">{item.track?.artists?.map(a => a.name).join(', ')}</p>
                       </div>
                       <span className="text-gray-600 font-mono text-xs shrink-0">
-                        {playedAt ? new Date(playedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                        {item.played_at ? new Date(item.played_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                       </span>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-gray-600 font-mono text-sm text-center py-8">No recent tracks</p>
-            )}
-          </div>
-        )}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600 font-mono text-sm text-center py-8">No recent tracks — start playing music!</p>
+              )}
+            </div>
+          );
+        })()}
 
-        {/* Top Artists & Top Tracks */}
-        {(topArtists?.items?.length || topTracks?.items?.length || artistsLoadingEffective || tracksLoadingEffective) && (
+            {/* Main Content Grid: Top Artists + Top Tracks */}
+        {spotifyConnected && (
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 mb-8">
             {/* Top Artists */}
             <div className="xl:col-span-5">
@@ -424,38 +464,43 @@ export function LiveAnalytics() {
                     <TrendingUp className="h-4 w-4 text-purple-400" />
                     Top Artists
                   </h2>
-                  {spotifyConnected && (
-                    <div className="flex gap-1">
-                      {TOP_RANGES.map((r) => (
-                        <button
-                          key={r.value}
-                          onClick={() => setTopRange(r.value)}
-                          className={`px-2 py-1 rounded font-mono text-[10px] transition-colors ${
-                            topRange === r.value
-                              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                              : 'text-gray-600 hover:text-gray-400'
-                          }`}
-                        >
-                          {r.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex gap-1">
+                    {TOP_RANGES.map((r) => (
+                      <button
+                        key={r.value}
+                        onClick={() => setTopRange(r.value)}
+                        className={`px-2 py-1 rounded font-mono text-[10px] transition-colors ${
+                          topRange === r.value
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'text-gray-600 hover:text-gray-400'
+                        }`}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                {artistsLoadingEffective && !topArtists?.items?.length ? (
-                  <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-green-500" /></div>
-                ) : topArtists?.items?.length ? (
+                {spotifyArtistsLoading && !spotifyTopArtists ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-green-500" />
+                  </div>
+                ) : spotifyTopArtists?.items.length ? (
                   <div className="space-y-2">
-                    {topArtists.items.map((artist, idx) => (
-                      <div key={artist.name || artist.id || idx} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                    {spotifyTopArtists.items.map((artist, idx) => (
+                      <div key={artist.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
                         <span className="text-gray-600 font-mono text-xs w-6 text-right">{idx + 1}</span>
                         {artist.images?.[2]?.url && (
                           <img src={artist.images[2].url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="text-gray-200 font-mono text-sm truncate">{artist.name}</p>
+                          {artist.genres?.[0] && (
+                            <p className="text-gray-600 font-mono text-[10px] truncate">{artist.genres[0]}</p>
+                          )}
                         </div>
-                        <span className="text-gray-500 font-mono text-xs">{artist.plays ?? artist.popularity}% </span>
+                        <div className="text-right shrink-0">
+                          <p className="text-gray-500 font-mono text-xs">{artist.popularity}%</p>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -472,23 +517,24 @@ export function LiveAnalytics() {
                   <Music className="h-4 w-4 text-green-400" />
                   Top Tracks
                 </h2>
-                {tracksLoadingEffective && !topTracks?.items?.length ? (
-                  <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-green-500" /></div>
-                ) : topTracks?.items?.length ? (
+                {spotifyTracksLoading && !spotifyTopTracks ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-5 w-5 animate-spin text-green-500" />
+                  </div>
+                ) : spotifyTopTracks?.items.length ? (
                   <div className="space-y-2">
-                    {topTracks.items.map((track, idx) => (
-                      <div key={track.id || idx} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                    {spotifyTopTracks.items.map((track, idx) => (
+                      <div key={track.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
                         <span className="text-gray-600 font-mono text-xs w-6 text-right">{idx + 1}</span>
                         {track.album?.images?.[2]?.url && (
                           <img src={track.album.images[2].url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-gray-200 font-mono text-sm truncate">{track.title || track.name}</p>
-                          <p className="text-gray-500 font-mono text-xs truncate">{track.artist || track.artists?.map(a => a.name).join(', ')}</p>
+                          <p className="text-gray-200 font-mono text-sm truncate">{track.name}</p>
+                          <p className="text-gray-500 font-mono text-xs truncate">{track.artists.map(a => a.name).join(', ')}</p>
                         </div>
-                        <span className="text-gray-600 font-mono text-xs">
-                          {track.plays ?? ''}
-                          {track.duration_ms ? `· ${Math.floor(track.duration_ms / 60000)}:${String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}` : ''}
+                        <span className="text-gray-600 font-mono text-xs shrink-0">
+                          {Math.floor(track.duration_ms / 60000)}:{String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}
                         </span>
                       </div>
                     ))}
@@ -501,7 +547,7 @@ export function LiveAnalytics() {
           </div>
         )}
 
-        {/* Listening Activity — from Worker */}
+        {/* Listening Activity — from Scrobbler (custom stats) */}
         {scrobblerConnected && listeningStats?.daily && listeningStats.daily.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6">
@@ -547,7 +593,7 @@ export function LiveAnalytics() {
           </div>
         )}
 
-        {/* Heatmap — from Worker */}
+        {/* Heatmap — from Scrobbler */}
         {scrobblerConnected && heatmapData?.heatmap && (
           <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6 mb-8">
             <h2 className="text-gray-100 font-mono font-semibold mb-4">Listening Heatmap</h2>
@@ -600,7 +646,11 @@ export function LiveAnalytics() {
 function StatCard({ icon, label, value, color, loading }: { icon: ReactNode; label: string; value: string; color: string; loading?: boolean }) {
   return (
     <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-4 relative overflow-hidden">
-      {loading && <div className="absolute top-2 right-2"><Loader2 className="h-3 w-3 animate-spin text-gray-600" /></div>}
+      {loading && (
+        <div className="absolute top-2 right-2">
+          <Loader2 className="h-3 w-3 animate-spin text-gray-600" />
+        </div>
+      )}
       <div className={`${color} mb-2`}>{icon}</div>
       <p className={`font-mono text-2xl font-bold ${color}`}>{value}</p>
       <p className="text-gray-500 font-mono text-xs mt-1">{label}</p>
