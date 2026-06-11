@@ -181,20 +181,28 @@
   // --- Communication with Background Script ---
 
   function sendToBackground(message) {
-    try {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          console.debug('[Spotics Scrobbler] Background message deferred:', chrome.runtime.lastError.message);
-        }
-      });
-    } catch (error) {
-      console.warn('[Spotics Scrobbler] Failed to send message to background:', error);
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        chrome.runtime.sendMessage(message, (response) => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+          if (response && !response.success) {
+            reject(new Error(response.error || 'Unknown error from background'));
+            return;
+          }
+          resolve(response);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   // --- Status Indicator ---
 
-  function updateStatus(state, trackInfo) {
+  function updateStatus(state, trackInfo, errorMsg) {
     if (!statusIndicator) createStatusIndicator();
     if (!statusIndicator) return;
 
@@ -207,6 +215,10 @@
       statusIndicator.style.display = 'flex';
       statusIndicator.querySelector('.spotics-indicator-text').textContent = 'Spotics: Waiting for music...';
       statusIndicator.style.borderColor = '#6b7280';
+    } else if (state === 'error') {
+      statusIndicator.style.display = 'flex';
+      statusIndicator.querySelector('.spotics-indicator-text').textContent = errorMsg || 'Spotics: Error';
+      statusIndicator.style.borderColor = '#ef4444';
     } else {
       statusIndicator.style.display = 'none';
     }
@@ -262,7 +274,7 @@
 
   // --- Main Check ---
 
-  function checkPlayback() {
+  async function checkPlayback() {
     const state = getPlaybackState();
     const trackData = extractTrackData();
 
@@ -274,20 +286,25 @@
         if (currentTrack && trackStartTime) {
           const elapsed = now - trackStartTime;
           if (shouldScrobble(currentTrack, elapsed, currentTrack.durationMs || 0)) {
-            sendToBackground({
-              type: 'SCROBBLE',
-              data: {
-                title: currentTrack.title,
-                artist: currentTrack.artist,
-                albumArt: currentTrack.albumArt || null,
-                durationMs: currentTrack.durationMs || 0,
-                timestamp: new Date(trackStartTime).toISOString(),
-                playedMs: elapsed,
-                source: 'spotify_web_player',
-              }
-            });
+            try {
+              await sendToBackground({
+                type: 'SCROBBLE',
+                data: {
+                  title: currentTrack.title,
+                  artist: currentTrack.artist,
+                  albumArt: currentTrack.albumArt || null,
+                  durationMs: currentTrack.durationMs || 0,
+                  timestamp: new Date(trackStartTime).toISOString(),
+                  playedMs: elapsed,
+                  source: 'spotify_web_player',
+                }
+              });
+              console.log('[Spotics Scrobbler] Scrobbled:', currentTrack.artist, '-', currentTrack.title);
+            } catch (err) {
+              console.error('[Spotics Scrobbler] Scrobble failed:', err.message);
+              updateStatus('error', null, 'Error: ' + err.message);
+            }
             lastScrobbledTrack = { title: currentTrack.title, artist: currentTrack.artist };
-            console.log('[Spotics Scrobbler] Scrobbled:', currentTrack.artist, '-', currentTrack.title);
           }
         }
 
@@ -295,17 +312,22 @@
         currentTrack = trackData;
         trackStartTime = now;
 
-        sendToBackground({
-          type: 'NOW_PLAYING',
-          data: {
-            title: trackData.title,
-            artist: trackData.artist,
-            albumArt: trackData.albumArt || null,
-            durationMs: trackData.durationMs || 0,
-            timestamp: new Date(now).toISOString(),
-            source: 'spotify_web_player',
-          }
-        });
+        // Send now playing
+        try {
+          await sendToBackground({
+            type: 'NOW_PLAYING',
+            data: {
+              title: trackData.title,
+              artist: trackData.artist,
+              albumArt: trackData.albumArt || null,
+              durationMs: trackData.durationMs || 0,
+              timestamp: new Date(now).toISOString(),
+              source: 'spotify_web_player',
+            }
+          });
+        } catch (err) {
+          // Now playing failure is non-critical
+        }
 
         console.log('[Spotics Scrobbler] Now playing:', trackData.artist, '-', trackData.title);
         updateStatus('active', trackData);
@@ -314,21 +336,26 @@
         if (currentTrack && trackStartTime) {
           const elapsed = Date.now() - trackStartTime;
           if (shouldScrobble(currentTrack, elapsed, currentTrack.durationMs || 0)) {
-            sendToBackground({
-              type: 'SCROBBLE',
-              data: {
-                title: currentTrack.title,
-                artist: currentTrack.artist,
-                albumArt: currentTrack.albumArt || null,
-                durationMs: currentTrack.durationMs || 0,
-                timestamp: new Date(trackStartTime).toISOString(),
-                playedMs: elapsed,
-                source: 'spotify_web_player',
-              }
-            });
+            try {
+              await sendToBackground({
+                type: 'SCROBBLE',
+                data: {
+                  title: currentTrack.title,
+                  artist: currentTrack.artist,
+                  albumArt: currentTrack.albumArt || null,
+                  durationMs: currentTrack.durationMs || 0,
+                  timestamp: new Date(trackStartTime).toISOString(),
+                  playedMs: elapsed,
+                  source: 'spotify_web_player',
+                }
+              });
+              console.log('[Spotics Scrobbler] Scrobbled:', currentTrack.artist, '-', currentTrack.title);
+            } catch (err) {
+              console.error('[Spotics Scrobbler] Scrobble failed:', err.message);
+              updateStatus('error', null, 'Error: ' + err.message);
+            }
             lastScrobbledTrack = { title: currentTrack.title, artist: currentTrack.artist };
             trackStartTime = Date.now();
-            console.log('[Spotics Scrobbler] Scrobbled:', currentTrack.artist, '-', currentTrack.title);
           }
         }
       }

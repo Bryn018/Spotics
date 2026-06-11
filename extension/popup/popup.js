@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     hideError();
 
     try {
-      // Validate the key by making a test request
-      const response = await fetch('https://api.spotics.insights.autos/health', {
+      // Validate the key against an authenticated endpoint
+      const response = await fetch('https://api.spotics.insights.autos/stats?period=all', {
         headers: { 'X-API-Key': key },
       });
 
@@ -50,9 +50,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         throw new Error('Invalid API key. Please check and try again.');
       }
 
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
       // Save the key
       await chrome.storage.local.set({ apiKey: key, sessionScrobbles: 0 });
-      showConnected({ scrobbleCount, lastScrobble, lastScrobbleTime });
+      showConnected({ scrobbleCount: 0, lastScrobble: null, lastScrobbleTime: null });
     } catch (err) {
       showError(err.message || 'Failed to connect. Check your API key.');
       connectBtn.textContent = 'Connect';
@@ -91,8 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     scrobbleCountEl.textContent = (scrobbleCount || 0).toLocaleString();
 
-    const sessionData = chrome.storage.local.get(['sessionScrobbles']);
-    sessionCountEl.textContent = '0';
+    // Fix: properly await the async storage call
+    chrome.storage.local.get(['sessionScrobbles'], (result) => {
+      sessionCountEl.textContent = (result.sessionScrobbles || 0).toLocaleString();
+    });
 
     // Show last scrobble
     if (lastScrobble) {
