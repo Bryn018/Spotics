@@ -29,14 +29,24 @@ function useRealtimeData<T>(
   enabled: boolean = true
 ) {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start as true so UI shows loading state
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isFirstFetch = useRef(true);
 
   const fetchData = useCallback(async () => {
-    if (!hasApiKey()) return;
-    setLoading(true);
+    if (!hasApiKey()) {
+      setLoading(false);
+      return;
+    }
+    
+    // Only show loading spinner on first fetch
+    if (isFirstFetch.current) {
+      setLoading(true);
+      isFirstFetch.current = false;
+    }
+    
     setError(null);
     try {
       const result = await fetcher();
@@ -50,8 +60,15 @@ function useRealtimeData<T>(
   }, [fetcher]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+    
+    isFirstFetch.current = true;
+    setLoading(true);
     fetchData(); // immediate first fetch
+    
     intervalRef.current = setInterval(fetchData, interval);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
