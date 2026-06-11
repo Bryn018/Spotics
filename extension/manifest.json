@@ -29,6 +29,11 @@
       "js": ["scripts/content.js"],
       "css": ["styles/content.css"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://spotics.insights.autos/*"],
+      "js": ["scripts/bridge.js"],
+      "run_at": "document_start"
     }
   ],
   "icons": {

@@ -23,7 +23,19 @@ export function LiveAnalytics() {
   const { data: heatmapData, loading: heatmapLoading } = useHeatmap(period);
   const { data: nowPlayingData } = useNowPlaying(15000);
 
-  const isConnected = !!localStorage.getItem('spotics_api_key');
+  const [isConnected, setIsConnected] = useState(!!localStorage.getItem('spotics_api_key'));
+
+  // Poll for API key in case the extension bridge syncs it after mount
+  useEffect(() => {
+    if (isConnected) return;
+    const interval = setInterval(() => {
+      if (localStorage.getItem('spotics_api_key')) {
+        setIsConnected(true);
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isConnected]);
 
   if (!isConnected) {
     return (

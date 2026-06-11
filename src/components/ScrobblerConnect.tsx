@@ -25,6 +25,30 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
       setExistingKey(key);
       setIsConnected(true);
     }
+
+    // Listen for key sync from extension bridge script
+    const handleKeySynced = (e: CustomEvent<string>) => {
+      const syncedKey = e.detail;
+      setExistingKey(syncedKey);
+      setApiKey(syncedKey);
+      setIsConnected(true);
+    };
+    window.addEventListener('spotics-key-synced', handleKeySynced as EventListener);
+
+    // Also poll localStorage in case the bridge script wrote to it
+    const pollInterval = setInterval(() => {
+      const currentKey = localStorage.getItem('spotics_api_key');
+      if (currentKey && currentKey !== existingKey) {
+        setExistingKey(currentKey);
+        setApiKey(currentKey);
+        setIsConnected(true);
+      }
+    }, 2000);
+
+    return () => {
+      window.removeEventListener('spotics-key-synced', handleKeySynced as EventListener);
+      clearInterval(pollInterval);
+    };
   }, []);
 
   const handleRegister = async () => {
