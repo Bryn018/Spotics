@@ -6,6 +6,12 @@ import {
   useSpotifyTopTracks,
 } from '../hooks/useSpotifyData';
 import {
+  useServiceNowPlaying,
+  useServiceRecentlyPlayed,
+  useServicePlayerState,
+  useServiceHealth,
+} from '../hooks/useSpotifyService';
+import {
   useScrobbleStats,
   useListeningStats,
   useHeatmap,
@@ -14,7 +20,7 @@ import { ScrobblerConnect } from '../components/ScrobblerConnect';
 import { NavBar } from '../components/NavBar';
 import {
   Loader2, Music, Clock, Users, Disc3, TrendingUp, Calendar, Activity,
-  ExternalLink, Settings, LogOut, LogIn,
+  ExternalLink, Settings, LogOut, LogIn, Wifi, WifiOff,
 } from 'lucide-react';
 import {
   isSpotifyAuthenticated,
@@ -52,6 +58,13 @@ export function LiveAnalytics() {
   const { data: recentlyPlayedData, loading: recentLoading } = useSpotifyRecentlyPlayed(20);
   const { data: spotifyTopArtists, loading: spotifyArtistsLoading } = useSpotifyTopArtists('medium_term', 10);
   const { data: spotifyTopTracks, loading: spotifyTracksLoading } = useSpotifyTopTracks('medium_term', 10);
+
+  // --- SpotAPI Service data (local Python service — faster now-playing + player state) ---
+  const { data: serviceNowPlaying } = useServiceNowPlaying();
+  const { data: serviceRecentlyPlayed } = useServiceRecentlyPlayed(20);
+  const { data: servicePlayerState } = useServicePlayerState();
+  const { data: serviceHealth } = useServiceHealth();
+  const serviceAvailable = serviceHealth?.status === 'ok';
 
   // --- Worker data (supplementary — custom stats) ---
   const [period, setPeriod] = useState<Period>('30d');
@@ -331,49 +344,56 @@ export function LiveAnalytics() {
           </div>
         )}
 
-        {/* Now Playing — from Spotify API */}
-        {spotifyConnected && nowPlayingData?.is_playing && nowPlayingData.track && (
-          <div className="mb-8 p-4 rounded-lg border border-green-500/20 bg-green-500/5">
-            <div className="flex items-center gap-4">
-              {nowPlayingData.track.album?.images?.[0]?.url && (
-                <img
-                  src={nowPlayingData.track.album.images[0].url}
-                  alt={nowPlayingData.track.album.name}
-                  className="w-14 h-14 rounded-lg object-cover shrink-0"
-                />
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-green-400 font-mono text-xs mb-1 flex items-center gap-2">
-                  <Activity className="h-3 w-3 animate-pulse" />
-                  NOW PLAYING
-                </p>
-                <p className="text-gray-100 font-mono text-sm font-semibold truncate">
-                  {nowPlayingData.track.name}
-                </p>
-                <p className="text-gray-400 font-mono text-xs truncate">
-                  {nowPlayingData.track.artists.map(a => a.name).join(', ')}
-                </p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-gray-500 font-mono text-xs">
-                  {Math.floor(nowPlayingData.progress_ms / 60000)}:{String(Math.floor((nowPlayingData.progress_ms % 60000) / 1000)).padStart(2, '0')}
-                  {' / '}
-                  {Math.floor(nowPlayingData.track.duration_ms / 60000)}:{String(Math.floor((nowPlayingData.track.duration_ms % 60000) / 1000)).padStart(2, '0')}
-                </p>
-                {nowPlayingData.track.external_urls?.spotify && (
-                  <a
-                    href={nowPlayingData.track.external_urls.spotify}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-400 hover:text-green-300 transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4 mt-1" />
-                  </a>
+        {/* Now Playing — prefer SpotAPI service (faster), fallback to Web API */}
+        {(() => {
+          const np = serviceAvailable && serviceNowPlaying?.is_playing ? serviceNowPlaying
+            : spotifyConnected && nowPlayingData?.is_playing ? nowPlayingData : null;
+          const track = np?.track;
+          if (!np || !track) return null;
+          return (
+            <div className="mb-8 p-4 rounded-lg border border-green-500/20 bg-green-500/5">
+              <div className="flex items-center gap-4">
+                {track.album?.images?.[0]?.url && (
+                  <img
+                    src={track.album.images[0].url}
+                    alt={track.album.name}
+                    className="w-14 h-14 rounded-lg object-cover shrink-0"
+                  />
                 )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-green-400 font-mono text-xs mb-1 flex items-center gap-2">
+                    <Activity className="h-3 w-3 animate-pulse" />
+                    NOW PLAYING
+                    {serviceAvailable && <span className="text-gray-600 text-[10px] ml-1">· SpotAPI</span>}
+                  </p>
+                  <p className="text-gray-100 font-mono text-sm font-semibold truncate">
+                    {track.name}
+                  </p>
+                  <p className="text-gray-400 font-mono text-xs truncate">
+                    {track.artists.map(a => a.name).join(', ')}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-gray-500 font-mono text-xs">
+                    {Math.floor(np.progress_ms / 60000)}:{String(Math.floor((np.progress_ms % 60000) / 1000)).padStart(2, '0')}
+                    {' / '}
+                    {Math.floor(track.duration_ms / 60000)}:{String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, '0')}
+                  </p>
+                  {track.external_urls?.spotify && (
+                    <a
+                      href={track.external_urls.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-400 hover:text-green-300 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 mt-1" />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Stats Overview — from Scrobbler or Spotify */}
         {scrobblerConnected && (stats ? (
@@ -389,43 +409,51 @@ export function LiveAnalytics() {
           </div>
         ) : null)}
 
-        {/* Recently Played — from Spotify API */}
-        {spotifyConnected && (
-          <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6 mb-8">
-            <h2 className="text-gray-100 font-mono font-semibold mb-4 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-cyan-400" />
-              Recently Played
-              {recentLoading && <Loader2 className="h-3 w-3 animate-spin text-gray-600 ml-2" />}
-            </h2>
-            {recentLoading && !recentlyPlayedData ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-5 w-5 animate-spin text-green-500" />
-              </div>
-            ) : recentlyPlayedData?.items?.length ? (
-              <div className="space-y-1">
-                {recentlyPlayedData.items.map((item, idx) => (
-                  <div key={`${item.track.id}-${idx}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
-                    {item.track.album?.images?.[2]?.url && (
-                      <img src={item.track.album.images[2].url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
-                    )}
-                    <span className="text-gray-600 font-mono text-xs w-6 text-right shrink-0">{idx + 1}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-gray-200 font-mono text-sm truncate">{item.track.name}</p>
-                      <p className="text-gray-500 font-mono text-xs truncate">{item.track.artists.map(a => a.name).join(', ')}</p>
+        {/* Recently Played — prefer SpotAPI service, fallback to Web API */}
+        {(() => {
+          const recent = serviceAvailable && serviceRecentlyPlayed?.items?.length
+            ? serviceRecentlyPlayed
+            : spotifyConnected && recentlyPlayedData?.items?.length
+              ? recentlyPlayedData : null;
+          const loading = serviceAvailable ? false : recentLoading;
+          if (!recent && !loading) return null;
+          return (
+            <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6 mb-8">
+              <h2 className="text-gray-100 font-mono font-semibold mb-4 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-cyan-400" />
+                Recently Played
+                {loading && <Loader2 className="h-3 w-3 animate-spin text-gray-600 ml-2" />}
+              </h2>
+              {loading && !recent ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-green-500" />
+                </div>
+              ) : recent?.items?.length ? (
+                <div className="space-y-1">
+                  {recent.items.map((item, idx) => (
+                    <div key={`${item.track?.id}-${idx}`} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-colors">
+                      {item.track?.album?.images?.[2]?.url && (
+                        <img src={item.track.album.images[2].url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
+                      )}
+                      <span className="text-gray-600 font-mono text-xs w-6 text-right shrink-0">{idx + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-200 font-mono text-sm truncate">{item.track?.name}</p>
+                        <p className="text-gray-500 font-mono text-xs truncate">{item.track?.artists?.map(a => a.name).join(', ')}</p>
+                      </div>
+                      <span className="text-gray-600 font-mono text-xs shrink-0">
+                        {item.played_at ? new Date(item.played_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </span>
                     </div>
-                    <span className="text-gray-600 font-mono text-xs shrink-0">
-                      {new Date(item.played_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-600 font-mono text-sm text-center py-8">No recent tracks — start playing music!</p>
-            )}
-          </div>
-        )}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600 font-mono text-sm text-center py-8">No recent tracks — start playing music!</p>
+              )}
+            </div>
+          );
+        })()}
 
-        {/* Main Content Grid: Top Artists + Top Tracks */}
+            {/* Main Content Grid: Top Artists + Top Tracks */}
         {spotifyConnected && (
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 mb-8">
             {/* Top Artists */}
