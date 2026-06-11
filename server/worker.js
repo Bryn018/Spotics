@@ -67,6 +67,9 @@ export default {
         case path === '/scrobble' && method === 'POST':
           return handleScrobble(request, env, apiKey, corsHeaders);
 
+        case path === '/test-scrobble' && method === 'POST':
+          return handleTestScrobble(request, env, apiKey, corsHeaders);
+
         case path === '/now-playing' && method === 'POST':
           return handleNowPlaying(request, env, apiKey, corsHeaders);
 
@@ -204,6 +207,34 @@ async function handleScrobble(request, env, apiKey, corsHeaders) {
   ).run();
 
   return jsonResponse({ success: true, message: 'Scrobble recorded' }, corsHeaders);
+}
+
+async function handleTestScrobble(request, env, apiKey, corsHeaders) {
+  const body = await request.json().catch(() => ({}));
+  const { title, artist, album_art, duration_ms, timestamp, played_ms, source } = normalizeScrobble(body);
+  
+  const trackTitle = title || 'Test Track';
+  const trackArtist = artist || 'Test Artist';
+  
+  await env.DB.prepare(`
+    INSERT INTO scrobbles (api_key, title, artist, album_art, duration_ms, played_ms, timestamp, source)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    apiKey,
+    trackTitle,
+    trackArtist,
+    album_art || null,
+    duration_ms || 180000,
+    played_ms || 180000,
+    timestamp || new Date().toISOString(),
+    source || 'test'
+  ).run();
+
+  return jsonResponse({ 
+    success: true, 
+    message: 'Test scrobble recorded',
+    track: { title: trackTitle, artist: trackArtist }
+  }, corsHeaders);
 }
 
 // --- Now Playing ---
