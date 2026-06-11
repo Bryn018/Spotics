@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Link2, Key, CheckCircle, AlertCircle, Loader2, Copy, Eye, EyeOff, Music2, Puzzle, ExternalLink } from 'lucide-react';
-import { hasApiKey, registerApiKey, checkHealth } from '../services/scrobbleApi';
+import {
+  Link2,
+  Key,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Copy,
+  Eye,
+  EyeOff,
+  Music2,
+  Puzzle,
+  ExternalLink,
+  Trash2,
+  RefreshCw,
+} from 'lucide-react';
+import {
+  hasApiKey,
+  registerApiKey,
+  checkHealth,
+  revokeApiKey,
+} from '../services/scrobbleApi';
 
 interface ScrobblerConnectProps {
   onConnected?: () => void;
@@ -19,23 +38,22 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
 
   useEffect(() => {
     checkHealth().then(setServerHealthy);
-    // Check if user already has a key stored
     const key = localStorage.getItem('spotics_api_key');
     if (key) {
       setExistingKey(key);
       setIsConnected(true);
     }
 
-    // Listen for key sync from extension bridge script
-    const handleKeySynced = (e: CustomEvent<string>) => {
-      const syncedKey = e.detail;
+    const handleKeySynced = (e: Event) => {
+      const custom = e as CustomEvent<string>;
+      const syncedKey = custom.detail;
       setExistingKey(syncedKey);
       setApiKey(syncedKey);
       setIsConnected(true);
     };
+
     window.addEventListener('spotics-key-synced', handleKeySynced as EventListener);
 
-    // Also poll localStorage in case the bridge script wrote to it
     const pollInterval = setInterval(() => {
       const currentKey = localStorage.getItem('spotics_api_key');
       if (currentKey && currentKey !== existingKey) {
@@ -49,7 +67,7 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
       window.removeEventListener('spotics-key-synced', handleKeySynced as EventListener);
       clearInterval(pollInterval);
     };
-  }, []);
+  }, [existingKey]);
 
   const handleRegister = async () => {
     setIsRegistering(true);
@@ -101,11 +119,27 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
     }
   };
 
+  const handleRevoke = async () => {
+    setError(null);
+    try {
+      await revokeApiKey();
+      setApiKey('');
+      setExistingKey(null);
+      setIsConnected(false);
+      setShowKey(false);
+      setCopied(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to revoke key');
+    }
+  };
+
   const handleDisconnect = () => {
     localStorage.removeItem('spotics_api_key');
     setIsConnected(false);
     setApiKey('');
     setExistingKey(null);
+    setShowKey(false);
+    setCopied(false);
   };
 
   const handleCopyKey = async () => {
@@ -122,11 +156,9 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
     return key.substring(0, 8) + '...' + key.substring(key.length - 4);
   };
 
-  // Connected state — show key management
   if (isConnected && existingKey) {
     return (
       <div className="space-y-6">
-        {/* Connected Status */}
         <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-6">
           <div className="flex items-center gap-3 mb-4">
             <CheckCircle className="h-6 w-6 text-green-400" />
@@ -136,12 +168,12 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
             </div>
           </div>
 
-          {/* API Key Display */}
           <div className="mt-4 p-4 rounded-lg bg-black/50 border border-gray-800">
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-400 font-mono text-xs">Your API Key</span>
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => setShowKey(!showKey)}
                   className="text-gray-500 hover:text-gray-300 transition-colors"
                   title={showKey ? 'Hide key' : 'Show key'}
@@ -149,14 +181,21 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
                   {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
                 <button
+                  type="button"
                   onClick={handleCopyKey}
                   className="text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
                   title="Copy to clipboard"
                 >
                   {copied ? (
-                    <><CheckCircle className="h-4 w-4 text-green-400" /><span className="text-green-400 text-xs">Copied!</span></>
+                    <>
+                      <CheckCircle className="h-4 w-4 text-green-400" />
+                      <span className="text-green-400 text-xs">Copied!</span>
+                    </>
                   ) : (
-                    <><Copy className="h-4 w-4" /><span className="text-xs">Copy</span></>
+                    <>
+                      <Copy className="h-4 w-4" />
+                      <span className="text-xs">Copy</span>
+                    </>
                   )}
                 </button>
               </div>
@@ -169,8 +208,37 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
             </p>
           </div>
 
-          <div className="flex gap-3 mt-4">
+          <div className="flex flex-wrap gap-3 mt-4">
             <button
+              type="button"
+              onClick={handleRevoke}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-sm hover:bg-red-500/20 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+              Revoke Key
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  setError(null);
+                  await handleRevoke();
+                  const freshKey = await registerApiKey();
+                  localStorage.setItem('spotics_api_key', freshKey);
+                  setExistingKey(freshKey);
+                  setApiKey(freshKey);
+                  setIsConnected(true);
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Failed to regenerate key');
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 font-mono text-sm hover:bg-yellow-500/20 transition-colors"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Regenerate Key
+            </button>
+            <button
+              type="button"
               onClick={handleDisconnect}
               className="text-sm font-mono text-gray-500 hover:text-red-400 transition-colors"
             >
@@ -182,65 +250,55 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
     );
   }
 
-  // Not connected — show setup flow
   return (
     <div className="space-y-6">
-      {/* Server Status */}
       {serverHealthy !== null && (
-        <div className={`flex items-center gap-2 font-mono text-xs ${serverHealthy ? 'text-green-400' : 'text-yellow-400'}`}>
+        <div
+          className={`flex items-center gap-2 font-mono text-xs ${
+            serverHealthy ? 'text-green-400' : 'text-yellow-400'
+          }`}
+        >
           <span className={`w-2 h-2 rounded-full ${serverHealthy ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
           Server: {serverHealthy ? 'Online' : 'Unreachable'}
         </div>
       )}
 
-      {/* Step 1: Generate API Key */}
       <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
             <Key className="h-5 w-5 text-blue-400" />
           </div>
           <div className="flex-1">
-            <h3 className="text-gray-100 font-mono font-semibold mb-1">
-              Step 1: Generate Your API Key
-            </h3>
-            <p className="text-gray-400 font-mono text-sm mb-4">
-              Create your Spotics identity. This key links the extension to your dashboard.
-            </p>
-
+            <h3 className="text-gray-100 font-mono font-semibold mb-1">Step 1: Generate Your API Key</h3>
+            <p className="text-gray-400 font-mono text-sm mb-4">Create your Spotics identity. This key links the extension to your dashboard.</p>
             <button
+              type="button"
               onClick={handleRegister}
               disabled={isRegistering}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 font-mono text-sm hover:bg-blue-500/20 transition-colors disabled:opacity-50"
             >
-              {isRegistering ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Key className="h-4 w-4" />
-              )}
+              {isRegistering ? <Loader2 className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />}
               {isRegistering ? 'Creating...' : 'Generate API Key'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Step 2: Install Extension */}
       <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center">
             <Puzzle className="h-5 w-5 text-green-400" />
           </div>
           <div className="flex-1">
-            <h3 className="text-gray-100 font-mono font-semibold mb-1">
-              Step 2: Install the Browser Extension
-            </h3>
-            <p className="text-gray-400 font-mono text-sm mb-4">
-              The extension tracks what you play on Spotify Web Player.
-            </p>
+            <h3 className="text-gray-100 font-mono font-semibold mb-1">Step 2: Install the Browser Extension</h3>
+            <p className="text-gray-400 font-mono text-sm mb-4">The extension tracks what you play on Spotify Web Player.</p>
             <div className="bg-black/50 rounded-lg p-4 border border-gray-800 mb-4">
               <ol className="space-y-2 text-gray-400 font-mono text-xs">
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 shrink-0">01.</span>
-                  <span>Go to <code className="text-green-400">brave://extensions</code> (or <code className="text-green-400">chrome://extensions</code>)</span>
+                  <span>
+                    Go to <code className="text-green-400">brave://extensions</code> (or <code className="text-green-400">chrome://extensions</code>)
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-500 shrink-0">02.</span>
@@ -260,19 +318,14 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
         </div>
       </div>
 
-      {/* Step 3: Connect Extension */}
       <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
             <Link2 className="h-5 w-5 text-purple-400" />
           </div>
           <div className="flex-1">
-            <h3 className="text-gray-100 font-mono font-semibold mb-1">
-              Step 3: Connect the Extension
-            </h3>
-            <p className="text-gray-400 font-mono text-sm mb-4">
-              Paste your API key to link the extension to your dashboard.
-            </p>
+            <h3 className="text-gray-100 font-mono font-semibold mb-1">Step 3: Connect the Extension</h3>
+            <p className="text-gray-400 font-mono text-sm mb-4">Paste your API key to link the extension to your dashboard.</p>
 
             <div className="space-y-3">
               <div className="flex gap-2">
@@ -285,15 +338,12 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
                   onKeyDown={(e) => e.key === 'Enter' && handleConnect()}
                 />
                 <button
+                  type="button"
                   onClick={handleConnect}
                   disabled={isConnecting || !apiKey.trim()}
                   className="px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 font-mono text-sm hover:bg-green-500/20 transition-colors disabled:opacity-50 flex items-center gap-2"
                 >
-                  {isConnecting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Link2 className="h-4 w-4" />
-                  )}
+                  {isConnecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
                   Connect
                 </button>
               </div>
@@ -309,7 +359,6 @@ export function ScrobblerConnect({ onConnected }: ScrobblerConnectProps) {
         </div>
       </div>
 
-      {/* How it works */}
       <div className="rounded-lg border border-gray-800 bg-gray-900/30 p-6">
         <h3 className="text-gray-300 font-mono font-semibold mb-4 flex items-center gap-2">
           <Music2 className="h-4 w-4 text-green-400" />

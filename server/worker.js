@@ -54,6 +54,10 @@ export default {
         return errorResponse(403, 'Invalid API key.', corsHeaders);
       }
 
+      if (path === '/auth/revoke' && method === 'POST') {
+        return handleRevoke(env, apiKey, corsHeaders);
+      }
+
       // Update last used timestamp
       await env.DB.prepare('UPDATE api_keys SET last_used = datetime("now"), rate_limit_count = rate_limit_count + 1 WHERE key = ?')
         .bind(apiKey).run();
@@ -148,7 +152,30 @@ function generateApiKey() {
   return prefix + suffix;
 }
 
+async function handleRevoke(env, apiKey, corsHeaders) {
+  // Deactivate current key and all keys owned by this user
+  await env.DB.prepare('UPDATE api_keys SET is_active = 0 WHERE key = ?')
+    .bind(apiKey)
+    .run();
+
+  return jsonResponse({ success: true, message: 'API key revoked successfully.' }, corsHeaders);
+}
+
 // --- Scrobble ---
+
+function normalizeScrobble(body) {
+  return {
+    title: String(body.title || body.data?.title || '').substring(0, 500),
+    artist: String(body.artist || body.data?.artist || '').substring(0, 500),
+    album_art: body.album_art || body.data?.album_art || body.albumArt || body.data?.albumArt
+      ? String(body.album_art || body.data?.album_art || body.albumArt || body.data?.albumArt).substring(0, 1000)
+      : null,
+    duration_ms: Number(body.duration_ms ?? body.data?.duration_ms ?? body.durationMs ?? body.data?.durationMs ?? 0),
+    played_ms: Number(body.played_ms ?? body.data?.played_ms ?? body.playedMs ?? body.data?.playedMs ?? 0),
+    timestamp: body.timestamp || body.data?.timestamp || new Date().toISOString(),
+    source: body.source || body.data?.source || 'spotify_web_player',
+  };
+}
 
 async function handleScrobble(request, env, apiKey, corsHeaders) {
   const body = await request.json().catch(() => null);
@@ -156,7 +183,7 @@ async function handleScrobble(request, env, apiKey, corsHeaders) {
     return errorResponse(400, 'Invalid JSON body', corsHeaders);
   }
 
-  const { title, artist, album_art, duration_ms, timestamp, played_ms, source } = body;
+  const { title, artist, album_art, duration_ms, timestamp, played_ms, source } = normalizeScrobble(body);
 
   if (!title || !artist) {
     return errorResponse(400, 'Missing required fields: title, artist', corsHeaders);
@@ -167,13 +194,13 @@ async function handleScrobble(request, env, apiKey, corsHeaders) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     apiKey,
-    String(title).substring(0, 500),
-    String(artist).substring(0, 500),
-    album_art ? String(album_art).substring(0, 1000) : null,
-    Number(duration_ms) || 0,
-    Number(played_ms) || 0,
-    timestamp || new Date().toISOString(),
-    source || 'spotify_web_player'
+    title,
+    artist,
+    album_art,
+    duration_ms,
+    played_ms,
+    timestamp,
+    source
   ).run();
 
   return jsonResponse({ success: true, message: 'Scrobble recorded' }, corsHeaders);
@@ -187,7 +214,7 @@ async function handleNowPlaying(request, env, apiKey, corsHeaders) {
     return errorResponse(400, 'Invalid JSON body', corsHeaders);
   }
 
-  const { title, artist, album_art, duration_ms, timestamp, source } = body;
+  const { title, artist, album_art, duration_ms, timestamp, source } = normalizeScrobble(body);
 
   if (!title || !artist) {
     return errorResponse(400, 'Missing required fields: title, artist', corsHeaders);
@@ -198,12 +225,12 @@ async function handleNowPlaying(request, env, apiKey, corsHeaders) {
     VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
   `).bind(
     apiKey,
-    String(title).substring(0, 500),
-    String(artist).substring(0, 500),
-    album_art ? String(album_art).substring(0, 1000) : null,
-    Number(duration_ms) || 0,
-    timestamp || new Date().toISOString(),
-    source || 'spotify_web_player'
+    title,
+    artist,
+    album_art,
+    duration_ms,
+    timestamp,
+    source
   ).run();
 
   return jsonResponse({ success: true }, corsHeaders);

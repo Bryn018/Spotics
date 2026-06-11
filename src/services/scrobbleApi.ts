@@ -152,6 +152,26 @@ export async function registerApiKey(): Promise<string> {
   return key;
 }
 
+export async function revokeApiKey(): Promise<void> {
+  const key = getApiKey();
+  if (!key) return;
+
+  const response = await fetch(`${API_BASE}/auth/revoke`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': key,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.error || `API error ${response.status}`);
+  }
+
+  clearApiKey();
+}
+
 export function hasApiKey(): boolean {
   return !!getApiKey();
 }

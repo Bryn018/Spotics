@@ -70,6 +70,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     showSetup();
   });
 
+  // Revoke button in connected state
+  const revokeBtn = document.getElementById('revoke-btn');
+  if (revokeBtn) {
+    revokeBtn.addEventListener('click', async () => {
+      try {
+        const { apiKey: currentKey } = await chrome.storage.local.get(['apiKey']);
+        if (currentKey) {
+          await fetch('https://api.spotics.insights.autos/auth/revoke', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-Key': currentKey,
+            },
+          });
+        }
+      } catch (err) {
+        console.warn('[Spotics] Revoke failed:', err);
+      }
+      await chrome.storage.local.remove(['apiKey', 'sessionScrobbles', 'scrobbleCount', 'lastScrobble', 'lastScrobbleTime']);
+      showSetup();
+    });
+  }
+
   // Allow Enter key to submit
   apiKeyInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') connectBtn.click();
