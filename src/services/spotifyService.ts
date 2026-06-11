@@ -1,4 +1,5 @@
 // Spotify Service Client — talks to the local Python SpotAPI service
+// Uses WebSocket for instant push updates, REST API as fallback
 
 const SERVICE_BASE = 'http://localhost:3001';
 
@@ -38,43 +39,14 @@ export interface ServicePlayerState {
   prev_tracks: ServiceNowPlaying['track'][];
 }
 
-export interface ServiceTopItems<T> {
-  items: T[];
-  total: number;
-}
-
-export interface ServiceArtist {
-  id: string;
-  name: string;
-  genres: string[];
-  images: { url: string; width: number; height: number }[];
-  popularity: number;
-}
-
-export interface ServiceTrack {
-  id: string;
-  name: string;
-  artists: { name: string; id: string }[];
-  album: {
-    name: string;
-    images: { url: string; width: number; height: number }[];
-  };
-  duration_ms: number;
-  external_urls: { spotify?: string };
-}
-
-export interface ServiceUserInfo {
-  profile: Record<string, unknown>;
-  plan: Record<string, unknown>;
-  has_premium: boolean;
-  username: string;
-}
-
 export interface ServiceHealth {
   status: string;
   spotify_connected: boolean;
+  service: string;
   timestamp: string;
 }
+
+// --- REST API fallback ---
 
 async function serviceFetch<T>(path: string): Promise<T> {
   const response = await fetch(`${SERVICE_BASE}${path}`);
@@ -97,32 +69,92 @@ export async function getServiceRecentlyPlayed(limit: number = 20): Promise<Serv
   return serviceFetch<ServiceRecentlyPlayed>(`/recently-played?limit=${limit}`);
 }
 
-export async function getServiceTopArtists(
-  timeRange: string = 'medium_term',
-  limit: number = 25
-): Promise<ServiceTopItems<ServiceArtist>> {
-  return serviceFetch<ServiceTopItems<ServiceArtist>>(`/top-artists?time_range=${timeRange}&limit=${limit}`);
-}
-
-export async function getServiceTopTracks(
-  timeRange: string = 'medium_term',
-  limit: number = 25
-): Promise<ServiceTopItems<ServiceTrack>> {
-  return serviceFetch<ServiceTopItems<ServiceTrack>>(`/top-tracks?time_range=${timeRange}&limit=${limit}`);
-}
-
 export async function getServicePlayerState(): Promise<ServicePlayerState> {
   return serviceFetch<ServicePlayerState>('/player-state');
 }
 
-export async function getServiceUserInfo(): Promise<ServiceUserInfo> {
-  return serviceFetch<ServiceUserInfo>('/user');
+// --- WebSocket connection for instant updates ---
+
+type SocketIOEventType = 'now_playing_update' | 'recently_played_update' | 'track_changed';
+
+interface SocketCallbacks {
+  onNowPlaying?: (data: ServiceNowPlaying) => void;
+  onRecentlyPlayed?: (data: ServiceRecentlyPlayed) => void;
+  onTrackChanged?: (data: ServiceNowPlaying) => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
 }
 
-export async function searchSpotify(
-  query: string,
-  type: string = 'track',
-  limit: number = 10
-): Promise<{ results: unknown[] }> {
-  return serviceFetch<{ results: unknown[] }>(`/search?q=${encodeURIComponent(query)}&type=${type}&limit=${limit}`);
+let socketIO: any = null;
+let socketConnected = false;
+
+export function connectSocketIO(callbacks: SocketCallbacks): Promise<boolean> {
+  return new Promise((resolve) => {
+    // Dynamically load socket.io client from CDN
+    const script = document.createElement('script');
+    script.src = 'https://cdn.socket.io/4.7.2/socket.io.min.js';
+    script.onload = () => {
+      try {
+        const io = (window as any).io;
+        if (!io) {
+          console.error('[SpotifyService] Socket.IO not available');
+          resolve(false);
+          return;
+        }
+
+        socketIO = io(SERVICE_BASE, {
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: 10,
+        });
+
+        socketIO.on('connect', () => {
+          console.log('[SpotifyService] WebSocket connected');
+          socketConnected = true;
+          callbacks.onConnect?.();
+        });
+
+        socketIO.on('disconnect', () => {
+          console.log('[SpotifyService] WebSocket disconnected');
+          socketConnected = false;
+          callbacks.onDisconnect?.();
+        });
+
+        socketIO.on('now_playing_update', (data: ServiceNowPlaying) => {
+          callbacks.onNowPlaying?.(data);
+        });
+
+        socketIO.on('recently_played_update', (data: ServiceRecentlyPlayed) => {
+          callbacks.onRecentlyPlayed?.(data);
+        });
+
+        socketIO.on('track_changed', (data: ServiceNowPlaying) => {
+          callbacks.onTrackChanged?.(data);
+        });
+
+        resolve(true);
+      } catch (err) {
+        console.error('[SpotifyService] Socket.IO connection failed:', err);
+        resolve(false);
+      }
+    };
+    script.onerror = () => {
+      console.error('[SpotifyService] Failed to load Socket.IO client');
+      resolve(false);
+    };
+    document.head.appendChild(script);
+  });
+}
+
+export function disconnectSocketIO() {
+  if (socketIO) {
+    socketIO.disconnect();
+    socketIO = null;
+    socketConnected = false;
+  }
+}
+
+export function isSocketConnected(): boolean {
+  return socketConnected;
 }
