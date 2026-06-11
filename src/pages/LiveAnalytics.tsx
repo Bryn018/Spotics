@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useScrobbleStats, useTopArtists, useTopTracks, useListeningStats, useHeatmap, useNowPlaying } from '../hooks/useScrobbleData';
 import { ScrobblerConnect } from '../components/ScrobblerConnect';
 import { NavBar } from '../components/NavBar';
