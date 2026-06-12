@@ -137,11 +137,7 @@ export function Landing() {
   };
 
   const handleLastfmConnect = () => {
-    if (lfmConnected) {
-      navigate('/lastfm');
-    } else {
-      setMode('lastfm');
-    }
+    navigate('/lastfm');
   };
 
   return (
