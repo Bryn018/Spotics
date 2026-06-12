@@ -194,65 +194,62 @@ export function LastfmDashboard() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-6 max-w-lg mx-auto">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-                <Radio className="h-5 w-5 text-orange-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-gray-100 font-mono font-semibold mb-1">Connect to Last.fm</h3>
-                <p className="text-gray-400 font-mono text-sm mb-4">
-                  Last.fm tracks what you listen to across all devices — no extension needed.
-                  <br /><br />
-                  <span className="text-gray-500 text-xs">Connect Spotify to Last.fm in your Last.fm settings for automatic scrobbling.</span>
-                </p>
+          <div className="rounded-lg border border-orange-500/30 bg-orange-500/5 p-8 max-w-lg mx-auto">
+            <div className="text-center mb-6">
+              <Radio className="h-10 w-10 text-orange-400 mx-auto mb-3" />
+              <h3 className="text-orange-400 font-mono text-xl font-semibold">Connect to Last.fm</h3>
+              <p className="text-gray-400 font-mono text-sm mt-2">
+                Last.fm tracks what you listen to across all devices — no extension needed.
+              </p>
+            </div>
 
-                {/* API Key and Secret Input */}
-                <div className="mb-4 space-y-3">
-                  <div>
-                    <label className="text-gray-400 font-mono text-xs block mb-2">
-                      Last.fm API Key
-                    </label>
-                    <input
-                      type="text"
-                      value={apiKeyInput}
-                      onChange={(e) => setApiKeyInput(e.target.value)}
-                      placeholder="Get from last.fm/api/account/create"
-                      className="w-full px-3 py-2 rounded-lg bg-black/50 border border-gray-700 text-gray-100 font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-gray-400 font-mono text-xs block mb-2">
-                      Last.fm API Secret
-                    </label>
-                    <input
-                      type="password"
-                      value={apiSecretInput}
-                      onChange={(e) => setApiSecretInput(e.target.value)}
-                      placeholder="Shared secret from Last.fm API account page"
-                      className="w-full px-3 py-2 rounded-lg bg-black/50 border border-gray-700 text-gray-100 font-mono text-sm placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50"
-                    />
-                    <p className="text-gray-600 font-mono text-xs mt-1">
-                      Required for authentication. Stored locally and never sent to any server.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleConnect}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-mono text-sm transition-colors"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    Connect to Last.fm
-                  </button>
-                  <p className="text-gray-600 font-mono text-xs mt-2">
-                    Get both from{' '}
-                    <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:underline">
-                      last.fm/api/account/create
-                    </a>
-                  </p>
-                </div>
+            {/* API Key and Secret Input */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-gray-300 font-mono text-xs block mb-2">
+                  Last.fm API Key
+                </label>
+                <input
+                  type="text"
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  placeholder="Enter your API key"
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-lg bg-black border border-gray-600 text-gray-100 font-mono text-sm placeholder:text-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-gray-300 font-mono text-xs block mb-2">
+                  Last.fm API Secret
+                </label>
+                <input
+                  type="password"
+                  value={apiSecretInput}
+                  onChange={(e) => setApiSecretInput(e.target.value)}
+                  placeholder="Enter your API secret"
+                  className="w-full px-4 py-3 rounded-lg bg-black border border-gray-600 text-gray-100 font-mono text-sm placeholder:text-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50 transition-colors"
+                />
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleConnect}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-mono text-base transition-colors cursor-pointer"
+            >
+              <LogIn className="h-5 w-5" />
+              Connect to Last.fm
+            </button>
+
+            <p className="text-gray-500 font-mono text-xs mt-4 text-center">
+              Get both from{' '}
+              <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:underline">
+                last.fm/api/account/create
+              </a>
+            </p>
+            <p className="text-gray-600 font-mono text-xs mt-2 text-center">
+              Your credentials are stored locally and never sent to any server.
+            </p>
           </div>
 
           {/* Setup Instructions */}
