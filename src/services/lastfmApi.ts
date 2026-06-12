@@ -11,7 +11,9 @@
 //   3. User clicks "Connect Last.fm" → redirected to last.fm/api/auth
 //   4. User grants permission → Last.fm redirects back with a token
 //   5. Client exchanges token for session key via Worker (auth.getSession)
-//   6. Session key is stored locally and used for all subsequent API calls
+// 6. Session key is stored locally and used for all subsequent API calls
+
+import md5 from 'md5';
 
 const LASTFM_API_BASE = 'https://ws.audioscrobbler.com/2.0/';
 const WORKER_BASE = 'https://api.spotics.insights.autos/lastfm';
@@ -76,19 +78,34 @@ export function startLastfmAuth(): void {
 }
 
 // --- Step 2: Exchange token for session key via Cloudflare Worker ---
+// The auth.getSession endpoint REQUIRES a signed request (api_sig).
+// Since the Worker doesn't have the user's API secret, the client signs it.
 export async function handleLastfmCallback(token: string): Promise<boolean> {
   if (!token) throw new Error('No token provided');
 
   const apiKey = localStorage.getItem(LASTFM_API_KEY);
+  const apiSecret = localStorage.getItem(LASTFM_API_SECRET);
   if (!apiKey) throw new Error('API_KEY_MISSING');
+  if (!apiSecret) throw new Error('API_SECRET_MISSING');
 
   try {
+    // Build signed request for auth.getSession
+    const signParams: Record<string, string> = {
+      method: 'auth.getSession',
+      api_key: apiKey,
+      token: token,
+    };
+
+    // Sort params alphabetically and concatenate for signing
+    const paramStr = buildParamStringFromObject(signParams);
+    const apiSig = md5(paramStr + apiSecret);
+
     const response = await fetch(WORKER_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         method: 'auth.getSession',
-        params: { api_key: apiKey, token },
+        params: { api_key: apiKey, token, api_sig: apiSig },
       }),
     });
 
@@ -336,4 +353,16 @@ export function getLastfmLargeImage(image: { '#text': string; size: string }[] |
     || image.find(img => img.size === 'large')?.['#text']
     || image.find(img => img.size === 'medium')?.['#text']
     || null;
+}
+
+// --- Helper: Build param string for MD5 signing ---
+function buildParamStringFromObject(params: Record<string, string>): string {
+  const sorted: [string, string][] = [];
+  Object.entries(params).forEach(([key, value]) => {
+    if (key !== 'api_sig' && key !== 'format') {
+      sorted.push([key, value]);
+    }
+  });
+  sorted.sort((a, b) => a[0].localeCompare(b[0]));
+  return sorted.map(([k, v]) => `${k}${v}`).join('');
 }
