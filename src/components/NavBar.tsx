@@ -1,21 +1,26 @@
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
-import { Terminal, BarChart3, Home, Download, ScrollText, Activity } from 'lucide-react';
+import { isLastfmConnected, getLastfmUsername } from '../services/lastfmApi';
+import { Terminal, BarChart3, Home, Download, ScrollText, Activity, Radio } from 'lucide-react';
 
 interface NavBarProps {
-  currentPage: 'dashboard' | 'analytics' | 'wraps' | 'export' | 'live';
+  currentPage: 'dashboard' | 'analytics' | 'wraps' | 'export' | 'live' | 'lastfm';
 }
 
 export function NavBar({ currentPage }: NavBarProps) {
   const navigate = useNavigate();
   const { data } = useData();
 
-  if (!data) return null;
+  const lfmConnected = isLastfmConnected();
+  const lfmUsername = getLastfmUsername();
+
+  if (!data && !lfmConnected) return null;
 
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: Home, path: '/dashboard' },
     { id: 'analytics' as const, label: 'Analytics', icon: BarChart3, path: '/analytics' },
     { id: 'live' as const, label: 'Live', icon: Activity, path: '/live' },
+    { id: 'lastfm' as const, label: 'Last.fm', icon: Radio, path: '/lastfm' },
     { id: 'wraps' as const, label: 'Wraps', icon: ScrollText, path: '/wraps' },
     { id: 'export' as const, label: 'Export', icon: Download, path: '/export' },
   ];
@@ -42,7 +47,9 @@ export function NavBar({ currentPage }: NavBarProps) {
                   className={`
                     flex items-center gap-2 px-3 py-2 rounded-md font-mono text-sm transition-colors
                     ${active
-                      ? 'text-green-400 bg-green-500/10'
+                      ? item.id === 'lastfm'
+                        ? 'text-orange-400 bg-orange-500/10'
+                        : 'text-green-400 bg-green-500/10'
                       : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'}
                   `}
                 >
@@ -54,9 +61,19 @@ export function NavBar({ currentPage }: NavBarProps) {
           </div>
 
           {/* Data indicator */}
-          <div className="flex items-center gap-2 text-gray-500 font-mono text-xs">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="hidden md:inline">{data.totalTracks.toLocaleString()} tracks</span>
+          <div className="flex items-center gap-3 text-gray-500 font-mono text-xs">
+            {lfmConnected && (
+              <div className="flex items-center gap-1.5 text-orange-400/70">
+                <Radio className="h-3 w-3" />
+                <span className="hidden md:inline">{lfmUsername}</span>
+              </div>
+            )}
+            {data && (
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="hidden md:inline">{data.totalTracks.toLocaleString()} tracks</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

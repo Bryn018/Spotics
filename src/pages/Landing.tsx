@@ -1,11 +1,12 @@
 import { useState, useCallback, type DragEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
-import { Upload, FileArchive, AlertCircle, Loader2, Terminal, ChevronRight, Activity, ChevronLeft, LogIn, Zap } from 'lucide-react';
+import { Upload, FileArchive, AlertCircle, Loader2, Terminal, ChevronRight, Activity, ChevronLeft, LogIn, Zap, Radio } from 'lucide-react';
 import { useData, RawTrack } from '../context/DataContext';
 import { startSpotifyAuth } from '../services/spotifyApi';
+import { startLastfmAuth, isLastfmConnected, getLastfmUsername } from '../services/lastfmApi';
 
-type LandingMode = 'choose' | 'gdpr' | 'spotify';
+type LandingMode = 'choose' | 'gdpr' | 'spotify' | 'lastfm';
 
 export function Landing() {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ export function Landing() {
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [mode, setMode] = useState<LandingMode>('choose');
+
+  const lfmConnected = isLastfmConnected();
+  const lfmUsername = getLastfmUsername();
 
   const processZip = useCallback(async (file: File) => {
     setIsProcessing(true);
@@ -132,6 +136,14 @@ export function Landing() {
     setMode('gdpr');
   };
 
+  const handleLastfmConnect = () => {
+    if (lfmConnected) {
+      navigate('/lastfm');
+    } else {
+      setMode('lastfm');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-gray-100 flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Scanline effect */}
@@ -142,7 +154,7 @@ export function Landing() {
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Terminal className="h-6 w-6 text-green-500" />
-            <span className="text-green-500 font-mono text-sm">v2.1.0</span>
+            <span className="text-green-500 font-mono text-sm">v2.2.0</span>
           </div>
           <h1 className="text-5xl font-bold font-mono mb-3 text-green-400 tracking-tight">
             spotics
@@ -152,9 +164,42 @@ export function Landing() {
           </p>
         </div>
 
-        {/* Mode Selection - Only Spotify Connect and GDPR Upload */}
+        {/* Mode Selection */}
         {mode === 'choose' ? (
           <div className="space-y-4">
+            {/* Last.fm Connect Option */}
+            <button
+              onClick={handleLastfmConnect}
+              className="w-full rounded-lg border-2 border-dashed border-orange-500/30 bg-orange-500/5 p-8 text-center transition-all duration-300 hover:border-orange-400 hover:bg-orange-500/10 cursor-pointer group"
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Radio className="h-10 w-10 text-orange-400 group-hover:scale-110 transition-transform" />
+                  {lfmConnected && <Zap className="h-6 w-6 text-orange-400/50" />}
+                </div>
+                <div>
+                  <p className="text-orange-400 font-mono text-lg font-semibold">
+                    {lfmConnected ? `Last.fm Connected` : 'Connect Last.fm'}
+                  </p>
+                  {lfmConnected && lfmUsername && (
+                    <p className="text-orange-400/60 font-mono text-sm mt-1">@{lfmUsername}</p>
+                  )}
+                  <p className="text-gray-400 font-mono text-sm mt-1">
+                    {lfmConnected
+                      ? 'View your complete listening history'
+                      : 'Auto-sync from Spotify — no extension needed'
+                    }
+                  </p>
+                </div>
+                <span className="text-orange-500/60 font-mono text-xs group-hover:text-orange-400 transition-colors">
+                  {lfmConnected ? 'Open Dashboard' : 'API Key → Auth → Full History'}
+                </span>
+                <p className="text-gray-500 font-mono text-xs mt-4">
+                  ✓ No extension · ✓ Works on free tier · ✓ Unlimited history
+                </p>
+              </div>
+            </button>
+
             {/* Spotify Connect Option */}
             <button
               onClick={handleSpotifyConnect}
@@ -239,6 +284,40 @@ export function Landing() {
                 <LogIn className="h-5 w-5" />
                 Connect to Spotify
               </button>
+            </div>
+          </div>
+        ) : mode === 'lastfm' ? (
+          <div className="text-center">
+            <button
+              onClick={() => setMode('choose')}
+              className="text-gray-500 font-mono text-sm hover:text-gray-300 transition-colors mb-6 flex items-center gap-1 justify-center"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </button>
+            <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-8">
+              <div className="flex items-center gap-2 justify-center mb-4">
+                <Radio className="h-10 w-10 text-orange-400" />
+              </div>
+              <h2 className="text-orange-400 font-mono text-xl font-semibold mb-2">Connect Last.fm</h2>
+              <p className="text-gray-400 font-mono text-sm mb-6">
+                Enter your Last.fm API key, then authorize.
+              </p>
+              <button
+                onClick={() => {
+                  startLastfmAuth();
+                }}
+                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-mono text-base transition-colors"
+              >
+                <LogIn className="h-5 w-5" />
+                Connect to Last.fm
+              </button>
+              <p className="text-gray-600 font-mono text-xs mt-4">
+                Get a free API key at{' '}
+                <a href="https://www.last.fm/api/account/create" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:underline">
+                  last.fm/api/account/create
+                </a>
+              </p>
             </div>
           </div>
         ) : (
