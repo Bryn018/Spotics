@@ -102,6 +102,15 @@ export async function handleLastfmCallback(token: string): Promise<boolean> {
         method: 'auth.getSession',
         params: { api_key: apiKey, token, api_sig: apiSig },
       }),
+    }).catch((fetchErr) => {
+      // Network-level error (DNS, connection refused, timeout, CORS)
+      if (fetchErr instanceof TypeError && fetchErr.message.includes('Failed to fetch')) {
+        throw new Error('NETWORK_ERROR: Cannot reach authentication server. Check internet connection or try again later.');
+      }
+      if (fetchErr instanceof TypeError && fetchErr.message.includes('NetworkError')) {
+        throw new Error('NETWORK_ERROR: Network error - possibly blocked by firewall or extension.');
+      }
+      throw fetchErr;
     });
 
     if (!response.ok) {
@@ -153,6 +162,14 @@ async function lastfmRequest<T>(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ method, params }),
+  }).catch((fetchErr) => {
+    if (fetchErr instanceof TypeError && fetchErr.message.includes('Failed to fetch')) {
+      throw new Error('NETWORK_ERROR: Cannot reach Last.fm server. Check internet connection or try again later.');
+    }
+    if (fetchErr instanceof TypeError && fetchErr.message.includes('NetworkError')) {
+      throw new Error('NETWORK_ERROR: Network error - possibly blocked by firewall or extension.');
+    }
+    throw fetchErr;
   });
 
   if (!response.ok) {
