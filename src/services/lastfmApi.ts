@@ -76,22 +76,15 @@ export function startLastfmAuth(): void {
 
 // --- Step 3: Exchange token for session key ---
 export async function handleLastfmCallback(token: string): Promise<boolean> {
-  if (!token) return false;
+  if (!token) throw new Error('No token provided');
 
   const apiKey = localStorage.getItem(LASTFM_API_KEY);
-  if (!apiKey) {
-    alert('Last.fm API Key not found. Please configure it first.');
-    return false;
-  }
+  if (!apiKey) throw new Error('API_KEY_MISSING');
+
+  const secret = getApiSecret();
+  if (!secret) throw new Error('API_SECRET_MISSING');
 
   try {
-    // Build the auth.getSession request — MUST be signed with api_secret
-    const secret = getApiSecret();
-    if (!secret) {
-      alert('Last.fm API Secret is required for authentication. Please reconnect with both API key and secret.');
-      return false;
-    }
-
     // Build params for signing (exclude api_sig and format from signature)
     const signParams: Record<string, string> = {
       method: 'auth.getSession',
@@ -100,7 +93,7 @@ export async function handleLastfmCallback(token: string): Promise<boolean> {
     };
 
     // Create signature: sort params, concatenate, append secret, MD5
-    const paramStr = buildParamStringForSigningFromObject(signParams);
+    const paramStr = buildParamStringFromObject(signParams);
     const apiSig = md5(paramStr + secret);
 
     const url = `${LASTFM_API_BASE}?method=auth.getSession&api_key=${apiKey}&token=${token}&api_sig=${apiSig}&format=json`;
@@ -114,9 +107,7 @@ export async function handleLastfmCallback(token: string): Promise<boolean> {
     const data = await response.json();
 
     if (data.error) {
-      console.error('[Last.fm] Auth error:', data);
-      alert(`Last.fm auth error: ${data.message || 'Unknown error'}`);
-      return false;
+      throw new Error(`Last.fm error ${data.error}: ${data.message || 'Unknown error'}`);
     }
 
     if (data.session?.key) {
@@ -126,11 +117,10 @@ export async function handleLastfmCallback(token: string): Promise<boolean> {
       return true;
     }
 
-    return false;
+    throw new Error('No session key in response');
   } catch (err) {
     console.error('[Last.fm] Callback error:', err);
-    alert('Failed to complete Last.fm authentication. Please try again.');
-    return false;
+    throw err;
   }
 }
 
@@ -215,7 +205,7 @@ function buildParamStringForSigning(params: URLSearchParams): string {
 // Same as buildParamStringForSigning but takes a plain object instead of URLSearchParams
 function buildParamStringFromObject(params: Record<string, string>): string {
   const sorted: [string, string][] = [];
-  params.forEach((value, key) => {
+  Object.entries(params).forEach(([key, value]) => {
     if (key !== 'api_sig' && key !== 'format') {
       sorted.push([key, value]);
     }
