@@ -2,18 +2,13 @@
 // Uses the Cloudflare Worker at api.spotics.insights.autos as a proxy
 // to bypass CORS (Last.fm does not set CORS headers).
 //
-// The Worker handles request signing with its own API secret,
-// so the client only needs to pass the method and params.
-//
 // Authentication flow:
 //   1. User gets API key + secret from https://www.last.fm/api/account/create
 //   2. User enters both in Spotics settings
 //   3. User clicks "Connect Last.fm" → redirected to last.fm/api/auth
 //   4. User grants permission → Last.fm redirects back with a token
-//   5. Client exchanges token for session key via Worker (auth.getSession)
+//   5. Client signs auth.getSession with API secret and sends via Worker
 // 6. Session key is stored locally and used for all subsequent API calls
-
-import md5 from 'md5';
 
 const LASTFM_API_BASE = 'https://ws.audioscrobbler.com/2.0/';
 const WORKER_BASE = 'https://api.spotics.insights.autos/lastfm';
@@ -365,4 +360,54 @@ function buildParamStringFromObject(params: Record<string, string>): string {
   });
   sorted.sort((a, b) => a[0].localeCompare(b[0]));
   return sorted.map(([k, v]) => `${k}${v}`).join('');
+}
+
+// --- Helper: MD5 for request signing ---
+// Compact MD5 implementation (blueimp/JavaScript-MD5 algorithm)
+function md5(str: string): string {
+  function rotl(x: number, n: number): number { return (x << n) | (x >>> (32 - n)); }
+  function add(n1: number, n2: number): number { return (n1 + n2) >>> 0; }
+  
+  const utf8 = new TextEncoder().encode(str);
+  const words = new Array(Math.ceil(utf8.length / 4) + 16).fill(0);
+  for (let i = 0; i < utf8.length; i++) words[i >> 2] |= utf8[i] << (24 - (i % 4) * 8);
+  const bitLen = utf8.length * 8;
+  words[bitLen >> 5] |= 0x80 << (24 - (bitLen % 32));
+  words[((bitLen + 64) >> 5)] = bitLen;
+  
+  const K = [
+    0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee, 0xf57c1793, 0x4787c62a, 0xa8304613, 0xfd469501,
+    0x698098d8, 0x8b44f7af, 0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193, 0xa67914ce, 0x56b8eb1b,
+    0x49b40821, 0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa, 0xd62f105d, 0x02441453, 0xd8a1e681,
+    0xe7d3fbc8, 0x21e1cde6, 0xc33707d6, 0xf4d50337, 0x455a14ed, 0xa9e3e905, 0xfcefa3f8, 0x676f02d9,
+    0x8d2a4c8a, 0xfffa3942, 0x8a886fb5, 0x69592bb4, 0xe6e19b2b, 0xd4d5b98b, 0x6b5b9e43, 0x4a6a96c4,
+    0xe9e207b9, 0xf3a9c6b2, 0x5a8275bf, 0x5ac6a67a, 0x7c95e47d, 0xaeceb9b7, 0xbeb5fed8, 0xc6a99655,
+    0x10574369, 0xe6ab79f7, 0x95c4fe7c, 0x6c0cdd4b, 0xe9a81e31, 0x7c6a1af5, 0x213d6e75, 0xcb3eaf0e,
+    0xf4906567, 0x368e6f88, 0x74135e9a, 0x56f3387a, 0x01e2eb76, 0x4247dd9d, 0x58af0b58, 0x3dcf7ae2,
+    0x79ee5564, 0x2e6f4e3e, 0x8b5e3b50, 0x48b0b87b, 0x6ed9e881, 0x9c7140c5
+  ];
+  const S = [
+    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+    5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
+    5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
+    5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20
+  ];
+  
+  let a = 0x67452301, b = 0xefcdab89, c = 0x98badcfe, d = 0x10325476;
+  
+  for (let i = 0; i < words.length; i += 16) {
+    const aa = a, bb = b, cc = c, dd = d;
+    for (let j = 0; j < 64; j++) {
+      let f: number, g: number;
+      if (j < 16) { f = (b & c) | (~b & d); g = j; }
+      else if (j < 32) { f = (d & b) | (~d & c); g = (5 * j + 1) % 16; }
+      else if (j < 48) { f = b ^ c ^ d; g = (3 * j + 5) % 16; }
+      else { f = d ^ (b | ~c); g = (7 * j) % 16; }
+      const M = words[i + g] || 0;
+      const temp = add(add(add(a, f), M), K[j]);
+      a = d; d = c; c = b; b = add(b, rotl(temp, S[j]));
+      a = add(a, aa); b = add(b, bb); c = add(c, cc); d = add(d, dd);
+    }
+  }
+  return [a, b, c, d].map(n => n.toString(16).padStart(8, '0')).join('');
 }
