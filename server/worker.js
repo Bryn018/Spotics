@@ -38,6 +38,11 @@ export default {
         return jsonResponse({ status: 'ok', service: 'spotics-scrobble-server', version: '1.0.0' }, corsHeaders);
       }
 
+      // --- Last.fm Proxy (public, no auth) ---
+      if (path === '/lastfm' && method === 'POST') {
+        return handleLastfmProxy(request, corsHeaders);
+      }
+
       if (path === '/auth/register' && method === 'POST') {
         return handleRegister(env, corsHeaders);
       }
@@ -530,6 +535,53 @@ function getTimeFilterFromPeriod(period) {
       return { sql: ' AND timestamp >= datetime("now", "-1 year")', params: [] };
     default:
       return { sql: '', params: [] };
+  }
+}
+
+// --- Last.fm Proxy Handler ---
+// Forwards API calls to Last.fm on behalf of the browser client.
+// This bypasses CORS since Last.fm does not set CORS headers.
+// Request body: { method: "user.getRecentTracks", params: { page: "1", ... } }
+// The Worker adds api_key, format, and signing, then forwards to Last.fm.
+async function handleLastfmProxy(request, corsHeaders) {
+  try {
+    const body = await request.json();
+    const { method, params = {} } = body;
+
+    if (!method) {
+      return errorResponse(400, 'Missing "method" in request body', corsHeaders);
+    }
+
+    // Build the Last.fm API URL
+    const lastfmParams = new URLSearchParams({
+      method,
+      format: 'json',
+      ...params,
+    });
+
+    const lastfmUrl = `https://ws.audioscrobbler.com/2.0/?${lastfmParams.toString()}`;
+
+    // Forward the request to Last.fm
+    const lastfmResponse = await fetch(lastfmUrl, {
+      headers: {
+        'User-Agent': 'Spotics/1.0 (https://spotics.insights.autos)',
+        'Accept': 'application/json',
+      },
+    });
+
+    const responseData = await lastfmResponse.text();
+
+    // Return the Last.fm response with CORS headers
+    return new Response(responseData, {
+      status: lastfmResponse.status,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (err) {
+    console.error('[Last.fm Proxy] Error:', err);
+    return errorResponse(500, `Last.fm proxy error: ${err.message}`, corsHeaders);
   }
 }
 
