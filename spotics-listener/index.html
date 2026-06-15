@@ -384,6 +384,18 @@ canvas.main-chart{width:100%!important;display:block}
 .mini-stat-val{font-size:1.1rem;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace}
 .mini-stat-lbl{font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
 
+/* ── TOP ALBUMS ────────────────────────────────── */
+.album-list{padding:0 1.4rem 1.2rem}
+.album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;padding:0 1.4rem 1.2rem}
+.album-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:transform .15s ease,box-shadow .15s ease}
+.album-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.album-cover{aspect-ratio:1/1;background:var(--surface3);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.album-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.album-cover .no-cover{font-size:.7rem;color:var(--text3);padding:.5rem;text-align:center}
+.album-meta{padding:.6rem .75rem .8rem}
+.album-name{font-size:.78rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.album-artist{font-size:.7rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+
 /* ── HISTORY PAGE ─────────────────────────────── */
 .history-toolbar{
   display:flex;gap:0.75rem;align-items:center;
@@ -669,6 +681,24 @@ canvas.main-chart{width:100%!important;display:block}
           </div>
           <div class="artist-list" id="artist-list" style="padding-top:1rem">
             <div class="empty">Connect Last.fm to see your top artists</div>
+          </div>
+        </div>
+
+        <!-- Top Albums -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              Top Albums
+            </div>
+            <div class="card-ctrl">
+              <div class="card-tab active" data-period="week" data-target="album">Week</div>
+              <div class="card-tab" data-period="month" data-target="album">Month</div>
+              <div class="card-tab" data-period="all" data-target="album">All time</div>
+            </div>
+          </div>
+          <div class="album-grid" id="album-grid" style="padding-top:1rem">
+            <div class="empty">Connect Last.fm to see your top albums</div>
           </div>
         </div>
 
@@ -988,7 +1018,16 @@ async function saveSessionKey(key) { await dbPut('session', { id: 'lastfm_sessio
 async function getSessionKey() { const r = await dbGet('session', 'lastfm_session'); return r ? r.key : null; }
 async function savePlay(play) {
   const id = `${play.played_at}_${play.track_id}`;
-  await dbPut('history', { id, played_at: play.played_at, track_name: play.track_name, track_id: play.track_id, artist_name: play.artist_name, album_cover: play.album_cover, duration_ms: 0 });
+  await dbPut('history', {
+    id,
+    played_at: play.played_at,
+    track_name: play.track_name,
+    track_id: play.track_id,
+    artist_name: play.artist_name,
+    album_name: play.album_name,
+    album_cover: play.album_cover,
+    duration_ms: 0,
+  });
 }
 async function getAllPlays() { return await dbGetAll('history'); }
 
@@ -1026,6 +1065,7 @@ async function fetchRecentTracks() {
     track_id: t.url,
     track_name: t.name,
     artist_name: t.artist['#text'],
+    album_name: t.album['#text'] || null,
     album_cover: t.image?.find(i => i.size === 'large')?.['#text'] || t.image?.[t.image.length - 1]?.['#text'] || '',
     duration_ms: 0,
     played_at: new Date(t.date.uts * 1000).toISOString(),
@@ -1117,6 +1157,25 @@ function renderArtistBars(artistCounts, limit = 7) {
     </div>`).join('');
 }
 
+function renderAlbumGrid(albumCounts, limit = 8) {
+  const el = document.getElementById('album-grid');
+  const sorted = Object.entries(albumCounts)
+    .filter(([, meta]) => meta.name)
+    .sort((a,b) => b[1].count - a[1].count)
+    .slice(0, limit);
+  if (!sorted.length) { el.innerHTML = '<div class="empty">No album data yet</div>'; return; }
+  el.innerHTML = sorted.map(([, meta], i) => `
+    <div class="album-card">
+      <div class="album-cover">
+        ${meta.cover ? `<img src="${esc(meta.cover)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="no-cover" style="display:none">No cover</div>` : '<div class="no-cover">No cover</div>'}
+      </div>
+      <div class="album-meta">
+        <div class="album-name" title="${esc(meta.name)}">${esc(meta.name)}</div>
+        <div class="album-artist">${esc(meta.artist || '')}</div>
+      </div>
+    </div>`).join('');
+}
+
 function renderHeatmap(plays) {
   const wrap = document.getElementById('heatmap-wrap');
   const legend = document.getElementById('heatmap-legend');
@@ -1181,9 +1240,15 @@ async function refreshDashboard(period = 'all') {
   if (period === 'month') { const t = Date.now() - 30*86400000; filtered = plays.filter(p => new Date(p.played_at)>t); }
 
   const artistCounts = {};
+  const albumCounts = {};
   const days = new Set();
   filtered.forEach(p => {
     artistCounts[p.artist_name] = (artistCounts[p.artist_name] || 0) + 1;
+    if (p.album_name && (p.album_name.trim() || p.album_cover)) {
+      const key = (p.album_name || '').trim() || p.album_cover;
+      if (!albumCounts[key]) albumCounts[key] = { name: p.album_name, count: 0, cover: p.album_cover, artist: p.artist_name };
+      albumCounts[key].count += 1;
+    }
     days.add(p.played_at.slice(0, 10));
   });
   const topArtist = Object.entries(artistCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
@@ -1196,6 +1261,7 @@ async function refreshDashboard(period = 'all') {
   document.getElementById('data-count-label').textContent = `${plays.length.toLocaleString()} plays stored`;
 
   renderArtistBars(artistCounts);
+  renderAlbumGrid(albumCounts);
   renderTrackList('recent-list', plays, 12);
   renderHeatmap(plays);
   computeWeekStats(plays);
