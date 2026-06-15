@@ -3,146 +3,359 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SpoTics Pro · Listening Habits</title>
+  <title>SpoTics — Your Listening Universe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="dark">
-  <div class="app">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="logo">
-        <span class="logo-icon">🎧</span>
-        <span class="logo-text">SpoTics</span>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">
+        <div class="logo-bars">
+          <div class="logo-bar"></div>
+          <div class="logo-bar"></div>
+          <div class="logo-bar"></div>
+          <div class="logo-bar"></div>
+          <div class="logo-bar"></div>
+        </div>
       </div>
-      <nav>
-        <a href="#" class="nav-item active" data-page="dashboard">
-          <span class="nav-icon">📊</span> Dashboard
-        </a>
-        <a href="#" class="nav-item" data-page="history">
-          <span class="nav-icon">🕒</span> History
-        </a>
-        <a href="#" class="nav-item" data-page="settings">
-          <span class="nav-icon">⚙️</span> Settings
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <button id="theme-toggle" class="icon-btn" title="Toggle theme">
-          <span id="theme-icon">☀️</span>
-        </button>
-        <p class="user-info" id="user-display">Not connected</p>
+      <div>
+        <div class="logo-text">SpoTics</div>
+        <div class="logo-sub">Listener</div>
       </div>
-    </aside>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Dashboard Page -->
-      <section id="page-dashboard" class="page active">
-        <header class="page-header">
-          <h1>Your Listening Dashboard</h1>
-          <button id="connect-btn-dash" class="btn-primary">Connect Last.fm</button>
-          <button id="fetch-now-btn-dash" class="btn-secondary hidden">Refresh now</button>
-        </header>
+    <div class="nav-section">Menu</div>
+    <a class="nav-item active" data-page="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a class="nav-item" data-page="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+      <span>History</span>
+      <span class="nav-badge" id="history-badge">0</span>
+    </a>
+    <a class="nav-item" data-page="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.65 1.65v.18a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.65-1.65h-.18a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.65-1.65v-.18a2 2 0 012-2 2 2 0 012 2v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.65 1.65h.18a2 2 0 012 2 2 2 0 01-2 2h-.09A1.65 1.65 0 0019.4 15z"/></svg>
+      <span>Settings</span>
+    </a>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid" id="stats-container">
-          <div class="stat-card">
-            <span class="stat-icon">🎵</span>
-            <div class="stat-body">
-              <span class="stat-value" id="total-tracks">0</span>
-              <span class="stat-label">Tracks collected</span>
+    <div class="sidebar-footer">
+      <div class="user-chip" id="user-chip">
+        <div class="user-avatar" id="user-avatar">—</div>
+        <div>
+          <div class="user-name" id="user-name-display">Not connected</div>
+          <div class="user-status" id="user-status">Connect to start</div>
+        </div>
+      </div>
+      <div class="theme-row">
+        <span class="theme-label">Light mode</span>
+        <div class="theme-toggle" id="theme-toggle" role="button" tabindex="0" aria-label="Toggle light mode">
+          <div class="theme-knob"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ── DASHBOARD PAGE ── -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Your Listening Universe</h1>
+          <p class="page-sub" id="dash-sub">Connect your Last.fm account to start tracking</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn btn-primary" id="connect-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            Connect Last.fm
+          </button>
+          <button class="btn btn-ghost hidden" id="refresh-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <div class="stat-val" id="stat-tracks">—</div>
+          <div class="stat-label">Tracks played</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div class="stat-val" id="stat-artists">—</div>
+          <div class="stat-label">Unique artists</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <div class="stat-val" id="stat-top-artist">—</div>
+          <div class="stat-label">Top artist</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="stat-val" id="stat-days">—</div>
+          <div class="stat-label">Days tracked</div>
+        </div>
+      </div>
+
+      <!-- Main grid -->
+      <div class="dash-grid">
+        <!-- Left column -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem">
+
+          <!-- Top Artists -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Top Artists
+              </div>
+              <div class="card-ctrl">
+                <div class="card-tab active" data-period="week">Week</div>
+                <div class="card-tab" data-period="month">Month</div>
+                <div class="card-tab" data-period="all">All time</div>
+              </div>
+            </div>
+            <div class="artist-list" id="artist-list" style="padding-top:1rem">
+              <div class="empty">Connect Last.fm to see your top artists</div>
             </div>
           </div>
-          <div class="stat-card">
-            <span class="stat-icon">🎤</span>
-            <div class="stat-body">
-              <span class="stat-value" id="total-artists">0</span>
-              <span class="stat-label">Unique artists</span>
+
+          <!-- Activity Heatmap -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+                Activity — Last 12 weeks
+              </div>
             </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon">🏆</span>
-            <div class="stat-body">
-              <span class="stat-value" id="top-artist-name">—</span>
-              <span class="stat-label">Top artist</span>
+            <div class="heatmap-wrap" id="heatmap-wrap">
+              <div style="padding:1.25rem 0 0.5rem;color:var(--text3);font-size:0.8rem;text-align:center">No activity data yet</div>
             </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon">📅</span>
-            <div class="stat-body">
-              <span class="stat-value" id="days-tracked">0</span>
-              <span class="stat-label">Days tracked</span>
+            <div class="heatmap-legend" id="heatmap-legend" style="display:none">
+              <span>Less</span>
+              <div class="heatmap-legend-cell" style="background:var(--surface3)"></div>
+              <div class="heatmap-legend-cell l1"></div>
+              <div class="heatmap-legend-cell l2"></div>
+              <div class="heatmap-legend-cell l3"></div>
+              <div class="heatmap-legend-cell l4"></div>
+              <span>More</span>
             </div>
           </div>
         </div>
 
-        <!-- Top Artists Chart -->
-        <div class="chart-card">
-          <h2>Top 5 Artists</h2>
-          <canvas id="top-artists-chart" width="400" height="200"></canvas>
+        <!-- Right column -->
+        <div class="col-right">
+
+          <!-- Now Playing / Recent -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Recently Played
+              </div>
+              <div class="freq-bars paused" id="freq-bars">
+                <div class="freq-bar" style="height:4px"></div>
+                <div class="freq-bar" style="height:4px"></div>
+                <div class="freq-bar" style="height:4px"></div>
+                <div class="freq-bar" style="height:4px"></div>
+                <div class="freq-bar" style="height:4px"></div>
+                <div class="freq-bar" style="height:4px"></div>
+                <div class="freq-bar" style="height:4px"></div>
+                <div class="freq-bar" style="height:4px"></div>
+              </div>
+            </div>
+            <ul class="track-list" id="recent-list">
+              <div class="empty">Your recent plays will appear here</div>
+            </ul>
+          </div>
+
+          <!-- Quick stats -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                This Week
+              </div>
+            </div>
+            <div class="mini-stat-row" id="week-stats">
+              <div class="mini-stat"><div class="mini-stat-val" id="ws-plays">0</div><div class="mini-stat-lbl">Plays</div></div>
+              <div class="mini-stat"><div class="mini-stat-val" id="ws-artists">0</div><div class="mini-stat-lbl">Artists</div></div>
+              <div class="mini-stat"><div class="mini-stat-val" id="ws-peak">—</div><div class="mini-stat-lbl">Peak hour</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HISTORY PAGE ── -->
+    <section class="page" id="page-history">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Listening History</h1>
+          <p class="page-sub">Everything you've played, in one place</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn btn-ghost btn-sm" id="export-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export JSON
+          </button>
+        </div>
+      </div>
+
+      <div class="history-toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" class="search-input" id="search-input" placeholder="Search tracks or artists…">
+        </div>
+        <select class="sort-select" id="sort-select">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="artist">Artist A–Z</option>
+          <option value="track">Track A–Z</option>
+        </select>
+      </div>
+
+      <div class="history-table-wrap">
+        <ul class="track-list" id="history-list">
+          <div class="empty">No listening history yet. Connect Last.fm to start tracking.</div>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ── SETTINGS PAGE ── -->
+    <section class="page" id="page-settings">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Settings</h1>
+          <p class="page-sub">Manage your account and preferences</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Account -->
+        <div class="settings-section">
+          <div class="settings-section-head">Account</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Last.fm Account</div>
+              <div class="settings-row-sub" id="settings-user-display">Not connected</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="connect-settings-btn">Connect</button>
+          </div>
+          <div class="settings-row" id="disconnect-row" style="display:none">
+            <div>
+              <div class="settings-row-label">Sign out</div>
+              <div class="settings-row-sub">Remove your session from this device</div>
+            </div>
+            <button class="btn btn-danger btn-sm" id="disconnect-btn">Disconnect</button>
+          </div>
         </div>
 
-        <!-- Recent Tracks Preview -->
-        <div class="track-preview">
-          <h2>Recently played</h2>
-          <ul id="recent-list-dash" class="track-list"></ul>
-        </div>
-
-        <p id="last-fetch-time" class="fetch-time"></p>
-      </section>
-
-      <!-- History Page -->
-      <section id="page-history" class="page">
-        <header class="page-header">
-          <h1>Full Listening History</h1>
-          <div class="history-controls">
-            <input type="text" id="search-input" placeholder="Search tracks or artists..." class="search-input">
-            <select id="sort-select" class="sort-select">
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-              <option value="artist">Artist A‑Z</option>
-              <option value="track">Track A‑Z</option>
+        <!-- Config -->
+        <div class="settings-section">
+          <div class="settings-section-head">API Configuration</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Edit API Keys</div>
+              <div class="settings-row-sub">Update your Last.fm API key, secret, and username</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="edit-config-btn">Edit</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Poll interval</div>
+              <div class="settings-row-sub">How often SpoTics checks for new plays (5 min default)</div>
+            </div>
+            <select class="sort-select" id="poll-interval-select" style="padding:0.4rem 0.7rem;font-size:0.8rem">
+              <option value="60000">1 minute</option>
+              <option value="300000" selected>5 minutes</option>
+              <option value="600000">10 minutes</option>
+              <option value="1800000">30 minutes</option>
             </select>
-            <button id="export-btn" class="btn-secondary">Export JSON</button>
           </div>
-        </header>
-        <ul id="history-list" class="track-list full-list"></ul>
-      </section>
+        </div>
 
-      <!-- Settings Page -->
-      <section id="page-settings" class="page">
-        <header class="page-header">
-          <h1>Settings</h1>
-        </header>
-        <div class="settings-card">
-          <h2>Account</h2>
-          <p>Connected as: <strong id="settings-username">—</strong></p>
-          <button id="disconnect-btn" class="btn-danger">Disconnect</button>
+        <!-- Appearance -->
+        <div class="settings-section">
+          <div class="settings-section-head">Appearance</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Light mode</div>
+              <div class="settings-row-sub">Switch to a light colour scheme</div>
+            </div>
+            <div class="toggle-switch" id="dark-toggle" role="button" tabindex="0" aria-label="Toggle light mode">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
         </div>
-        <div class="settings-card">
-          <h2>Appearance</h2>
-          <label class="switch-label">
-            Dark mode
-            <input type="checkbox" id="dark-mode-checkbox" checked>
-            <span class="toggle-switch"></span>
-          </label>
-        </div>
-        <div class="settings-card">
-          <h2>Data</h2>
-          <button id="clear-data-btn" class="btn-danger">Clear all listening data</button>
-        </div>
-      </section>
 
-      <!-- Error toast -->
-      <div id="toast" class="toast hidden"></div>
-    </main>
+        <!-- Data -->
+        <div class="settings-section">
+          <div class="settings-section-head">Data</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Clear listening history</div>
+              <div class="settings-row-sub" id="data-count-label">No data stored</div>
+            </div>
+            <button class="btn btn-danger btn-sm" id="clear-data-btn">Clear all</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Export all data</div>
+              <div class="settings-row-sub">Download your full history as JSON</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="export-settings-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CONFIG MODAL -->
+  <div class="modal-bg" id="config-modal">
+    <div class="modal">
+      <div class="modal-title">Last.fm Configuration</div>
+      <div class="modal-sub">Enter your Last.fm API credentials. Get them at <strong>last.fm/api/account/create</strong>.</div>
+      <div class="field">
+        <label>API Key</label>
+        <input type="text" id="cfg-api-key" placeholder="Your Last.fm API key">
+      </div>
+      <div class="field">
+        <label>Shared Secret</label>
+        <input type="password" id="cfg-api-secret" placeholder="Your Last.fm shared secret">
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="cfg-username" placeholder="Your Last.fm username">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="modal-save">Save & Connect</button>
+      </div>
+    </div>
   </div>
 
-  <!-- MD5 for Last.fm -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
   <script src="js/config.js"></script>
   <script src="js/db.js"></script>
   <script src="js/lastfm.js"></script>
-  <script src="js/charts.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 </body>

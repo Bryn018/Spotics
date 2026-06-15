@@ -29,8 +29,11 @@ async function init() {
     updateAuthUI(false);
   }
 
+  document.getElementById('connect-btn')?.addEventListener('click', initiateLogin);
   document.getElementById('connect-btn-dash')?.addEventListener('click', initiateLogin);
-  document.getElementById('fetch-now-btn-dash')?.addEventListener('click', async () => {
+  document.getElementById('connect-settings-btn')?.addEventListener('click', initiateLogin);
+
+  document.getElementById('refresh-btn')?.addEventListener('click', async () => {
     await fetchAndStore();
     await refreshDashboard();
     showToast('Data refreshed');
@@ -46,17 +49,20 @@ async function init() {
     });
   });
 
-  document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
-  document.getElementById('dark-mode-checkbox')?.addEventListener('change', toggleTheme);
-
-  const searchInput = document.getElementById('search-input');
-  const sortSelect = document.getElementById('sort-select');
-  searchInput?.addEventListener('input', () => refreshHistory(sortSelect?.value || 'newest', searchInput.value));
-  sortSelect?.addEventListener('change', () => refreshHistory(sortSelect.value, searchInput?.value || ''));
+  document.querySelectorAll('.card-tab').forEach((tab) => {
+    tab.addEventListener('click', async () => {
+      document.querySelectorAll('.card-tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      const period = tab.dataset.period || 'all';
+      await refreshDashboard(period);
+    });
+  });
 
   document.getElementById('export-btn')?.addEventListener('click', exportJSON);
+  document.getElementById('export-settings-btn')?.addEventListener('click', exportJSON);
 
   document.getElementById('disconnect-btn')?.addEventListener('click', async () => {
+    if (!confirm('Disconnect Last.fm from this device?')) return;
     await dbClear('session');
     sessionKey = null;
     updateAuthUI(false);
@@ -65,22 +71,61 @@ async function init() {
   });
 
   document.getElementById('clear-data-btn')?.addEventListener('click', async () => {
-    if (confirm('Delete all listening history? This cannot be undone.')) {
-      await dbClear('history');
-      await refreshDashboard();
-      showToast('All data cleared');
-    }
+    if (!confirm('Delete all listening history? This cannot be undone.')) return;
+    await dbClear('history');
+    await refreshDashboard();
+    showToast('All data cleared');
   });
 
-  // Bind legacy dashboard hooks when present.
-  document.getElementById('connect-btn')?.addEventListener('click', initiateLogin);
-  document.getElementById('fetch-now-btn')?.addEventListener('click', async () => {
-    try {
-      await fetchAndStore();
-      await refreshUI();
-    } catch (err) {
-      showError(err.message);
+  const pollSelect = document.getElementById('poll-interval-select');
+  if (pollSelect) {
+    pollSelect.value = String(CONFIG.pollIntervalMs);
+    pollSelect.addEventListener('change', () => {
+      const ms = Number(pollSelect.value);
+      CONFIG.pollIntervalMs = ms;
+      startPolling();
+      showToast(`Poll interval updated`);
+    });
+  }
+
+  document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+  document.getElementById('dark-toggle')?.addEventListener('click', toggleTheme);
+
+  document.getElementById('edit-config-btn')?.addEventListener('click', () => {
+    showConfigModal();
+    if (CONFIG.apiKey) {
+      document.getElementById('cfg-api-key').value = CONFIG.apiKey;
+      document.getElementById('cfg-api-secret').value = CONFIG.apiSecret || '';
+      document.getElementById('cfg-username').value = CONFIG.username || '';
     }
+  });
+  document.getElementById('modal-cancel')?.addEventListener('click', hideConfigModal);
+  document.getElementById('modal-save')?.addEventListener('click', async () => {
+    const newKey = document.getElementById('cfg-api-key').value.trim();
+    const newSecret = document.getElementById('cfg-api-secret').value.trim();
+    const newUsername = document.getElementById('cfg-username').value.trim();
+    if (!newKey || !newSecret || !newUsername) {
+      showToast('All config fields are required');
+      return;
+    }
+    CONFIG.apiKey = newKey;
+    CONFIG.apiSecret = newSecret;
+    CONFIG.username = newUsername;
+    hideConfigModal();
+    showToast('Config saved');
+  });
+
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+  searchInput?.addEventListener('input', () => refreshHistory(sortSelect?.value || 'newest', searchInput.value));
+  sortSelect?.addEventListener('change', () => refreshHistory(sortSelect.value, searchInput?.value || ''));
+
+  // Keep legacy dashboard hooks if present.
+  document.getElementById('connect-btn-dash')?.addEventListener('click', initiateLogin);
+  document.getElementById('fetch-now-btn-dash')?.addEventListener('click', async () => {
+    await fetchAndStore();
+    await refreshDashboard();
+    showToast('Data refreshed');
   });
 }
 
