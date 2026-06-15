@@ -398,13 +398,13 @@ canvas.main-chart{width:100%!important;display:block}
 
 /* ── SIDEBAR COMPACT HEATMAP ─────────────────── */
 .sidebar-heatmap-wrap{margin-top:.6rem}
-.sm-heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.sm-cell{aspect-ratio:1/1;border-radius:4px;background:var(--surface3)}
+.sm-heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.sm-cell{aspect-ratio:1/1;border-radius:3px;background:var(--surface3)}
 .sm-cell.l1{background:color-mix(in srgb, var(--accent) 35%, transparent)}
 .sm-cell.l2{background:color-mix(in srgb, var(--accent) 55%, transparent)}
 .sm-cell.l3{background:color-mix(in srgb, var(--accent) 75%, transparent)}
 .sm-cell.l4{background:var(--accent)}
-.sidebar-heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.65rem;color:var(--text3)}
+.sidebar-heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.65rem;color:var(--text3)}
 .sm-legend-cell{width:10px;height:10px;border-radius:2px;background:var(--surface3);display:inline-block}
 .sm-legend-cell.l1{background:color-mix(in srgb, var(--accent) 35%, transparent)}
 .sm-legend-cell.l2{background:color-mix(in srgb, var(--accent) 55%, transparent)}
@@ -1196,6 +1196,52 @@ function renderAlbumGrid(albumCounts, limit = 8) {
     </div>`).join('');
 }
 
+function renderTrackCounts(trackCounts, limit = 6) {
+  const el = document.getElementById('track-list');
+  const sorted = Object.entries(trackCounts)
+    .map(([key, count]) => {
+      const [track_name, artist_name] = key.split('|||');
+      return { track_name, artist_name, count };
+    })
+    .sort((a,b) => b.count - a.count)
+    .slice(0, limit);
+  if (!sorted.length) { el.innerHTML = '<div class="empty">No repeated tracks yet</div>'; return; }
+  const max = sorted[0].count;
+  el.innerHTML = sorted.map((t, i) => `
+    <div class="artist-row">
+      <span class="artist-rank">${i + 1}</span>
+      <div class="artist-info">
+        <div class="artist-name">${esc(t.track_name)}</div>
+        <div class="artist-bar-wrap">
+          <div class="artist-bar-fill" style="width:${Math.round((t.count/max)*100)}%"></div>
+        </div>
+      </div>
+      <span class="artist-count">${t.count}</span>
+    </div>`).join('');
+}
+
+function renderSidebarHeatmap(plays) {
+  const container = document.getElementById('sm-heatmap');
+  if (!container) return;
+  const dayCounts = {};
+  plays.forEach(p => {
+    const day = p.played_at.slice(0, 10);
+    dayCounts[day] = (dayCounts[day] || 0) + 1;
+  });
+  const maxCount = Math.max(...Object.values(dayCounts), 1);
+  const days = [];
+  const now = new Date();
+  for (let i = 83; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+  container.innerHTML = days.map(day => {
+    const c = dayCounts[day] || 0;
+    const level = c === 0 ? '' : c < maxCount * 0.25 ? 'l1' : c < maxCount * 0.5 ? 'l2' : c < maxCount * 0.75 ? 'l3' : 'l4';
+    return `<div class="sm-cell ${level}" title="${day}: ${c} plays"></div>`;
+  }).join('');
+}
+
 function renderHeatmap(plays) {
   const wrap = document.getElementById('heatmap-wrap');
   const legend = document.getElementById('heatmap-legend');
@@ -1286,8 +1332,12 @@ async function refreshDashboard(period = 'all') {
   renderArtistBars(artistCounts);
   renderAlbumGrid(albumCounts);
   renderTrackList('recent-list', plays, 12);
-  renderHeatmap(plays);
-  computeWeekStats(plays);
+  try {
+    renderSidebarHeatmap(filtered);
+    renderTrackCounts(trackCounts);
+  } catch (error) {
+    console.error('Dashboard rendering failed:', error);
+  }
 }
 
 /* ═══════════════════════════════════════════════
