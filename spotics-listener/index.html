@@ -396,6 +396,21 @@ canvas.main-chart{width:100%!important;display:block}
 .album-name{font-size:.78rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .album-artist{font-size:.7rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 
+/* ── SIDEBAR COMPACT HEATMAP ─────────────────── */
+.sidebar-heatmap-wrap{margin-top:.6rem}
+.sm-heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.sm-cell{aspect-ratio:1/1;border-radius:4px;background:var(--surface3)}
+.sm-cell.l1{background:color-mix(in srgb, var(--accent) 35%, transparent)}
+.sm-cell.l2{background:color-mix(in srgb, var(--accent) 55%, transparent)}
+.sm-cell.l3{background:color-mix(in srgb, var(--accent) 75%, transparent)}
+.sm-cell.l4{background:var(--accent)}
+.sidebar-heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.65rem;color:var(--text3)}
+.sm-legend-cell{width:10px;height:10px;border-radius:2px;background:var(--surface3);display:inline-block}
+.sm-legend-cell.l1{background:color-mix(in srgb, var(--accent) 35%, transparent)}
+.sm-legend-cell.l2{background:color-mix(in srgb, var(--accent) 55%, transparent)}
+.sm-legend-cell.l3{background:color-mix(in srgb, var(--accent) 75%, transparent)}
+.sm-legend-cell.l4{background:var(--accent)}
+
 /* ── HISTORY PAGE ─────────────────────────────── */
 .history-toolbar{
   display:flex;gap:0.75rem;align-items:center;
@@ -702,27 +717,25 @@ canvas.main-chart{width:100%!important;display:block}
           </div>
         </div>
 
-        <!-- Activity Heatmap -->
+        <!-- Obsession -->
         <div class="card">
           <div class="card-head">
             <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
-              Activity — Last 12 weeks
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 9a3 3 0 1 0 6 0"/><circle cx="12" cy="12" r="10"/></svg>
+              Obsession
+            </div>
+            <div class="card-ctrl">
+              <div class="card-tab active" data-period="week" data-target="track">Week</div>
+              <div class="card-tab" data-period="month" data-target="track">Month</div>
+              <div class="card-tab" data-period="all" data-target="track">All time</div>
             </div>
           </div>
-          <div class="heatmap-wrap" id="heatmap-wrap">
-            <div style="padding:1.25rem 0 0.5rem;color:var(--text3);font-size:0.8rem;text-align:center">No activity data yet</div>
-          </div>
-          <div class="heatmap-legend" id="heatmap-legend" style="display:none">
-            <span>Less</span>
-            <div class="heatmap-legend-cell" style="background:var(--surface3)"></div>
-            <div class="heatmap-legend-cell l1"></div>
-            <div class="heatmap-legend-cell l2"></div>
-            <div class="heatmap-legend-cell l3"></div>
-            <div class="heatmap-legend-cell l4"></div>
-            <span>More</span>
+          <div class="artist-list" id="track-list" style="padding-top:1rem">
+            <div class="empty">Connect Last.fm to see your most repeated tracks</div>
           </div>
         </div>
+
+        <!-- Activity Heatmap Sidebar Widget will target sidebar -->
       </div>
 
       <!-- Right column -->
@@ -759,18 +772,25 @@ canvas.main-chart{width:100%!important;display:block}
           </ul>
         </div>
 
-        <!-- Quick stats -->
+        <!-- Activity Heatmap -->
         <div class="card">
           <div class="card-head">
             <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              This Week
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+              Activity — Last 12 weeks
             </div>
           </div>
-          <div class="mini-stat-row" id="week-stats">
-            <div class="mini-stat"><div class="mini-stat-val" id="ws-plays">0</div><div class="mini-stat-lbl">Plays</div></div>
-            <div class="mini-stat"><div class="mini-stat-val" id="ws-artists">0</div><div class="mini-stat-lbl">Artists</div></div>
-            <div class="mini-stat"><div class="mini-stat-val" id="ws-peak">—</div><div class="mini-stat-lbl">Peak hour</div></div>
+          <div class="sidebar-heatmap-wrap">
+            <div class="sm-heatmap" id="sm-heatmap"></div>
+            <div class="sidebar-heatmap-legend">
+              <span>Less</span>
+              <span class="sm-legend-cell"></span>
+              <span class="sm-legend-cell l1"></span>
+              <span class="sm-legend-cell l2"></span>
+              <span class="sm-legend-cell l3"></span>
+              <span class="sm-legend-cell l4"></span>
+              <span>More</span>
+            </div>
           </div>
         </div>
 
@@ -1241,6 +1261,7 @@ async function refreshDashboard(period = 'all') {
 
   const artistCounts = {};
   const albumCounts = {};
+  const trackCounts = {};
   const days = new Set();
   filtered.forEach(p => {
     artistCounts[p.artist_name] = (artistCounts[p.artist_name] || 0) + 1;
@@ -1249,6 +1270,8 @@ async function refreshDashboard(period = 'all') {
       if (!albumCounts[key]) albumCounts[key] = { name: p.album_name, count: 0, cover: p.album_cover, artist: p.artist_name };
       albumCounts[key].count += 1;
     }
+    const trackKey = `${p.track_name}|||${p.artist_name}`;
+    trackCounts[trackKey] = (trackCounts[trackKey] || 0) + 1;
     days.add(p.played_at.slice(0, 10));
   });
   const topArtist = Object.entries(artistCounts).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
