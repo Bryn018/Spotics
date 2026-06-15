@@ -3,51 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SpoTics Listener (Last.fm)</title>
+  <title>SpoTics Pro · Listening Habits</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <div class="container">
-    <h1>🎧 SpoTics Listener</h1>
-    <p class="subtitle">Your listening habits, privately stored in your browser. Powered by Last.fm.</p>
-
-    <div id="auth-section">
-      <button id="connect-btn">Connect Last.fm</button>
-      <p class="note">Works with free Spotify accounts – no Premium needed.</p>
-    </div>
-
-    <div id="dashboard" class="hidden">
-      <div class="stats">
-        <div class="stat-card">
-          <span class="stat-value" id="total-tracks">0</span>
-          <span class="stat-label">Tracks collected</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value" id="total-artists">0</span>
-          <span class="stat-label">Unique artists</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value" id="top-artist">-</span>
-          <span class="stat-label">Top artist</span>
-        </div>
+<body class="dark">
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="logo-icon">🎧</span>
+        <span class="logo-text">SpoTics</span>
       </div>
-
-      <div class="controls">
-        <button id="fetch-now-btn">Fetch now</button>
-        <span id="last-fetch-time" class="fetch-time"></span>
+      <nav>
+        <a href="#" class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </a>
+        <a href="#" class="nav-item" data-page="history">
+          <span class="nav-icon">🕒</span> History
+        </a>
+        <a href="#" class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙️</span> Settings
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="theme-toggle" class="icon-btn" title="Toggle theme">
+          <span id="theme-icon">☀️</span>
+        </button>
+        <p class="user-info" id="user-display">Not connected</p>
       </div>
+    </aside>
 
-      <h2>Recently played</h2>
-      <ul id="recent-list" class="track-list"></ul>
-    </div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Page -->
+      <section id="page-dashboard" class="page active">
+        <header class="page-header">
+          <h1>Your Listening Dashboard</h1>
+          <button id="connect-btn-dash" class="btn-primary">Connect Last.fm</button>
+          <button id="fetch-now-btn-dash" class="btn-secondary hidden">Refresh now</button>
+        </header>
 
-    <div id="error-message" class="error hidden"></div>
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="stats-container">
+          <div class="stat-card">
+            <span class="stat-icon">🎵</span>
+            <div class="stat-body">
+              <span class="stat-value" id="total-tracks">0</span>
+              <span class="stat-label">Tracks collected</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">🎤</span>
+            <div class="stat-body">
+              <span class="stat-value" id="total-artists">0</span>
+              <span class="stat-label">Unique artists</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">🏆</span>
+            <div class="stat-body">
+              <span class="stat-value" id="top-artist-name">—</span>
+              <span class="stat-label">Top artist</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">📅</span>
+            <div class="stat-body">
+              <span class="stat-value" id="days-tracked">0</span>
+              <span class="stat-label">Days tracked</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Artists Chart -->
+        <div class="chart-card">
+          <h2>Top 5 Artists</h2>
+          <canvas id="top-artists-chart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Recent Tracks Preview -->
+        <div class="track-preview">
+          <h2>Recently played</h2>
+          <ul id="recent-list-dash" class="track-list"></ul>
+        </div>
+
+        <p id="last-fetch-time" class="fetch-time"></p>
+      </section>
+
+      <!-- History Page -->
+      <section id="page-history" class="page">
+        <header class="page-header">
+          <h1>Full Listening History</h1>
+          <div class="history-controls">
+            <input type="text" id="search-input" placeholder="Search tracks or artists..." class="search-input">
+            <select id="sort-select" class="sort-select">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="artist">Artist A‑Z</option>
+              <option value="track">Track A‑Z</option>
+            </select>
+            <button id="export-btn" class="btn-secondary">Export JSON</button>
+          </div>
+        </header>
+        <ul id="history-list" class="track-list full-list"></ul>
+      </section>
+
+      <!-- Settings Page -->
+      <section id="page-settings" class="page">
+        <header class="page-header">
+          <h1>Settings</h1>
+        </header>
+        <div class="settings-card">
+          <h2>Account</h2>
+          <p>Connected as: <strong id="settings-username">—</strong></p>
+          <button id="disconnect-btn" class="btn-danger">Disconnect</button>
+        </div>
+        <div class="settings-card">
+          <h2>Appearance</h2>
+          <label class="switch-label">
+            Dark mode
+            <input type="checkbox" id="dark-mode-checkbox" checked>
+            <span class="toggle-switch"></span>
+          </label>
+        </div>
+        <div class="settings-card">
+          <h2>Data</h2>
+          <button id="clear-data-btn" class="btn-danger">Clear all listening data</button>
+        </div>
+      </section>
+
+      <!-- Error toast -->
+      <div id="toast" class="toast hidden"></div>
+    </main>
   </div>
 
+  <!-- MD5 for Last.fm -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/db.js"></script>
   <script src="js/lastfm.js"></script>
+  <script src="js/charts.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 </body>
