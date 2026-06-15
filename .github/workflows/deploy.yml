@@ -25,6 +25,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: cp public/CNAME docs/CNAME
+      - run: cp -R spotics-listener docs/spotics-listener
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs
