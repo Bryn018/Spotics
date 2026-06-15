@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpoTics Listener (Last.fm)</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🎧 SpoTics Listener</h1>
+    <p class="subtitle">Your listening habits, privately stored in your browser. Powered by Last.fm.</p>
+
+    <div id="auth-section">
+      <button id="connect-btn">Connect Last.fm</button>
+      <p class="note">Works with free Spotify accounts – no Premium needed.</p>
+    </div>
+
+    <div id="dashboard" class="hidden">
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-value" id="total-tracks">0</span>
+          <span class="stat-label">Tracks collected</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="total-artists">0</span>
+          <span class="stat-label">Unique artists</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="top-artist">-</span>
+          <span class="stat-label">Top artist</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="fetch-now-btn">Fetch now</button>
+        <span id="last-fetch-time" class="fetch-time"></span>
+      </div>
+
+      <h2>Recently played</h2>
+      <ul id="recent-list" class="track-list"></ul>
+    </div>
+
+    <div id="error-message" class="error hidden"></div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/lastfm.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
