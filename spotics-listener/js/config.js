@@ -1,6 +1,6 @@
 const CONFIG = {
-  apiKey: 'YOUR_LASTFM_API_KEY',
-  apiSecret: 'YOUR_LASTFM_SHARED_SECRET',
-  username: 'YOUR_LASTFM_USERNAME',
+  apiKey: 'c6c73b8778698b5acf763bc363311725',
+  apiSecret: 'ff45349c4130ee21b12eef45058a26e6',
+  username: 'InsightsWaly',
   pollIntervalMs: 5 * 60 * 1000,
 };
