@@ -149,21 +149,55 @@ function initiateLogin() {
   window.location = authUrl;
 }
 
+function buildSignedParams(method, extra = {}) {
+  const params = Object.assign({ method }, extra);
+  const entries = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+
+  const sigString = entries.map(([k, v]) => `${k}${v}`).join('') + CONFIG.apiSecret;
+  return { params: Object.fromEntries(entries), api_sig: md5(sigString) };
+}
+
+async function callLastfm(method, extra = {}) {
+  const { params, api_sig } = buildSignedParams(method, extra);
+  const body = new URLSearchParams({
+    api_key: CONFIG.apiKey,
+    api_sig,
+    method,
+    format: 'json',
+  });
+  for (const [key, value] of Object.entries(params)) {
+    if (key !== 'method') body.set(key, value);
+  }
+
+  const response = await fetch('https://ws.audioscrobbler.com/2.0/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body,
+  });
+
+  const data = await response.json();
+  const lastFmError = data && data.error;
+  if (lastFmError) {
+    const message = data.message || `Last.fm error ${lastFmError}`;
+    throw new Error(message);
+  }
+  return data;
+}
+
 async function handleAuthCallback() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
   if (!token) return false;
 
-  const sig = md5(`api_key${CONFIG.apiKey}methodauth.getSessiontoken${token}${CONFIG.apiSecret}`);
-  const url = `https://ws.audioscrobbler.com/2.0/?method=auth.getSession&api_key=${CONFIG.apiKey}&token=${token}&api_sig=${sig}&format=json`;
-
-  const response = await fetch(url);
-  const data = await response.json();
-  if (data.error) {
-    throw new Error(`Last.fm auth error: ${data.message}`);
+  const data = await callLastfm('auth.getSession', { token });
+  const session = data && data.session;
+  if (!session || !session.key) {
+    throw new Error('Last.fm auth error: invalid session');
   }
 
-  sessionKey = data.session.key;
+  sessionKey = session.key;
   await saveSessionKey(sessionKey);
   window.history.replaceState({}, document.title, window.location.pathname);
   return true;
@@ -176,11 +210,15 @@ async function fetchRecentTracks() {
     sessionKey = stored;
   }
 
-  const url = `https://ws.audioscrobbler.com/2.0/?method=user.getRecentTracks&user=${CONFIG.username}&api_key=${CONFIG.apiKey}&limit=50&format=json&sk=${sessionKey}`;
-  const response = await fetch(url);
-  const data = await response.json();
-  if (data.error) {
-    throw new Error(`Last.fm error: ${data.message}`);
+  const data = await callLastfm('user.getRecentTracks', {
+    user: CONFIG.username,
+    limit: 50,
+    sk: sessionKey,
+  });
+
+  const tracks = data.recenttracks && data.recenttracks.track;
+  if (!Array.isArray(tracks)) {
+    return [];
   }
 
   return data.recenttracks.track
