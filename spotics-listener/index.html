@@ -897,6 +897,18 @@ canvas.main-chart{width:100%!important;display:block}
 
 <script>
 /* ═══════════════════════════════════════════════
+   SEED CONFIG
+═══════════════════════════════════════════════ */
+(function seedConfig() {
+  if (!localStorage.getItem('spotics_api_key')) {
+    localStorage.setItem('spotics_api_key', 'c6c73b8778698b5acf763bc363311725');
+    localStorage.setItem('spotics_api_secret', 'ff45349c4130ee21b12eef45058a26e6');
+    localStorage.setItem('spotics_username', 'InsightsWaly');
+    localStorage.setItem('spotics_poll', '300000');
+  }
+})();
+
+/* ═══════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════ */
 let CONFIG = {
