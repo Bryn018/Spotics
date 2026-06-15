@@ -22,10 +22,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run build
       - run: cp public/CNAME docs/CNAME
-      - run: cp -R spotics-listener docs/spotics-listener
+      - run: rm -rf docs/*
+      - run: cp -R spotics-listener/* docs/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs
