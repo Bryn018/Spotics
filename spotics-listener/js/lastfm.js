@@ -156,6 +156,8 @@ function buildSignedParams(method, extra = {}) {
     .sort((a, b) => String(a[0]).localeCompare(String(b[0])));
 
   const sigString = entries.map(([k, v]) => `${k}${v}`).join('') + CONFIG.apiSecret;
+  console.debug('[Last.fm] sign params:', entries.map(([k, v]) => `${k}=${v}`).join(', '));
+  console.debug('[Last.fm] sigString:', sigString);
   return { params: Object.fromEntries(entries), api_sig: md5(sigString) };
 }
 
@@ -171,6 +173,8 @@ async function callLastfm(method, extra = {}) {
     if (key !== 'method') body.set(key, value);
   }
 
+  console.debug('[Last.fm] request body:', body.toString());
+
   const response = await fetch('https://ws.audioscrobbler.com/2.0/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -178,6 +182,7 @@ async function callLastfm(method, extra = {}) {
   });
 
   const data = await response.json();
+  console.debug('[Last.fm] response:', data);
   const lastFmError = data && data.error;
   if (lastFmError) {
     const message = data.message || `Last.fm error ${lastFmError}`;
@@ -221,7 +226,7 @@ async function fetchRecentTracks() {
     return [];
   }
 
-  return data.recenttracks.track
+  return tracks
     .filter(t => !t['@attr']?.nowplaying && t.date)
     .map(item => ({
       track_id: item.url,
