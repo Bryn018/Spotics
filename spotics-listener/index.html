@@ -716,6 +716,14 @@ canvas.main-chart{width:100%!important;display:block}
               <div class="freq-bar" style="height:4px"></div>
             </div>
           </div>
+          <div id="now-playing-row" class="now-playing" style="display:none">
+            <img class="np-cover" id="np-cover" src="" alt="" onerror="this.style.display='none'">
+            <div class="np-info">
+              <div class="np-track" id="np-track">Now Playing</div>
+              <div class="np-artist" id="np-artist">—</div>
+            </div>
+            <div class="np-badge"><span class="np-dot"></span>Playing</div>
+          </div>
           <ul class="track-list" id="recent-list">
             <div class="empty">Your recent plays will appear here</div>
           </ul>
@@ -1010,16 +1018,18 @@ async function fetchRecentTracks() {
   const r = await fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getRecentTracks&user=${CONFIG.username}&api_key=${CONFIG.apiKey}&limit=50&format=json&sk=${sessionKey}`);
   const data = await r.json();
   if (data.error) throw new Error(data.message);
-  return data.recenttracks.track.filter(t => !t['@attr']?.nowplaying && t.date).map(t => ({
-    track_id: t.url, track_name: t.name, artist_name: t.artist['#text'],
-    album_cover: t.image?.find(i => i.size === 'large')?.['#text'] || t.image?.[t.image.length-1]?.['#text'] || '',
-    duration_ms: 0, played_at: new Date(t.date.uts * 1000).toISOString(),
+  const tracks = (data.recenttracks && data.recenttracks.track) || [];
+  const nowPlaying = tracks.find(t => t['@attr'] && t['@attr'].nowplaying === 'true') || null;
+  const historical = tracks.filter(t => !t['@attr']?.nowplaying && t.date).map(t => ({
+    track_id: t.url,
+    track_name: t.name,
+    artist_name: t.artist['#text'],
+    album_cover: t.image?.find(i => i.size === 'large')?.['#text'] || t.image?.[t.image.length - 1]?.['#text'] || '',
+    duration_ms: 0,
+    played_at: new Date(t.date.uts * 1000).toISOString(),
   }));
+  return { nowPlaying, historical };
 }
-
-/* ═══════════════════════════════════════════════
-   UI HELPERS
-═══════════════════════════════════════════════ */
 function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 function timeAgo(iso) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -1278,16 +1288,41 @@ function toggleTheme() { lightMode = !lightMode; applyTheme(); }
 let pollingInterval = null;
 async function fetchAndStore() {
   try {
-    const tracks = await fetchRecentTracks();
-    let n = 0;
-    for (const t of tracks) {
+    const { nowPlaying, historical } = await fetchRecentTracks();
+
+    const nowRow = document.getElementById('now-playing-row');
+    if (nowRow) {
+      if (!nowPlaying) {
+        nowRow.style.display = 'none';
+      } else {
+        nowRow.style.display = 'flex';
+        const trackEl = document.getElementById('np-track');
+        const artistEl = document.getElementById('np-artist');
+        const coverEl = document.getElementById('np-cover');
+        if (trackEl) trackEl.textContent = nowPlaying.name || 'Unknown track';
+        if (artistEl) artistEl.textContent = nowPlaying.artist['#text'] || 'Unknown artist';
+        const cover = nowPlaying.image?.find(img => img.size === 'large')?.['#text'] || nowPlaying.image?.[nowPlaying.image.length - 1]?.['#text'] || '';
+        if (cover) {
+          coverEl.src = cover;
+          coverEl.style.display = '';
+        } else {
+          coverEl.style.display = 'none';
+        }
+      }
+    }
+
+    let newCount = 0;
+    for (const t of historical) {
       const id = `${t.played_at}_${t.track_id}`;
       const exists = await dbGet('history', id);
-      if (!exists) { await savePlay(t); n++; }
+      if (!exists) {
+        await savePlay(t);
+        newCount++;
+      }
     }
-    if (n > 0) showToast(`+${n} new ${n === 1 ? 'play' : 'plays'} added`, 'success');
-    return n;
-  } catch(e) {
+    if (newCount > 0) showToast(`+${newCount} new ${newCount === 1 ? 'play' : 'plays'} added`, 'success');
+    return newCount;
+  } catch (e) {
     if (e.message.includes('Not authenticated')) setConnectedUI(false);
     else showToast(e.message, 'error');
     return 0;
