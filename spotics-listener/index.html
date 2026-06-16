@@ -1264,7 +1264,7 @@ function renderTrackCounts(trackCounts, limit = 6) {
       if (currentRank < prevRank) deltaLabel = 'up';
       else if (currentRank > prevRank) deltaLabel = 'down';
     }
-    const arrow = deltaLabel === 'up' ? '+' : deltaLabel === 'down' ? '-' : '=';
+    const arrow = deltaLabel === 'up' ? '↑' : deltaLabel === 'down' ? '↓' : '=';
     return `
     <div class="artist-row track-row" data-track-key="${esc(t.key)}" data-prev-rank="${currentRank}">
       <span class="artist-rank">${currentRank}</span>
