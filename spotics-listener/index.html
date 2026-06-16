@@ -1239,7 +1239,9 @@ function renderAlbumGrid(albumCounts, limit = 8) {
     </div>`).join('');
 }
 
+const _trackPrevRanks = new Map(); // period -> Map(trackKey -> rank)
 let _trackPeriod = 'all';
+
 function renderTrackCounts(trackCounts, limit = 6, period) {
   const el = document.getElementById('track-list');
   const sorted = Object.entries(trackCounts)
@@ -1251,21 +1253,15 @@ function renderTrackCounts(trackCounts, limit = 6, period) {
     .slice(0, limit);
   if (!sorted.length) { el.innerHTML = '<div class="empty">No repeated tracks yet</div>'; return; }
   const max = sorted[0].count;
-  const periodChanged = period !== _trackPeriod;
-  _trackPeriod = period || 'all';
-  const prevRanks = new Map();
-  if (!periodChanged) {
-    el.querySelectorAll('.track-row').forEach(row => {
-      const key = row.getAttribute('data-track-key');
-      const rankText = row.getAttribute('data-prev-rank');
-      if (key && rankText) prevRanks.set(key, parseInt(rankText, 10));
-    });
-  }
+  period = period || 'all';
+  const prevRanks = _trackPrevRanks.get(period) || new Map();
+  const newRanks = new Map();
   el.innerHTML = sorted.map((t, i) => {
     const currentRank = i + 1;
+    newRanks.set(t.key, currentRank);
     const prevRank = prevRanks.get(t.key);
     let deltaLabel = 'same';
-    if (!periodChanged && typeof prevRank === 'number') {
+    if (typeof prevRank === 'number') {
       if (currentRank < prevRank) deltaLabel = 'up';
       else if (currentRank > prevRank) deltaLabel = 'down';
     }
@@ -1283,6 +1279,8 @@ function renderTrackCounts(trackCounts, limit = 6, period) {
       <span class="artist-count">${t.count}</span>
     </div>`;
   }).join('');
+  _trackPrevRanks.set(period, newRanks);
+  _trackPeriod = period;
 }
 
 function computeStreak(plays) {
