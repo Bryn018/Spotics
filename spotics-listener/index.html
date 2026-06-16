@@ -396,20 +396,21 @@ canvas.main-chart{width:100%!important;display:block}
 .album-name{font-size:.78rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .album-artist{font-size:.7rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 
-/* ── SIDEBAR COMPACT HEATMAP ─────────────────── */
-.sidebar-heatmap-wrap{margin-top:.6rem}
-.sm-heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.sm-cell{aspect-ratio:1/1;border-radius:3px;background:var(--surface3)}
-.sm-cell.l1{background:color-mix(in srgb, var(--accent) 35%, transparent)}
-.sm-cell.l2{background:color-mix(in srgb, var(--accent) 55%, transparent)}
-.sm-cell.l3{background:color-mix(in srgb, var(--accent) 75%, transparent)}
-.sm-cell.l4{background:var(--accent)}
-.sidebar-heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.65rem;color:var(--text3)}
-.sm-legend-cell{width:10px;height:10px;border-radius:2px;background:var(--surface3);display:inline-block}
-.sm-legend-cell.l1{background:color-mix(in srgb, var(--accent) 35%, transparent)}
-.sm-legend-cell.l2{background:color-mix(in srgb, var(--accent) 55%, transparent)}
-.sm-legend-cell.l3{background:color-mix(in srgb, var(--accent) 75%, transparent)}
-.sm-legend-cell.l4{background:var(--accent)}
+/* ── STREAK WIDGET ───────────────────────────── */
+.streak-widget{margin-top:.6rem}
+.streak-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.streak-icon{width:28px;height:28px;border-radius:8px;background:color-mix(in srgb, var(--accent) 15%, transparent);display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.streak-title{font-size:.75rem;font-weight:600;color:var(--text);letter-spacing:.02em;text-transform:uppercase}
+.streak-count{font-size:2rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px}
+.streak-count span{font-size:.85rem;font-weight:500;color:var(--text2);margin-left:4px}
+.streak-sub{font-size:.65rem;color:var(--text3);margin-bottom:10px}
+.streak-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.streak-dot{aspect-ratio:1/1;border-radius:4px;background:var(--surface3)}
+.streak-dot.active{background:var(--accent)}
+.streak-legend{display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:.6rem;color:var(--text3)}
+.streak-legend-item{display:flex;align-items:center;gap:4px}
+.streak-legend-dot{width:8px;height:8px;border-radius:2px;background:var(--surface3)}
+.streak-legend-dot.active{background:var(--accent)}
 
 /* ── HISTORY PAGE ─────────────────────────────── */
 .history-toolbar{
@@ -631,16 +632,19 @@ canvas.main-chart{width:100%!important;display:block}
 
   <div class="sidebar-section">
     <div class="sidebar-section-title">Activity</div>
-    <div class="sidebar-heatmap-wrap">
-      <div class="sm-heatmap" id="sm-heatmap"></div>
-      <div class="sidebar-heatmap-legend">
-        <span>Less</span>
-        <span class="sm-legend-cell"></span>
-        <span class="sm-legend-cell l1"></span>
-        <span class="sm-legend-cell l2"></span>
-        <span class="sm-legend-cell l3"></span>
-        <span class="sm-legend-cell l4"></span>
-        <span>More</span>
+    <div class="streak-widget" id="streak-widget">
+      <div class="streak-header">
+        <div class="streak-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><path d="M12 2v7m0 0l3-3m-3 3l-3-3M11 14h2m-6 4h12a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2z"/></svg>
+        </div>
+        <div class="streak-title">Streak</div>
+      </div>
+      <div class="streak-count" id="streak-count">0<span>days</span></div>
+      <div class="streak-sub" id="streak-sub">Best: 0</div>
+      <div class="streak-grid" id="streak-grid"></div>
+      <div class="streak-legend">
+        <div class="streak-legend-item"><span class="streak-legend-dot"></span> missed</div>
+        <div class="streak-legend-item"><span class="streak-legend-dot active"></span> active</div>
       </div>
     </div>
   </div>
@@ -1230,26 +1234,42 @@ function renderTrackCounts(trackCounts, limit = 6) {
     </div>`).join('');
 }
 
-function renderSidebarHeatmap(plays) {
-  const container = document.getElementById('sm-heatmap');
-  if (!container) return;
-  const dayCounts = {};
-  plays.forEach(p => {
-    const day = p.played_at.slice(0, 10);
-    dayCounts[day] = (dayCounts[day] || 0) + 1;
-  });
-  const maxCount = Math.max(...Object.values(dayCounts), 1);
+function computeStreak(plays) {
+  const countEl = document.getElementById('streak-count');
+  const subEl = document.getElementById('streak-sub');
+  const gridEl = document.getElementById('streak-grid');
+  if (!countEl || !subEl || !gridEl) return;
+
+  const activeDays = new Set(plays.map(p => p.played_at.slice(0, 10)));
+  const today = new Date().toISOString().slice(0, 10);
+
+  let streak = 0;
+  let best = 0;
+  let current = 0;
+  const d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const day = d.toISOString().slice(0, 10);
+    if (activeDays.has(day)) {
+      current += 1;
+      best = Math.max(best, current);
+      if (day === today || i === 0) streak = current;
+    } else {
+      if (day < today) current = 0;
+    }
+    d.setDate(d.getDate() - 1);
+  }
+
+  countEl.innerHTML = `${streak}<span>days</span>`;
+  subEl.textContent = `Best: ${best}`;
+
   const days = [];
   const now = new Date();
-  for (let i = 83; i >= 0; i--) {
-    const d = new Date(now); d.setDate(d.getDate() - i);
-    days.push(d.toISOString().slice(0, 10));
+  for (let i = 13; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+    days.push(date.toISOString().slice(0, 10));
   }
-  container.innerHTML = days.map(day => {
-    const c = dayCounts[day] || 0;
-    const level = c === 0 ? '' : c < maxCount * 0.25 ? 'l1' : c < maxCount * 0.5 ? 'l2' : c < maxCount * 0.75 ? 'l3' : 'l4';
-    return `<div class="sm-cell ${level}" title="${day}: ${c} plays"></div>`;
-  }).join('');
+  gridEl.innerHTML = days.map(day => `<div class="streak-dot${activeDays.has(day) ? ' active' : ''}" title="${day}"></div>`).join('');
 }
 
 function renderHeatmap(plays) {
@@ -1343,9 +1363,9 @@ async function refreshDashboard(period = 'all') {
   renderAlbumGrid(albumCounts);
   renderTrackList('recent-list', plays, 12);
   try {
-    renderSidebarHeatmap(filtered);
     renderTrackCounts(trackCounts);
     computeWeekStats(filtered);
+    computeStreak(filtered);
   } catch (error) {
     console.error('Dashboard rendering failed:', error);
   }
