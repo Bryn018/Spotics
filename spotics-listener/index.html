@@ -1239,7 +1239,31 @@ function renderAlbumGrid(albumCounts, limit = 8) {
     </div>`).join('');
 }
 
-const _trackPrevRanks = new Map(); // period -> Map(trackKey -> rank)
+const STORAGE_KEY = 'spotics_track_ranks';
+
+function _loadTrackRanks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return new Map();
+    const obj = JSON.parse(raw);
+    const map = new Map();
+    for (const [period, entries] of Object.entries(obj)) {
+      map.set(period, new Map(Object.entries(entries)));
+    }
+    return map;
+  } catch { return new Map(); }
+}
+
+function _saveTrackRanks(ranksMap) {
+  try {
+    const obj = {};
+    for (const [period, inner] of ranksMap.entries()) {
+      obj[period] = Object.fromEntries(inner);
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+  } catch { /* quota exceeded — silently ignore */ }
+}
+
 let _trackPeriod = 'all';
 
 function renderTrackCounts(trackCounts, limit = 6, period) {
@@ -1254,7 +1278,8 @@ function renderTrackCounts(trackCounts, limit = 6, period) {
   if (!sorted.length) { el.innerHTML = '<div class="empty">No repeated tracks yet</div>'; return; }
   const max = sorted[0].count;
   period = period || 'all';
-  const prevRanks = _trackPrevRanks.get(period) || new Map();
+  const allPrevRanks = _loadTrackRanks();
+  const prevRanks = allPrevRanks.get(period) || new Map();
   const newRanks = new Map();
   el.innerHTML = sorted.map((t, i) => {
     const currentRank = i + 1;
@@ -1279,7 +1304,8 @@ function renderTrackCounts(trackCounts, limit = 6, period) {
       <span class="artist-count">${t.count}</span>
     </div>`;
   }).join('');
-  _trackPrevRanks.set(period, newRanks);
+  allPrevRanks.set(period, newRanks);
+  _saveTrackRanks(allPrevRanks);
   _trackPeriod = period;
 }
 
