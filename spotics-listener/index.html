@@ -936,7 +936,7 @@ canvas.main-chart{width:100%!important;display:block}
             <option value="10000">10 seconds</option>
             <option value="30000">30 seconds</option>
             <option value="60000">1 minute</option>
-            <option value="300000" selected>5 minutes</option>
+            <option value="10000" selected>10 seconds</option>
             <option value="600000">10 minutes</option>
             <option value="1800000">30 minutes</option>
           </select>
@@ -1018,7 +1018,7 @@ let CONFIG = {
   apiKey: localStorage.getItem('spotics_api_key') || '',
   apiSecret: localStorage.getItem('spotics_api_secret') || '',
   username: localStorage.getItem('spotics_username') || '',
-  pollIntervalMs: parseInt(localStorage.getItem('spotics_poll') || '300000'),
+  pollIntervalMs: parseInt(localStorage.getItem('spotics_poll') || '10000'),
 };
 function saveConfig() {
   localStorage.setItem('spotics_api_key', CONFIG.apiKey);
