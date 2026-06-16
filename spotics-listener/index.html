@@ -599,6 +599,8 @@ canvas.main-chart{width:100%!important;display:block}
 }
 .field input:focus{outline:none;border-color:var(--accent)}
 .field input::placeholder{color:var(--text3)}
+.inp{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.8rem;outline:none;transition:border-color 0.2s}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent4)}
 .modal-footer{display:flex;justify-content:flex-end;gap:0.6rem;margin-top:1.5rem}
 
 /* ── SCROLLBAR ────────────────────────────────── */
@@ -662,6 +664,28 @@ canvas.main-chart{width:100%!important;display:block}
   <a class="nav-item" data-page="settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1.65 1.65v.18a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.65-1.65h-.18a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001.65-1.65v-.18a2 2 0 012-2 2 2 0 012 2v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.65 1.65h.18a2 2 0 012 2 2 2 0 01-2 2h-.09A1.65 1.65 0 0019.4 15z"/></svg>
     <span>Settings</span>
+  </a>
+
+  <div class="nav-section">Analytics</div>
+  <a class="nav-item" data-page="insights">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span>Insights</span>
+  </a>
+  <a class="nav-item" data-page="taste">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    <span>Taste Profile</span>
+  </a>
+  <a class="nav-item" data-page="timeline">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Timeline</span>
+  </a>
+  <a class="nav-item" data-page="sessions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span>Sessions</span>
+  </a>
+  <a class="nav-item" data-page="compare">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><line x1="21" y1="8" x2="12" y2="12"/><line x1="3" y1="16" x2="12" y2="12"/></svg>
+    <span>Compare</span>
   </a>
 
   <div class="sidebar-section">
@@ -989,6 +1013,286 @@ canvas.main-chart{width:100%!important;display:block}
   </section>
 
 </main>
+
+<!-- ═══════════════════════════════════════════════
+     INSIGHTS PAGE
+═══════════════════════════════════════════════ -->
+<section class="page" id="page-insights">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Insights</h1>
+      <p class="page-sub">Deep dive into your listening patterns and behavior</p>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="stat-val" id="ins-peak-hour">—</div>
+      <div class="stat-label">Peak listening hour</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="stat-val" id="ins-peak-day">—</div>
+      <div class="stat-label">Most active day</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div class="stat-val" id="ins-avg-daily">—</div>
+      <div class="stat-label">Avg tracks / day</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="stat-val" id="ins-total-month">—</div>
+      <div class="stat-label">This month</div>
+    </div>
+  </div>
+  <div class="dash-grid">
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Hourly Distribution</div></div>
+        <div id="ins-hourly-chart" style="padding:1rem 1.4rem 1.2rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Day of Week</div></div>
+        <div id="ins-dow-chart" style="padding:1rem 1.4rem 1.2rem"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Monthly Timeline</div></div>
+        <div id="ins-monthly-chart" style="padding:1rem 1.4rem 1.2rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Artist Discovery</div></div>
+        <div id="ins-discovery" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     TASTE PROFILE PAGE
+═══════════════════════════════════════════════ -->
+<section class="page" id="page-taste">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Taste Profile</h1>
+      <p class="page-sub">Your musical identity at a glance</p>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></div>
+      <div class="stat-val" id="taste-diversity">—</div>
+      <div class="stat-label">Diversity score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="stat-val" id="taste-unique">—</div>
+      <div class="stat-label">Unique artists</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="stat-val" id="taste-top10">—</div>
+      <div class="stat-label">Top 10 share</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg></div>
+      <div class="stat-val" id="taste-obscurity">—</div>
+      <div class="stat-label">Obscurity score</div>
+    </div>
+  </div>
+  <div class="dash-grid">
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Loyalty vs Exploration</div></div>
+        <div id="taste-loyalty-chart" style="padding:1rem 1.4rem 1.2rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Artist Play Distribution</div></div>
+        <div id="taste-distribution" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Your Sound Radar</div></div>
+        <div id="taste-radar" style="padding:1rem 1.4rem 1.2rem;display:flex;justify-content:center"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1.65 1.65v.18a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.65-1.65h-.18a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1.65-1.65v-.18a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.65 1.65h.18a2 2 0 0 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/></svg>Taste Summary</div></div>
+        <div id="taste-summary" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     TIMELINE PAGE
+═══════════════════════════════════════════════ -->
+<section class="page" id="page-timeline">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Timeline</h1>
+      <p class="page-sub">Your listening journey through time</p>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="stat-val" id="tl-first-scrobble">—</div>
+      <div class="stat-label">First scrobble</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="stat-val" id="tl-top-month">—</div>
+      <div class="stat-label">Top month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div class="stat-val" id="tl-total-months">—</div>
+      <div class="stat-label">Months tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
+      <div class="stat-val" id="tl-longest-streak">—</div>
+      <div class="stat-label">Longest streak</div>
+    </div>
+  </div>
+  <div class="dash-grid">
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Month by Month</div></div>
+        <div id="tl-monthly-breakdown" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>Milestones</div></div>
+        <div id="tl-milestones" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>On This Day</div></div>
+        <div id="tl-on-this-day" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Activity Heatmap</div></div>
+        <div id="tl-heatmap" style="padding:1rem 1.4rem 1.4rem;overflow-x:auto"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SESSIONS PAGE
+═══════════════════════════════════════════════ -->
+<section class="page" id="page-sessions">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Sessions</h1>
+      <p class="page-sub">Your listening sessions detected and analyzed</p>
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="stat-val" id="sess-total">—</div>
+      <div class="stat-label">Total sessions</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div class="stat-val" id="sess-avg-tracks">—</div>
+      <div class="stat-label">Avg tracks / session</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div class="stat-val" id="sess-avg-dur">—</div>
+      <div class="stat-label">Avg duration</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
+      <div class="stat-val" id="sess-longest">—</div>
+      <div class="stat-label">Longest session</div>
+    </div>
+  </div>
+  <div class="dash-grid">
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Session Distribution</div></div>
+        <div id="sess-dist-chart" style="padding:1rem 1.4rem 1.2rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>Deep Dive Sessions</div></div>
+        <div id="sess-deep-dives" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1.25rem">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Recent Sessions</div></div>
+        <div id="sess-recent" style="padding:0 1.4rem 1.2rem;max-height:500px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     COMPARE PAGE
+═══════════════════════════════════════════════ -->
+<section class="page" id="page-compare">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Compare</h1>
+      <p class="page-sub">Side-by-side period comparison</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap">
+    <div style="display:flex;gap:0.5rem;align-items:center">
+      <label style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Period A</label>
+      <select id="cmp-period-a" class="inp" style="width:auto;padding:0.4rem 0.75rem">
+        <option value="week">This week</option>
+        <option value="month" selected>This month</option>
+        <option value="all">All time</option>
+        <option value="last7">Last 7 days</option>
+        <option value="last30">Last 30 days</option>
+        <option value="last90">Last 90 days</option>
+        <option value="last365">Last 365 days</option>
+      </select>
+    </div>
+    <span style="color:var(--text3);font-size:0.8rem">vs</span>
+    <div style="display:flex;gap:0.5rem;align-items:center">
+      <label style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Period B</label>
+      <select id="cmp-period-b" class="inp" style="width:auto;padding:0.4rem 0.75rem">
+        <option value="week">This week</option>
+        <option value="month">This month</option>
+        <option value="all">All time</option>
+        <option value="last7">Last 7 days</option>
+        <option value="last30" selected>Last 30 days</option>
+        <option value="last90">Last 90 days</option>
+        <option value="last365">Last 365 days</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="cmp-run" style="margin-left:auto">Compare</button>
+  </div>
+  <div id="cmp-results" style="display:flex;flex-direction:column;gap:1.25rem">
+    <div class="card">
+      <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Overview Comparison</div></div>
+      <div id="cmp-overview" style="padding:0 1.4rem 1.2rem"></div>
+    </div>
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Top Artists — Period A</div></div>
+        <div id="cmp-artists-a" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Top Artists — Period B</div></div>
+        <div id="cmp-artists-b" style="padding:0 1.4rem 1.2rem"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Shared vs Unique Artists</div></div>
+      <div id="cmp-shared-artists" style="padding:0 1.4rem 1.2rem"></div>
+    </div>
+  </div>
+</section>
 
 <!-- CONFIG MODAL -->
 <div class="modal-bg" id="config-modal">
@@ -1667,6 +1971,641 @@ async function init() {
     setConnectedUI(false);
   }
 
+}
+
+/* ═══════════════════════════════════════════════
+   INSIGHTS PAGE RENDERING
+═══════════════════════════════════════════════ */
+async function renderInsights() {
+  const plays = await getAllPlays();
+  if (!plays.length) {
+    ['ins-peak-hour','ins-peak-day','ins-avg-daily','ins-total-month'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.textContent = '—';
+    });
+    ['ins-hourly-chart','ins-dow-chart','ins-monthly-chart','ins-discovery'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.innerHTML = '<div class="empty">Connect Last.fm to see insights</div>';
+    });
+    return;
+  }
+
+  // Hourly distribution
+  const hours = new Array(24).fill(0);
+  plays.forEach(p => { hours[new Date(p.played_at).getHours()]++; });
+  const maxHour = Math.max(...hours);
+  const hourLabels = ['12a','1a','2a','3a','4a','5a','6a','7a','8a','9a','10a','11a','12p','1p','2p','3p','4p','5p','6p','7p','8p','9p','10p','11p'];
+  const peakHour = hours.indexOf(maxHour);
+  document.getElementById('ins-peak-hour').textContent = hourLabels[peakHour];
+  const hourlyHtml = hours.map((count, h) => {
+    const pct = maxHour ? Math.round((count / maxHour) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3);width:30px;text-align:right">${hourLabels[h]}</span>
+      <div style="flex:1;height:18px;background:var(--surface3);border-radius:3px;overflow:hidden;position:relative">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 0.6s var(--ease)"></div>
+      </div>
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text2);width:36px;text-align:right">${count}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ins-hourly-chart').innerHTML = hourlyHtml;
+
+  // Day of week
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dowCounts = new Array(7).fill(0);
+  plays.forEach(p => { dowCounts[new Date(p.played_at).getDay()]++; });
+  const maxDow = Math.max(...dowCounts);
+  const peakDay = dowCounts.indexOf(maxDow);
+  document.getElementById('ins-peak-day').textContent = days[peakDay];
+  const dowHtml = dowCounts.map((count, d) => {
+    const pct = maxDow ? Math.round((count / maxDow) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3);width:30px">${days[d]}</span>
+      <div style="flex:1;height:18px;background:var(--surface3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 0.6s var(--ease)"></div>
+      </div>
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text2);width:36px;text-align:right">${count}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ins-dow-chart').innerHTML = dowHtml;
+
+  // Monthly timeline
+  const months = {};
+  plays.forEach(p => {
+    const d = new Date(p.played_at);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    months[key] = (months[key] || 0) + 1;
+  });
+  const sortedMonths = Object.entries(months).sort((a,b) => a[0].localeCompare(b[0]));
+  const maxMonth = sortedMonths.length ? Math.max(...sortedMonths.map(m => m[1])) : 0;
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthlyHtml = sortedMonths.map(([key, count]) => {
+    const [y, m] = key.split('-');
+    const pct = maxMonth ? Math.round((count / maxMonth) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3);width:55px">${monthNames[parseInt(m)-1]} ${y}</span>
+      <div style="flex:1;height:18px;background:var(--surface3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 0.6s var(--ease)"></div>
+      </div>
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text2);width:36px;text-align:right">${count}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('ins-monthly-chart').innerHTML = monthlyHtml || '<div class="empty">No data yet</div>';
+
+  // Artist discovery timeline
+  const firstListen = {};
+  plays.forEach(p => {
+    if (!firstListen[p.artist_name] || p.played_at < firstListen[p.artist_name]) {
+      firstListen[p.artist_name] = p.played_at;
+    }
+  });
+  const discoveries = Object.entries(firstListen)
+    .sort((a,b) => b[1].localeCompare(a[1]))
+    .slice(0, 12);
+  const discoveryHtml = discoveries.map(([artist, date]) => {
+    const d = new Date(date);
+    const dateStr = `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+    return `<div class="artist-row" style="margin-bottom:0.5rem">
+      <span class="artist-rank" style="font-size:0.65rem;color:var(--text3)">${dateStr}</span>
+      <div class="artist-info">
+        <div class="artist-name" style="font-size:0.8rem">${esc(artist)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('ins-discovery').innerHTML = discoveryHtml || '<div class="empty">No data yet</div>';
+
+  // Stats
+  const uniqueDays = new Set(plays.map(p => p.played_at.slice(0,10))).size;
+  document.getElementById('ins-avg-daily').textContent = uniqueDays ? Math.round(plays.length / uniqueDays) : 0;
+  const now = new Date();
+  const thisMonth = plays.filter(p => {
+    const d = new Date(p.played_at);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  document.getElementById('ins-total-month').textContent = thisMonth.toLocaleString();
+}
+
+/* ═══════════════════════════════════════════════
+   TASTE PROFILE PAGE RENDERING
+═══════════════════════════════════════════════ */
+async function renderTaste() {
+  const plays = await getAllPlays();
+  if (!plays.length) {
+    ['taste-diversity','taste-unique','taste-top10','taste-obscurity'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.textContent = '—';
+    });
+    ['taste-loyalty-chart','taste-distribution','taste-radar','taste-summary'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.innerHTML = '<div class="empty">Connect Last.fm to see your taste profile</div>';
+    });
+    return;
+  }
+
+  const artistCounts = {};
+  plays.forEach(p => { artistCounts[p.artist_name] = (artistCounts[p.artist_name] || 0) + 1; });
+  const sorted = Object.entries(artistCounts).sort((a,b) => b[1] - a[1]);
+  const uniqueArtists = sorted.length;
+  const totalPlays = plays.length;
+
+  // Diversity score: unique artists / total plays * 100 (higher = more diverse)
+  const diversity = Math.round((uniqueArtists / totalPlays) * 100);
+  document.getElementById('taste-diversity').textContent = diversity + '%';
+  document.getElementById('taste-unique').textContent = uniqueArtists.toLocaleString();
+
+  // Top 10 share
+  const top10Plays = sorted.slice(0,10).reduce((s,[,c]) => s+c, 0);
+  const top10Pct = Math.round((top10Plays / totalPlays) * 100);
+  document.getElementById('taste-top10').textContent = top10Pct + '%';
+
+  // Obscurity: avg plays per artist (lower = more obscure taste)
+  const avgPlaysPerArtist = Math.round(totalPlays / uniqueArtists);
+  const obscurity = avgPlaysPerArtist <= 2 ? 'Very obscure' : avgPlaysPerArtist <= 5 ? 'Obscure' : avgPlaysPerArtist <= 10 ? 'Moderate' : avgPlaysPerArtist <= 20 ? 'Mainstream' : 'Very mainstream';
+  document.getElementById('taste-obscurity').textContent = obscurity;
+
+  // Loyalty vs Exploration chart
+  const top5Plays = sorted.slice(0,5).reduce((s,[,c]) => s+c, 0);
+  const longTailPlays = totalPlays - top5Plays;
+  const loyaltyPct = Math.round((top5Plays / totalPlays) * 100);
+  const explorePct = 100 - loyaltyPct;
+  document.getElementById('taste-loyalty-chart').innerHTML = `
+    <div style="margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:0.75rem;color:var(--text2)">Top 5 artists (loyalty)</span>
+        <span style="font-size:0.75rem;font-family:'JetBrains Mono',monospace;color:var(--accent2)">${loyaltyPct}%</span>
+      </div>
+      <div style="height:8px;background:var(--surface3);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${loyaltyPct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px"></div>
+      </div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:0.75rem;color:var(--text2)">Long tail (exploration)</span>
+        <span style="font-size:0.75rem;font-family:'JetBrains Mono',monospace;color:var(--success)">${explorePct}%</span>
+      </div>
+      <div style="height:8px;background:var(--surface3);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${explorePct}%;background:linear-gradient(90deg,#22c55e,#34d399);border-radius:99px"></div>
+      </div>
+    </div>
+    <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+      <div style="background:var(--surface2);border-radius:8px;padding:0.75rem;text-align:center">
+        <div style="font-size:1.2rem;font-weight:700;color:var(--accent2)">${sorted.length > 5 ? 5 : sorted.length}</div>
+        <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Top artists</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:0.75rem;text-align:center">
+        <div style="font-size:1.2rem;font-weight:700;color:var(--success)">${Math.max(0, uniqueArtists - 5)}</div>
+        <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Long tail</div>
+      </div>
+    </div>`;
+
+  // Artist play distribution (top 10 bars)
+  const maxCount = sorted[0][1];
+  const distHtml = sorted.slice(0,10).map(([name, count], i) => {
+    const pct = Math.round((count / maxCount) * 100);
+    return `<div class="artist-row" style="margin-bottom:0.5rem">
+      <span class="artist-rank">${i+1}</span>
+      <div class="artist-info">
+        <div class="artist-name" style="font-size:0.8rem">${esc(name)}</div>
+        <div class="artist-bar-wrap"><div class="artist-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span class="artist-count">${count}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('taste-distribution').innerHTML = distHtml;
+
+  // Sound radar (simple SVG radar chart)
+  const metrics = [
+    { label: 'Diversity', value: Math.min(diversity / 50, 1) },
+    { label: 'Loyalty', value: loyaltyPct / 100 },
+    { label: 'Volume', value: Math.min(totalPlays / 5000, 1) },
+    { label: 'Consistency', value: Math.min(uniqueDays / 365, 1) },
+    { label: 'Discovery', value: Math.min(uniqueArtists / 500, 1) },
+  ];
+  const uniqueDays2 = new Set(plays.map(p => p.played_at.slice(0,10))).size;
+  metrics[3].value = Math.min(uniqueDays2 / 365, 1);
+  const cx = 100, cy = 100, r = 70;
+  const n = metrics.length;
+  const radarPoints = metrics.map((m, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const dist = m.value * r;
+    return { x: cx + dist * Math.cos(angle), y: cy + dist * Math.sin(angle), label: m.label, value: m.value };
+  });
+  const polygonPoints = radarPoints.map(p => `${p.x},${p.y}`).join(' ');
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  const gridHtml = gridLevels.map(level => {
+    const pts = metrics.map((_, i) => {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      return `${cx + level * r * Math.cos(angle)},${cy + level * r * Math.sin(angle)}`;
+    }).join(' ');
+    return `<polygon points="${pts}" fill="none" stroke="var(--border)" stroke-width="0.5"/>`;
+  }).join('');
+  const labelHtml = metrics.map((m, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const lx = cx + (r + 18) * Math.cos(angle);
+    const ly = cy + (r + 18) * Math.sin(angle);
+    return `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="var(--text3)" font-family="DM Sans">${m.label}</text>`;
+  }).join('');
+  document.getElementById('taste-radar').innerHTML = `<svg viewBox="0 0 200 200" width="200" height="200">
+    ${gridHtml}
+    <polygon points="${polygonPoints}" fill="rgba(139,92,246,0.2)" stroke="var(--accent)" stroke-width="1.5"/>
+    ${radarPoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="var(--accent2)"/>`).join('')}
+    ${labelHtml}
+  </svg>`;
+
+  // Taste summary text
+  const topArtist = sorted[0][0];
+  const summaryHtml = `<div style="line-height:1.6">
+    <p style="margin-bottom:0.75rem;color:var(--text2);font-size:0.85rem">You've listened to <strong style="color:var(--text)">${uniqueArtists.toLocaleString()} unique artists</strong> across <strong style="color:var(--text)">${totalPlays.toLocaleString()} plays</strong>.</p>
+    <p style="margin-bottom:0.75rem;color:var(--text2);font-size:0.85rem">Your most-played artist is <strong style="color:var(--accent2)">${esc(topArtist)}</strong> with <strong style="color:var(--text)">${sorted[0][1]}</strong> plays.</p>
+    <p style="margin-bottom:0.75rem;color:var(--text2);font-size:0.85rem">Your taste is <strong style="color:var(--text)">${obscurity.toLowerCase()}</strong> — you average <strong style="color:var(--text)">${avgPlaysPerArtist}</strong> plays per artist.</p>
+    <p style="color:var(--text2);font-size:0.85rem">${loyaltyPct > 60 ? `You're a <strong style="color:var(--text)">loyal listener</strong> — ${loyaltyPct}% of your plays come from just 5 artists.` : `You're an <strong style="color:var(--text)">explorer</strong> — only ${loyaltyPct}% of your plays come from your top 5.`}</p>
+  </div>`;
+  document.getElementById('taste-summary').innerHTML = summaryHtml;
+}
+
+/* ═══════════════════════════════════════════════
+   TIMELINE PAGE RENDERING
+═══════════════════════════════════════════════ */
+async function renderTimeline() {
+  const plays = await getAllPlays();
+  if (!plays.length) {
+    ['tl-first-scrobble','tl-top-month','tl-total-months','tl-longest-streak'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.textContent = '—';
+    });
+    ['tl-monthly-breakdown','tl-milestones','tl-on-this-day','tl-heatmap'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.innerHTML = '<div class="empty">Connect Last.fm to see your timeline</div>';
+    });
+    return;
+  }
+
+  const sorted = [...plays].sort((a,b) => new Date(a.played_at) - new Date(b.played_at));
+  const firstPlay = sorted[0];
+  const lastPlay = sorted[sorted.length - 1];
+  const firstDate = new Date(firstPlay.played_at);
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('tl-first-scrobble').textContent = `${monthNames[firstDate.getMonth()]} ${firstDate.getFullYear()}`;
+
+  // Months tracked
+  const months = new Set();
+  plays.forEach(p => {
+    const d = new Date(p.played_at);
+    months.add(`${d.getFullYear()}-${d.getMonth()}`);
+  });
+  document.getElementById('tl-total-months').textContent = months.size;
+
+  // Longest streak
+  const activeDays = new Set(plays.map(p => p.played_at.slice(0,10)));
+  const sortedDays = [...activeDays].sort();
+  let longestStreak = 1, currentStreak = 1;
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prev = new Date(sortedDays[i-1]);
+    const curr = new Date(sortedDays[i]);
+    const diff = (curr - prev) / 86400000;
+    if (diff === 1) { currentStreak++; longestStreak = Math.max(longestStreak, currentStreak); }
+    else { currentStreak = 1; }
+  }
+  document.getElementById('tl-longest-streak').textContent = longestStreak + ' days';
+
+  // Month by month breakdown
+  const monthData = {};
+  plays.forEach(p => {
+    const d = new Date(p.played_at);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!monthData[key]) monthData[key] = { count: 0, artists: new Set() };
+    monthData[key].count++;
+    monthData[key].artists.add(p.artist_name);
+  });
+  const sortedMonthEntries = Object.entries(monthData).sort((a,b) => b[0].localeCompare(a[0]));
+  const topMonth = sortedMonthEntries[0];
+  if (topMonth) {
+    const [y, m] = topMonth[0].split('-');
+    document.getElementById('tl-top-month').textContent = `${monthNames[parseInt(m)-1]} ${y}`;
+  }
+  const maxMonthCount = Math.max(...sortedMonthEntries.map(([,d]) => d.count));
+  const monthlyHtml = sortedMonthEntries.slice(0, 12).map(([key, data]) => {
+    const [y, m] = key.split('-');
+    const pct = Math.round((data.count / maxMonthCount) * 100);
+    return `<div class="artist-row" style="margin-bottom:0.5rem">
+      <span class="artist-rank" style="font-size:0.65rem;color:var(--text3);width:55px">${monthNames[parseInt(m)-1]} ${y}</span>
+      <div class="artist-info">
+        <div class="artist-bar-wrap"><div class="artist-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span class="artist-count" style="width:60px;text-align:right">${data.count} · ${data.artists.size} artists</span>
+    </div>`;
+  }).join('');
+  document.getElementById('tl-monthly-breakdown').innerHTML = monthlyHtml || '<div class="empty">No data</div>';
+
+  // Milestones
+  const milestones = [];
+  const totalMilestones = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000];
+  for (const target of totalMilestones) {
+    if (sorted.length >= target) {
+      const play = sorted[target - 1];
+      const d = new Date(play.played_at);
+      milestones.push({ label: `${target.toLocaleString()} scrobbles`, date: `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`, track: `${play.track_name} — ${play.artist_name}` });
+    }
+  }
+  // Unique artist milestones
+  const seenArtists = new Set();
+  const artistMilestones = [];
+  for (const p of sorted) {
+    seenArtists.add(p.artist_name);
+    if ([100, 250, 500, 1000, 2500, 5000].includes(seenArtists.size)) {
+      const d = new Date(p.played_at);
+      artistMilestones.push({ label: `${seenArtists.size} unique artists`, date: `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`, track: `${p.track_name} — ${p.artist_name}` });
+    }
+  }
+  const allMilestones = [...milestones, ...artistMilestones].sort((a,b) => b.label.localeCompare(a.label)).slice(0, 8);
+  const milestonesHtml = allMilestones.length ? allMilestones.map(m => `
+    <div style="display:flex;gap:12px;margin-bottom:0.75rem;align-items:flex-start">
+      <div style="background:var(--accent3);border-radius:6px;padding:0.4rem 0.6rem;flex-shrink:0">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--accent2)">${m.label}</div>
+        <div style="font-size:0.6rem;color:var(--text3)">${m.date}</div>
+      </div>
+      <div style="padding-top:0.3rem">
+        <div style="font-size:0.75rem;color:var(--text2)">${esc(m.track)}</div>
+      </div>
+    </div>`).join('') : '<div class="empty">Keep listening to unlock milestones!</div>';
+  document.getElementById('tl-milestones').innerHTML = milestonesHtml;
+
+  // On this day
+  const today = new Date();
+  const todayMonth = today.getMonth(), todayDay = today.getDate();
+  const onThisDay = plays.filter(p => {
+    const d = new Date(p.played_at);
+    return d.getMonth() === todayMonth && d.getDate() === todayDay && d.getFullYear() !== today.getFullYear();
+  }).slice(0, 8);
+  const onThisDayHtml = onThisDay.length ? onThisDay.map(p => {
+    const d = new Date(p.played_at);
+    return `<div class="artist-row" style="margin-bottom:0.5rem">
+      <span class="artist-rank" style="font-size:0.65rem;color:var(--text3)">${d.getFullYear()}</span>
+      <div class="artist-info">
+        <div class="artist-name" style="font-size:0.8rem">${esc(p.track_name)}</div>
+        <div style="font-size:0.7rem;color:var(--text3)">${esc(p.artist_name)}</div>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty">No plays on this day in previous years</div>';
+  document.getElementById('tl-on-this-day').innerHTML = onThisDayHtml;
+
+  // Activity heatmap (last 52 weeks)
+  const heatmapEl = document.getElementById('tl-heatmap');
+  const dayMap = {};
+  plays.forEach(p => { dayMap[p.played_at.slice(0,10)] = (dayMap[p.played_at.slice(0,10)] || 0) + 1; });
+  const maxDayCount = Math.max(...Object.values(dayMap), 1);
+  const weeks = [];
+  const startDate = new Date(); startDate.setDate(startDate.getDate() - 364);
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+  for (let w = 0; w < 52; w++) {
+    const week = [];
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + w * 7 + d);
+      const key = date.toISOString().slice(0,10);
+      const count = dayMap[key] || 0;
+      week.push({ count, date: key });
+    }
+    weeks.push(week);
+  }
+  const cellSize = 10, cellGap = 3;
+  const heatmapHtml = `<div style="display:flex;gap:${cellGap}px">
+    ${weeks.map(week => `<div style="display:flex;flex-direction:column;gap:${cellGap}px">
+      ${week.map(day => {
+        const intensity = day.count === 0 ? 0 : day.count <= 2 ? 1 : day.count <= 5 ? 2 : day.count <= 10 ? 3 : 4;
+        const colors = ['var(--surface3)','rgba(139,92,246,0.2)','rgba(139,92,246,0.4)','rgba(139,92,246,0.7)','var(--accent)'];
+        return `<div title="${day.date}: ${day.count} plays" style="width:${cellSize}px;height:${cellSize}px;border-radius:2px;background:${colors[intensity]}"></div>`;
+      }).join('')}
+    </div>`).join('')}
+  </div>
+  <div style="display:flex;gap:4px;margin-top:8px;align-items:center">
+    <span style="font-size:0.6rem;color:var(--text3)">Less</span>
+    ${[0,1,2,3,4].map(i => `<div style="width:8px;height:8px;border-radius:2px;background:${['var(--surface3)','rgba(139,92,246,0.2)','rgba(139,92,246,0.4)','rgba(139,92,246,0.7)','var(--accent)'][i]}"></div>`).join('')}
+    <span style="font-size:0.6rem;color:var(--text3)">More</span>
+  </div>`;
+  heatmapEl.innerHTML = heatmapHtml;
+}
+
+/* ═══════════════════════════════════════════════
+   SESSIONS PAGE RENDERING
+═══════════════════════════════════════════════ */
+async function renderSessions() {
+  const plays = await getAllPlays();
+  if (!plays.length) {
+    ['sess-total','sess-avg-tracks','sess-avg-dur','sess-longest'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.textContent = '—';
+    });
+    ['sess-dist-chart','sess-deep-dives','sess-recent'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.innerHTML = '<div class="empty">Connect Last.fm to see sessions</div>';
+    });
+    return;
+  }
+
+  // Detect sessions: gap > 30 min = new session
+  const sorted = [...plays].sort((a,b) => new Date(a.played_at) - new Date(b.played_at));
+  const SESSION_GAP = 30 * 60 * 1000; // 30 minutes
+  const sessions = [];
+  let currentSession = [sorted[0]];
+  for (let i = 1; i < sorted.length; i++) {
+    const gap = new Date(sorted[i].played_at) - new Date(sorted[i-1].played_at);
+    if (gap > SESSION_GAP) {
+      sessions.push(currentSession);
+      currentSession = [sorted[i]];
+    } else {
+      currentSession.push(sorted[i]);
+    }
+  }
+  sessions.push(currentSession);
+
+  const totalSessions = sessions.length;
+  const avgTracks = Math.round(sessions.reduce((s, sess) => s + sess.length, 0) / totalSessions);
+  const durations = sessions.map(sess => {
+    if (sess.length < 2) return 0;
+    return new Date(sess[sess.length-1].played_at) - new Date(sess[0].played_at);
+  }).filter(d => d > 0);
+  const avgDur = durations.length ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length / 60000) : 0;
+  const longestDur = durations.length ? Math.round(Math.max(...durations) / 60000) : 0;
+
+  document.getElementById('sess-total').textContent = totalSessions.toLocaleString();
+  document.getElementById('sess-avg-tracks').textContent = avgTracks;
+  document.getElementById('sess-avg-dur').textContent = avgDur + ' min';
+  document.getElementById('sess-longest').textContent = longestDur + ' min';
+
+  // Session distribution by track count
+  const buckets = { '1': 0, '2-5': 0, '6-10': 0, '11-20': 0, '21-50': 0, '50+': 0 };
+  sessions.forEach(s => {
+    const len = s.length;
+    if (len === 1) buckets['1']++;
+    else if (len <= 5) buckets['2-5']++;
+    else if (len <= 10) buckets['6-10']++;
+    else if (len <= 20) buckets['11-20']++;
+    else if (len <= 50) buckets['21-50']++;
+    else buckets['50+']++;
+  });
+  const maxBucket = Math.max(...Object.values(buckets));
+  const distHtml = Object.entries(buckets).map(([label, count]) => {
+    const pct = maxBucket ? Math.round((count / maxBucket) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3);width:40px">${label} tracks</span>
+      <div style="flex:1;height:18px;background:var(--surface3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px"></div>
+      </div>
+      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text2);width:36px;text-align:right">${count}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('sess-dist-chart').innerHTML = distHtml;
+
+  // Deep dive sessions (top 5 longest)
+  const deepDives = sessions
+    .filter(s => s.length >= 3)
+    .sort((a,b) => {
+      const durA = new Date(a[a.length-1].played_at) - new Date(a[0].played_at);
+      const durB = new Date(b[b.length-1].played_at) - new Date(b[0].played_at);
+      return durB - durA;
+    })
+    .slice(0, 5);
+  const deepDivesHtml = deepDives.length ? deepDives.map(sess => {
+    const start = new Date(sess[0].played_at);
+    const end = new Date(sess[sess.length-1].played_at);
+    const durMin = Math.round((end - start) / 60000);
+    const dateStr = `${monthNames[start.getMonth()]} ${start.getDate()}, ${start.getFullYear()}`;
+    const timeStr = `${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')}`;
+    const artists = [...new Set(sess.map(p => p.artist_name))].slice(0, 3).join(', ');
+    return `<div style="background:var(--surface2);border-radius:8px;padding:0.75rem;margin-bottom:0.5rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+        <span style="font-size:0.75rem;font-weight:600;color:var(--text)">${dateStr} at ${timeStr}</span>
+        <span style="font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--accent2)">${sess.length} tracks · ${durMin} min</span>
+      </div>
+      <div style="font-size:0.7rem;color:var(--text3)">${esc(artists)}${new Set(sess.map(p => p.artist_name)).size > 3 ? ` +${new Set(sess.map(p => p.artist_name)).size - 3} more` : ''}</div>
+    </div>`;
+  }).join('') : '<div class="empty">No long sessions detected yet</div>';
+  document.getElementById('sess-deep-dives').innerHTML = deepDivesHtml;
+
+  // Recent sessions (last 15)
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const recentSessions = sessions.slice(-15).reverse();
+  const recentHtml = recentSessions.map(sess => {
+    const start = new Date(sess[0].played_at);
+    const end = new Date(sess[sess.length-1].played_at);
+    const durMin = Math.round((end - start) / 60000);
+    const dateStr = `${monthNames[start.getMonth()]} ${start.getDate()}`;
+    const timeStr = `${String(start.getHours()).padStart(2,'0')}:${String(start.getMinutes()).padStart(2,'0')}`;
+    const topArtist = sess.reduce((acc, p) => { acc[p.artist_name] = (acc[p.artist_name]||0)+1; return acc; }, {});
+    const top = Object.entries(topArtist).sort((a,b) => b[1]-a[1])[0][0];
+    return `<div class="artist-row" style="margin-bottom:0.5rem">
+      <span class="artist-rank" style="font-size:0.65rem;color:var(--text3)">${dateStr}</span>
+      <div class="artist-info">
+        <div class="artist-name" style="font-size:0.8rem">${sess.length} tracks · ${durMin} min</div>
+        <div style="font-size:0.7rem;color:var(--text3)">${timeStr} · ${esc(top)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('sess-recent').innerHTML = recentHtml || '<div class="empty">No sessions yet</div>';
+}
+
+/* ═══════════════════════════════════════════════
+   COMPARE PAGE RENDERING
+═══════════════════════════════════════════════ */
+function _filterPlaysByPeriod(plays, period) {
+  if (period === 'all') return plays;
+  const now = Date.now();
+  const cuts = { week: 7, month: 30, last7: 7, last30: 30, last90: 90, last365: 365 };
+  const days = cuts[period] || 30;
+  const t = now - days * 86400000;
+  return plays.filter(p => new Date(p.played_at) > t);
+}
+
+async function renderCompare() {
+  const plays = await getAllPlays();
+  if (!plays.length) {
+    ['cmp-overview','cmp-artists-a','cmp-artists-b','cmp-shared-artists'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.innerHTML = '<div class="empty">Connect Last.fm to compare</div>';
+    });
+    return;
+  }
+
+  const periodA = document.getElementById('cmp-period-a').value;
+  const periodB = document.getElementById('cmp-period-b').value;
+  const playsA = _filterPlaysByPeriod(plays, periodA);
+  const playsB = _filterPlaysByPeriod(plays, periodB);
+
+  const periodLabels = { week: 'This week', month: 'This month', all: 'All time', last7: 'Last 7 days', last30: 'Last 30 days', last90: 'Last 90 days', last365: 'Last 365 days' };
+
+  // Overview stats
+  const statsA = { tracks: playsA.length, artists: new Set(playsA.map(p => p.artist_name)).size, days: new Set(playsA.map(p => p.played_at.slice(0,10))).size };
+  const statsB = { tracks: playsB.length, artists: new Set(playsB.map(p => p.artist_name)).size, days: new Set(playsB.map(p => p.played_at.slice(0,10))).size };
+  const pctDiff = (a, b) => { if (!b) return a > 0 ? '+100%' : '0%'; const d = Math.round(((a - b) / b) * 100); return d >= 0 ? `+${d}%` : `${d}%`; };
+  const diffColor = (a, b) => a > b ? 'var(--success)' : a < b ? 'var(--danger)' : 'var(--text3)';
+
+  document.getElementById('cmp-overview').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;text-align:center">
+      <div>
+        <div style="font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">${periodLabels[periodA]}</div>
+        <div style="font-size:1.5rem;font-weight:700;color:var(--text)">${statsA.tracks.toLocaleString()}</div>
+        <div style="font-size:0.7rem;color:var(--text3)">tracks</div>
+        <div style="font-size:1rem;font-weight:600;color:var(--text);margin-top:0.5rem">${statsA.artists}</div>
+        <div style="font-size:0.7rem;color:var(--text3)">artists</div>
+        <div style="font-size:1rem;font-weight:600;color:var(--text);margin-top:0.5rem">${statsA.days}</div>
+        <div style="font-size:0.7rem;color:var(--text3)">days</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem">
+        <div style="font-size:0.75rem;font-weight:600;color:${diffColor(statsA.tracks, statsB.tracks)}">${pctDiff(statsA.tracks, statsB.tracks)}</div>
+        <div style="font-size:0.75rem;font-weight:600;color:${diffColor(statsA.artists, statsB.artists)}">${pctDiff(statsA.artists, statsB.artists)}</div>
+        <div style="font-size:0.75rem;font-weight:600;color:${diffColor(statsA.days, statsB.days)}">${pctDiff(statsA.days, statsB.days)}</div>
+      </div>
+      <div>
+        <div style="font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">${periodLabels[periodB]}</div>
+        <div style="font-size:1.5rem;font-weight:700;color:var(--text)">${statsB.tracks.toLocaleString()}</div>
+        <div style="font-size:0.7rem;color:var(--text3)">tracks</div>
+        <div style="font-size:1rem;font-weight:600;color:var(--text);margin-top:0.5rem">${statsB.artists}</div>
+        <div style="font-size:0.7rem;color:var(--text3)">artists</div>
+        <div style="font-size:1rem;font-weight:600;color:var(--text);margin-top:0.5rem">${statsB.days}</div>
+        <div style="font-size:0.7rem;color:var(--text3)">days</div>
+      </div>
+    </div>`;
+
+  // Top artists per period
+  const getTopArtists = (pl) => {
+    const counts = {};
+    pl.forEach(p => { counts[p.artist_name] = (counts[p.artist_name] || 0) + 1; });
+    return Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 7);
+  };
+  const topA = getTopArtists(playsA);
+  const topB = getTopArtists(playsB);
+  const maxA = topA.length ? topA[0][1] : 1;
+  const maxB = topB.length ? topB[0][1] : 1;
+
+  const renderArtistList = (artists, max) => artists.map(([name, count], i) => {
+    const pct = Math.round((count / max) * 100);
+    return `<div class="artist-row" style="margin-bottom:0.5rem">
+      <span class="artist-rank">${i+1}</span>
+      <div class="artist-info">
+        <div class="artist-name" style="font-size:0.8rem">${esc(name)}</div>
+        <div class="artist-bar-wrap"><div class="artist-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span class="artist-count">${count}</span>
+    </div>`;
+  }).join('') || '<div class="empty">No data</div>';
+
+  document.getElementById('cmp-artists-a').innerHTML = renderArtistList(topA, maxA);
+  document.getElementById('cmp-artists-b').innerHTML = renderArtistList(topB, maxB);
+
+  // Shared vs unique
+  const artistsA = new Set(topA.map(([n]) => n));
+  const artistsB = new Set(topB.map(([n]) => n));
+  const shared = [...artistsA].filter(a => artistsB.has(a));
+  const onlyA = [...artistsA].filter(a => !artistsB.has(a));
+  const onlyB = [...artistsB].filter(a => !artistsA.has(a));
+  document.getElementById('cmp-shared-artists').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+      <div>
+        <div style="font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Shared (${shared.length})</div>
+        ${shared.length ? shared.map(a => `<div style="font-size:0.8rem;color:var(--accent2);margin-bottom:0.3rem">${esc(a)}</div>`).join('') : '<div class="empty">None</div>'}
+      </div>
+      <div>
+        <div style="font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Only in A (${onlyA.length})</div>
+        ${onlyA.length ? onlyA.map(a => `<div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.3rem">${esc(a)}</div>`).join('') : '<div class="empty">None</div>'}
+      </div>
+      <div>
+        <div style="font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Only in B (${onlyB.length})</div>
+        ${onlyB.length ? onlyB.map(a => `<div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.3rem">${esc(a)}</div>`).join('') : '<div class="empty">None</div>'}
+      </div>
+    </div>`;
+}
+
   // Navigation
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', async e => {
@@ -1675,7 +2614,17 @@ async function init() {
       setPage(p);
       if (p === 'dashboard') await refreshDashboard();
       if (p === 'history') await refreshHistory();
+      if (p === 'insights') await renderInsights();
+      if (p === 'taste') await renderTaste();
+      if (p === 'timeline') await renderTimeline();
+      if (p === 'sessions') await renderSessions();
+      if (p === 'compare') { await renderCompare(); }
     });
+  });
+
+  // Compare button
+  document.getElementById('cmp-run')?.addEventListener('click', async () => {
+    await renderCompare();
   });
 
   // Period tabs
