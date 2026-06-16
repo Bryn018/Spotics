@@ -317,6 +317,38 @@ canvas.main-chart{width:100%!important;display:block}
   display:flex;align-items:center;gap:4px;
 }
 .np-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blink 1.5s infinite}
+.np-status{
+  font-size:0.9rem;
+  font-weight:800;
+  color:var(--accent2);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.np-track{
+  font-size:1rem;
+  font-weight:700;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.3;
+}
+.np-artist{
+  font-size:0.8rem;
+  color:var(--text2);
+  margin-top:1px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.recent-header{
+  font-size:0.8rem;
+  font-weight:600;
+  color:var(--text2);
+  padding:0.6rem 1.4rem 0.2rem;
+  letter-spacing:0.02em;
+}
 
 /* ── TRACK LIST ───────────────────────────────── */
 .track-list{list-style:none}
@@ -770,14 +802,14 @@ canvas.main-chart{width:100%!important;display:block}
           <div class="card-head">
             <div class="card-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              Recently Played
             </div>
           </div>
           <div id="now-playing-row" class="now-playing" style="display:none">
             <img class="np-cover" id="np-cover" src="" alt="" onerror="this.style.display='none'">
             <div class="np-info">
-              <div class="np-track" id="np-track">Now Playing</div>
-              <div class="np-artist" id="np-artist">—</div>
+              <div class="np-status" id="np-status">Now Playing</div>
+              <div class="np-track" id="np-track"></div>
+              <div class="np-artist" id="np-artist"></div>
             </div>
             <div class="np-badge"><span class="np-dot"></span>Playing</div>
             <div class="freq-bars paused" id="freq-bars">
@@ -1469,18 +1501,22 @@ async function fetchAndStore() {
         nowRow.style.display = 'none';
       } else {
         nowRow.style.display = 'flex';
-        const trackEl = document.getElementById('np-track');
-        const artistEl = document.getElementById('np-artist');
-        const coverEl = document.getElementById('np-cover');
-        if (trackEl) trackEl.textContent = nowPlaying.name || 'Unknown track';
-        if (artistEl) artistEl.textContent = nowPlaying.artist['#text'] || 'Unknown artist';
-        const cover = nowPlaying.image?.find(img => img.size === 'large')?.['#text'] || nowPlaying.image?.[nowPlaying.image.length - 1]?.['#text'] || '';
-        if (cover) {
-          coverEl.src = cover;
-          coverEl.style.display = '';
-        } else {
-          coverEl.style.display = 'none';
-        }
+      }
+    }
+    const statusEl = document.getElementById('np-status');
+    if (statusEl) statusEl.textContent = nowPlaying ? 'Now Playing' : '';
+    const trackEl = document.getElementById('np-track');
+    const artistEl = document.getElementById('np-artist');
+    const coverEl = document.getElementById('np-cover');
+    if (trackEl) trackEl.textContent = nowPlaying ? (nowPlaying.name || 'Unknown track') : '';
+    if (artistEl) artistEl.textContent = nowPlaying ? (nowPlaying.artist['#text'] || 'Unknown artist') : '';
+    if (nowPlaying) {
+      const cover = nowPlaying.image?.find(img => img.size === 'large')?.['#text'] || nowPlaying.image?.[nowPlaying.image.length - 1]?.['#text'] || '';
+      if (cover) {
+        coverEl.src = cover;
+        coverEl.style.display = '';
+      } else {
+        coverEl.style.display = 'none';
       }
     }
     const freqBars = document.getElementById('freq-bars') || document.querySelector('.freq-bars');
