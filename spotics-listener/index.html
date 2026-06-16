@@ -397,6 +397,13 @@ canvas.main-chart{width:100%!important;display:block}
   font-size:0.72rem;font-family:'JetBrains Mono',monospace;
   color:var(--accent2);flex-shrink:0;font-weight:600;
 }
+.track-delta{
+  font-size:0.68rem;font-family:'JetBrains Mono',monospace;
+  flex-shrink:0;width:18px;text-align:center;
+}
+.track-delta.up{color:#22c55e}
+.track-delta.down{color:#ef4444}
+.track-delta.same{color:var(--text3)}
 
 /* ── CALENDAR HEATMAP ─────────────────────────── */
 .heatmap-wrap{padding:0 1.4rem 1.4rem;overflow-x:auto}
@@ -1005,18 +1012,6 @@ canvas.main-chart{width:100%!important;display:block}
 
 <script>
 /* ═══════════════════════════════════════════════
-   SEED CONFIG
-═══════════════════════════════════════════════ */
-(function seedConfig() {
-  if (!localStorage.getItem('spotics_api_key')) {
-    localStorage.setItem('spotics_api_key', 'c6c73b8778698b5acf763bc363311725');
-    localStorage.setItem('spotics_api_secret', 'ff45349c4130ee21b12eef45058a26e6');
-    localStorage.setItem('spotics_username', 'InsightsWaly');
-    localStorage.setItem('spotics_poll', '300000');
-  }
-})();
-
-/* ═══════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════ */
 let CONFIG = {
@@ -1249,15 +1244,31 @@ function renderTrackCounts(trackCounts, limit = 6) {
   const sorted = Object.entries(trackCounts)
     .map(([key, count]) => {
       const [track_name, artist_name] = key.split('|||');
-      return { track_name, artist_name, count };
+      return { key, track_name, artist_name, count };
     })
     .sort((a,b) => b.count - a.count)
     .slice(0, limit);
   if (!sorted.length) { el.innerHTML = '<div class="empty">No repeated tracks yet</div>'; return; }
   const max = sorted[0].count;
-  el.innerHTML = sorted.map((t, i) => `
-    <div class="artist-row">
-      <span class="artist-rank">${i + 1}</span>
+  const prevRanks = new Map();
+  el.querySelectorAll('.track-row').forEach(row => {
+    const key = row.getAttribute('data-track-key');
+    const rankText = row.getAttribute('data-prev-rank');
+    if (key && rankText) prevRanks.set(key, parseInt(rankText, 10));
+  });
+  el.innerHTML = sorted.map((t, i) => {
+    const currentRank = i + 1;
+    const prevRank = prevRanks.get(t.key);
+    let deltaLabel = 'same';
+    if (typeof prevRank === 'number') {
+      if (currentRank < prevRank) deltaLabel = 'up';
+      else if (currentRank > prevRank) deltaLabel = 'down';
+    }
+    const arrow = deltaLabel === 'up' ? '+' : deltaLabel === 'down' ? '-' : '=';
+    return `
+    <div class="artist-row track-row" data-track-key="${esc(t.key)}" data-prev-rank="${currentRank}">
+      <span class="artist-rank">${currentRank}</span>
+      <span class="track-delta ${deltaLabel}">${arrow}</span>
       <div class="artist-info">
         <div class="artist-name">${esc(t.track_name)}</div>
         <div class="artist-bar-wrap">
@@ -1265,7 +1276,8 @@ function renderTrackCounts(trackCounts, limit = 6) {
         </div>
       </div>
       <span class="artist-count">${t.count}</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function computeStreak(plays) {
