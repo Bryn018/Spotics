@@ -404,6 +404,13 @@ canvas.main-chart{width:100%!important;display:block}
 .track-delta.up{color:#22c55e}
 .track-delta.down{color:#ef4444}
 .track-delta.same{color:var(--text3)}
+.artist-delta{
+  font-size:0.68rem;font-family:'JetBrains Mono',monospace;
+  flex-shrink:0;width:18px;text-align:center;
+}
+.artist-delta.up{color:#22c55e}
+.artist-delta.down{color:#ef4444}
+.artist-delta.same{color:var(--text3)}
 
 /* ── CALENDAR HEATMAP ─────────────────────────── */
 .heatmap-wrap{padding:0 1.4rem 1.4rem;overflow-x:auto}
@@ -1202,14 +1209,54 @@ function renderTrackList(containerId, plays, limit = 0) {
     </li>`).join('');
 }
 
-function renderArtistBars(artistCounts, limit = 7) {
+const ARTIST_STORAGE_KEY = 'spotics_artist_ranks';
+
+function _loadArtistRanks() {
+  try {
+    const raw = localStorage.getItem(ARTIST_STORAGE_KEY);
+    if (!raw) return new Map();
+    const obj = JSON.parse(raw);
+    const map = new Map();
+    for (const [period, entries] of Object.entries(obj)) {
+      map.set(period, new Map(Object.entries(entries)));
+    }
+    return map;
+  } catch { return new Map(); }
+}
+
+function _saveArtistRanks(ranksMap) {
+  try {
+    const obj = {};
+    for (const [period, inner] of ranksMap.entries()) {
+      obj[period] = Object.fromEntries(inner);
+    }
+    localStorage.setItem(ARTIST_STORAGE_KEY, JSON.stringify(obj));
+  } catch { /* quota exceeded — silently ignore */ }
+}
+
+function renderArtistBars(artistCounts, limit = 7, period) {
   const el = document.getElementById('artist-list');
   const sorted = Object.entries(artistCounts).sort((a,b) => b[1] - a[1]).slice(0, limit);
   if (!sorted.length) { el.innerHTML = '<div class="empty">No artist data yet</div>'; return; }
   const max = sorted[0][1];
-  el.innerHTML = sorted.map(([name, count], i) => `
-    <div class="artist-row">
-      <span class="artist-rank">${i + 1}</span>
+  period = period || 'all';
+  const allPrevRanks = _loadArtistRanks();
+  const prevRanks = allPrevRanks.get(period) || new Map();
+  const newRanks = new Map();
+  el.innerHTML = sorted.map(([name, count], i) => {
+    const currentRank = i + 1;
+    newRanks.set(name, currentRank);
+    const prevRank = prevRanks.get(name);
+    let deltaLabel = 'same';
+    if (typeof prevRank === 'number') {
+      if (currentRank < prevRank) deltaLabel = 'up';
+      else if (currentRank > prevRank) deltaLabel = 'down';
+    }
+    const arrow = deltaLabel === 'up' ? '↑' : deltaLabel === 'down' ? '↓' : '=';
+    return `
+    <div class="artist-row" data-artist-key="${esc(name)}" data-prev-rank="${currentRank}">
+      <span class="artist-rank">${currentRank}</span>
+      <span class="artist-delta ${deltaLabel}">${arrow}</span>
       <div class="artist-info">
         <div class="artist-name">${esc(name)}</div>
         <div class="artist-bar-wrap">
@@ -1217,7 +1264,10 @@ function renderArtistBars(artistCounts, limit = 7) {
         </div>
       </div>
       <span class="artist-count">${count}</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+  allPrevRanks.set(period, newRanks);
+  _saveArtistRanks(allPrevRanks);
 }
 
 function renderAlbumGrid(albumCounts, limit = 8) {
@@ -1434,7 +1484,7 @@ async function refreshDashboard(period = 'all') {
   document.getElementById('history-badge').textContent = plays.length.toLocaleString();
   document.getElementById('data-count-label').textContent = `${plays.length.toLocaleString()} plays stored`;
 
-  renderArtistBars(artistCounts);
+  renderArtistBars(artistCounts, 7, period);
   renderAlbumGrid(albumCounts);
   renderTrackList('recent-list', plays, 12);
   try {
