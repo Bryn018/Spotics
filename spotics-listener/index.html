@@ -1239,28 +1239,33 @@ function renderAlbumGrid(albumCounts, limit = 8) {
     </div>`).join('');
 }
 
-function renderTrackCounts(trackCounts, limit = 6) {
+let _trackPeriod = 'all';
+function renderTrackCounts(trackCounts, limit = 6, period) {
   const el = document.getElementById('track-list');
   const sorted = Object.entries(trackCounts)
     .map(([key, count]) => {
       const [track_name, artist_name] = key.split('|||');
       return { key, track_name, artist_name, count };
     })
-    .sort((a,b) => b.count - a.count)
+    .sort((a,b) => b.count - a.count || a.key.localeCompare(b.key))
     .slice(0, limit);
   if (!sorted.length) { el.innerHTML = '<div class="empty">No repeated tracks yet</div>'; return; }
   const max = sorted[0].count;
+  const periodChanged = period !== _trackPeriod;
+  _trackPeriod = period || 'all';
   const prevRanks = new Map();
-  el.querySelectorAll('.track-row').forEach(row => {
-    const key = row.getAttribute('data-track-key');
-    const rankText = row.getAttribute('data-prev-rank');
-    if (key && rankText) prevRanks.set(key, parseInt(rankText, 10));
-  });
+  if (!periodChanged) {
+    el.querySelectorAll('.track-row').forEach(row => {
+      const key = row.getAttribute('data-track-key');
+      const rankText = row.getAttribute('data-prev-rank');
+      if (key && rankText) prevRanks.set(key, parseInt(rankText, 10));
+    });
+  }
   el.innerHTML = sorted.map((t, i) => {
     const currentRank = i + 1;
     const prevRank = prevRanks.get(t.key);
     let deltaLabel = 'same';
-    if (typeof prevRank === 'number') {
+    if (!periodChanged && typeof prevRank === 'number') {
       if (currentRank < prevRank) deltaLabel = 'up';
       else if (currentRank > prevRank) deltaLabel = 'down';
     }
@@ -1409,7 +1414,7 @@ async function refreshDashboard(period = 'all') {
   renderAlbumGrid(albumCounts);
   renderTrackList('recent-list', plays, 12);
   try {
-    renderTrackCounts(trackCounts);
+    renderTrackCounts(trackCounts, 6, period);
     computeWeekStats(filtered);
     computeStreak(filtered);
   } catch (error) {
