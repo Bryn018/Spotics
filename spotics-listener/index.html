@@ -772,16 +772,6 @@ canvas.main-chart{width:100%!important;display:block}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               Recently Played
             </div>
-            <div class="freq-bars paused" id="freq-bars">
-              <div class="freq-bar" style="height:4px"></div>
-              <div class="freq-bar" style="height:4px"></div>
-              <div class="freq-bar" style="height:4px"></div>
-              <div class="freq-bar" style="height:4px"></div>
-              <div class="freq-bar" style="height:4px"></div>
-              <div class="freq-bar" style="height:4px"></div>
-              <div class="freq-bar" style="height:4px"></div>
-              <div class="freq-bar" style="height:4px"></div>
-            </div>
           </div>
           <div id="now-playing-row" class="now-playing" style="display:none">
             <img class="np-cover" id="np-cover" src="" alt="" onerror="this.style.display='none'">
@@ -790,13 +780,21 @@ canvas.main-chart{width:100%!important;display:block}
               <div class="np-artist" id="np-artist">—</div>
             </div>
             <div class="np-badge"><span class="np-dot"></span>Playing</div>
+            <div class="freq-bars paused" id="freq-bars">
+              <div class="freq-bar" style="height:4px"></div>
+              <div class="freq-bar" style="height:4px"></div>
+              <div class="freq-bar" style="height:4px"></div>
+              <div class="freq-bar" style="height:4px"></div>
+              <div class="freq-bar" style="height:4px"></div>
+              <div class="freq-bar" style="height:4px"></div>
+              <div class="freq-bar" style="height:4px"></div>
+            </div>
           </div>
+          <div class="recent-header">Recently Played</div>
           <ul class="track-list" id="recent-list">
             <div class="empty">Your recent plays will appear here</div>
           </ul>
         </div>
-
-        <!-- Quick stats -->
         <div class="card">
           <div class="card-head">
             <div class="card-title">
@@ -1485,6 +1483,8 @@ async function fetchAndStore() {
         }
       }
     }
+    const freqBars = document.getElementById('freq-bars') || document.querySelector('.freq-bars');
+    if (freqBars) freqBars.classList.toggle('paused', !nowPlaying);
 
     let newCount = 0;
     for (const t of historical) {
