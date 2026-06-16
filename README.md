@@ -1,83 +1,113 @@
-# Spotics
+# SpoTics Listener
 
-Lightweight Spotify listening analytics. Two modes: GDPR export upload (fully client-side) and live scrobbling via browser extension.
+Client-side Last.fm listening analytics dashboard. Connect your Last.fm account to track your Spotify listening history with zero server infrastructure.
 
-Live: https://spotics.insights.autos
+**Live:** https://spotics.insights.autos
 
 ---
 
-## Two Modes
+## Features
 
-### GDPR Export (Client-Side)
-Upload your Spotify GDPR export ZIP and get instant visual analytics directly in the browser. Everything runs client-side — nothing leaves the browser.
+- **Last.fm Integration** — Connect via OAuth, no Spotify Developer account needed
+- **Real-time Now Playing** — See what's currently playing via Last.fm's now-playing flag
+- **Full History** — Paginated access to your entire scrobble history
+- **Top Artists / Albums / Tracks** — Time-range filtered (Week / Month / All time)
+- **Obsession Tracking** — Most repeated tracks with horizontal bar visualization
+- **Activity Heatmap** — 12-week streak and playback pattern visualization
+- **Configurable Polling** — 10s to 30m intervals (default 5 minutes), persisted in localStorage
+- **Dark/Light Mode** — Theme toggle with system preference detection
+- **100% Client-Side** — Runs entirely in browser, IndexedDB for local storage
 
-### Live Scrobbler (Extension + Server)
-Install the Spotics Scrobbler browser extension to track your listening in real time on Spotify Web Player. Scrobbles are sent to your Spotics dashboard with full analytics.
+---
+
+## How It Works
+
+```
+Spotify (any device)
+       │
+       ▼ (native scrobbling)
+Last.fm
+       │
+       ▼ (API: user.getRecentTracks, user.getTopArtists, etc.)
+Browser → IndexedDB → Dashboard
+```
+
+1. User connects Spotify → Last.fm in Last.fm settings (free, one-time setup)
+2. User clicks "Connect Last.fm" on Spotics → OAuth flow → session key stored in IndexedDB
+3. Background polling fetches recent tracks, top artists/albums from Last.fm API
+4. Data rendered in dashboard with charts, stats, and Now Playing widget
+
+---
 
 ## Tech Stack
 
-- **Frontend:** React + TypeScript + Vite + Tailwind CSS v4 + Recharts
-- **Extension:** Chrome Manifest V3 (content script + service worker)
-- **Server:** Cloudflare Worker + D1 database (free tier)
-- **Auth:** API keys (register via server or extension popup)
-- **Hosting:** GitHub Pages (frontend) + Cloudflare Workers (API)
+- **Vanilla JavaScript** (ES modules) — no build step, no framework
+- **Last.fm API** — user.getRecentTracks, user.getTopArtists, user.getTopAlbums, auth.getSession
+- **IndexedDB** — local storage for tokens, session key, and listening history
+- **Chart.js** — via inline implementation for top artists/albums visualization
+- **GitHub Pages** — static hosting via `spotics-listener/` folder
 
-## Getting Started
+---
 
-```bash
-git clone https://github.com/Bryn018/spotics.git
-cd spotics
-npm install
-npm run build
+## Deployment
+
+The `spotics-listener/` folder is deployed to GitHub Pages via `.github/workflows/deploy.yml` on every push to `feature/fullstack-ready`.
+
+```yaml
+# .github/workflows/deploy.yml
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./spotics-listener
 ```
 
-## Pages
+Custom domain: `spotics.insights.autos` (configured in repo Pages settings)
 
-- **Landing** — choose between GDPR upload or Live Scrobbler
-- **Dashboard** — GDPR data: stats overview, top tracks, artists, albums, charts
-- **Analytics** — hourly distribution, genre breakdown, listening heatmap, streaks
-- **Live** — real-time scrobbling dashboard with now-playing, stats, heatmap
-- **Wraps** — shareable weekly / monthly / all-time summaries
-- **Export** — PNG snapshot download
+---
 
-## Deploying the Scrobble Server
-
-See `server/README.md` for Cloudflare Worker + D1 setup.
-
-## Loading the Extension (Development)
-
-1. Run `npm run build` to build the frontend
-2. Go to `chrome://extensions`
-3. Enable "Developer mode"
-4. Click "Load unpacked" → select the `extension/` folder
-5. Configure API key in the popup
-
-## Architecture
+## Project Structure
 
 ```
-Spotify Web Player
-       │
-       ▼
-┌─────────────────────────┐
-│  Scrobbler Extension    │
-│  (content.js observes   │
-│   DOM, background.js    │
-│   POSTs to API)         │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│  Cloudflare Worker      │
-│  (scrobble API + D1 DB) │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│  Spotics Frontend       │
-│  (GitHub Pages,        │
-│   reads from API)       │
-└─────────────────────────┘
+spotics-listener/
+├── index.html          # Main dashboard (HTML + inline CSS + JS entry)
+├── CNAME               # Custom domain for GitHub Pages
+├── css/
+│   └── style.css       # Additional styles
+├── js/
+│   ├── app.js          # Entry point: init, polling, event handlers
+│   ├── config.js       # Last.fm API credentials + poll intervals
+│   ├── db.js           # IndexedDB wrapper (tokens, history, settings)
+│   ├── lastfm.js       # Last.fm API client (auth, fetch, MD5 signing)
+│   ├── ui.js           # Dashboard rendering (stats, charts, lists)
+│   └── charts.js       # Chart rendering helpers
+└── assets/
+    ├── favicon.ico
+    ├── favicon.png
+    └── apple-touch-icon.png
 ```
+
+---
+
+## Configuration
+
+Edit `spotics-listener/js/config.js` with your Last.fm credentials:
+
+```javascript
+const CONFIG = {
+  apiKey: 'YOUR_LASTFM_API_KEY',
+  apiSecret: 'YOUR_LASTFM_SHARED_SECRET',
+  redirectUri: 'https://YOUR_DOMAIN/',  // Must match Last.fm app settings
+  pollIntervals: [10000, 30000, 60000, 300000, 600000, 1800000], // ms
+  defaultPollInterval: 300000 // 5 minutes
+};
+```
+
+Get credentials at: https://www.last.fm/api/account/create
+
+---
 
 ## License
 
