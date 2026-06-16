@@ -274,30 +274,57 @@ body{
 .card-title{font-size:0.85rem;font-weight:700;color:var(--text);letter-spacing:-0.01em;display:flex;align-items:center;gap:7px}
 .card-title svg{width:15px;height:15px;stroke:var(--accent);stroke-width:2}
 
-/* ── DISCOVERY TIMELINE ──────────────────────── */
-.tl-month-header{
-  font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
-  color:var(--accent2);margin:0.75rem 0 0.5rem;padding-top:0.5rem;
-  border-top:1px solid var(--border);
+/* ── DISCOVERY COMPARISON ───────────────────── */
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.compare-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.compare-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)}
+.disc-grid-compare{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem}
+.disc-card-compare{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:0.75rem 0.9rem;
 }
-.tl-month-header:first-of-type{border-top:none;padding-top:0;margin-top:0}
-.tl-item{display:flex;gap:12px;margin-bottom:0.75rem;position:relative}
-.tl-dot{
-  width:10px;height:10px;border-radius:50%;background:var(--accent);
-  flex-shrink:0;margin-top:4px;position:relative;z-index:1;
+.disc-card-compare:hover{border-color:var(--accent)}
+.disc-card-compare .disc-top{display:flex;align-items:center;gap:4px;margin-bottom:0.4rem}
+.disc-card-compare .disc-artist{font-size:0.75rem;font-weight:700;color:var(--text)}
+.disc-card-compare .disc-date{font-size:0.6rem;color:var(--text3);display:flex;align-items:center;gap:3px;margin-bottom:0.4rem}
+.disc-card-compare .disc-date svg{width:10px;height:10px}
+.disc-card-compare .disc-bar-wrap{height:2px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:0.3rem}
+.disc-card-compare .disc-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}
+.disc-card-compare .disc-plays{font-size:0.6rem;font-family:'JetBrains Mono',monospace;color:var(--text3)}
+
+/* ── DISCOVERY FEED ─────────────────────────── */
+.feed-item{
+  display:flex;gap:12px;padding:0.75rem 1rem;border-radius:8px;
+  transition:background 0.15s;
 }
-.tl-dot .tl-dot-new{
-  display:block;width:100%;height:100%;border-radius:50%;
-  background:var(--success);animation:tl-pulse 2s ease-in-out infinite;
+.feed-even{background:transparent}
+.feed-odd{background:var(--surface2)}
+.feed-item:hover{background:var(--surface3)}
+.feed-left{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex-shrink:0;width:48px;
 }
-@keyframes tl-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.tl-content{flex:1;min-width:0}
-.tl-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px}
-.tl-artist{font-size:0.83rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl-date{font-size:0.7rem;color:var(--text3);flex-shrink:0}
-.tl-bar-wrap{height:3px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:3px}
-.tl-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}
-.tl-plays{font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3)}
+.feed-date-badge{
+  font-size:0.65rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+  color:var(--accent2);background:var(--accent3);
+  padding:3px 6px;border-radius:6px;line-height:1;
+}
+.feed-year{font-size:0.6rem;color:var(--text3);margin-top:2px}
+.feed-right{flex:1;min-width:0}
+.feed-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.feed-artist{font-size:0.83rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-badge{
+  font-size:0.55rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--success);background:rgba(52,211,153,0.12);
+  padding:2px 6px;border-radius:99px;flex-shrink:0;
+}
+.feed-bar-wrap{height:3px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:4px}
+.feed-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}
+.feed-meta{display:flex;align-items:center;justify-content:space-between}
+.feed-plays{font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3)}
+.feed-ago{font-size:0.65rem;color:var(--text3)}
+
+
 .card-body{padding:1.25rem 1.4rem}
 .card-ctrl{font-size:0.75rem;color:var(--text3);display:flex;gap:0.5rem}
 .card-tab{
@@ -719,6 +746,10 @@ canvas.main-chart{width:100%!important;display:block}
   <a class="nav-item" data-page="sessions">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span>Sessions</span>
+  </a>
+  <a class="nav-item" data-page="discovery-test">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <span>Compare Views</span>
   </a>
   <a class="nav-item" data-page="compare">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M3 16v5h5"/><path d="M21 16v5h-5"/><line x1="21" y1="8" x2="12" y2="12"/><line x1="3" y1="16" x2="12" y2="12"/></svg>
@@ -1334,6 +1365,43 @@ canvas.main-chart{width:100%!important;display:block}
 </section>
 
 </main>
+
+
+<!-- ═══════════════════════════════════════════════
+     DISCOVERY COMPARISON TEST PAGE
+═══════════════════════════════════════════════ -->
+<section class="page" id="page-discovery-test">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Artist Discovery — Comparison</h1>
+      <p class="page-sub">Compare all three display options side by side</p>
+    </div>
+  </div>
+
+  <div style="padding:0 1.4rem 1.2rem">
+    <div class="compare-grid">
+
+      <!-- Option A: Cards -->
+      <div class="compare-col">
+        <div class="compare-label">Option A — Card Grid</div>
+        <div id="test-option-a" class="disc-grid-compare"></div>
+      </div>
+
+      <!-- Option B: Timeline -->
+      <div class="compare-col">
+        <div class="compare-label">Option B — Timeline</div>
+        <div id="test-option-b"></div>
+      </div>
+
+      <!-- Option C: Feed -->
+      <div class="compare-col">
+        <div class="compare-label">Option C — Feed</div>
+        <div id="test-option-c"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
 <!-- CONFIG MODAL -->
 <div class="modal-bg" id="config-modal">
@@ -2090,7 +2158,7 @@ async function renderInsights() {
   }).join('');
   document.getElementById('ins-monthly-chart').innerHTML = monthlyHtml || '<div class="empty">No data yet</div>';
 
-  // Artist discovery timeline
+  // Artist discovery feed
   const firstListen = {};
   const artistPlayCounts = {};
   plays.forEach(p => {
@@ -2104,35 +2172,35 @@ async function renderInsights() {
     .slice(0, 15);
   const maxPlays = Math.max(...discoveries.map(([a]) => artistPlayCounts[a] || 1), 1);
   const nowMs = Date.now();
-  // Group by month-year
-  let lastMonth = '';
-  const timelineHtml = discoveries.map(([artist, date], i) => {
+  const feedHtml = discoveries.map(([artist, date], i) => {
     const d = new Date(date);
-    const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
-    const monthLabel = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-    const dayStr = `${monthNames[d.getMonth()]} ${d.getDate()}`;
+    const dateStr = `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
     const plays = artistPlayCounts[artist] || 0;
     const barPct = Math.round((plays / maxPlays) * 100);
     const daysAgo = Math.floor((nowMs - d.getTime()) / 86400000);
     const isNew = daysAgo <= 30;
-    const showHeader = monthKey !== lastMonth;
-    lastMonth = monthKey;
-    return `${showHeader ? `<div class="tl-month-header">${monthLabel}</div>` : ''}
-    <div class="tl-item">
-      <div class="tl-dot">${isNew ? '<span class="tl-dot-new"></span>' : ''}</div>
-      <div class="tl-content">
-        <div class="tl-top">
-          <span class="tl-artist">${esc(artist)}</span>
-          <span class="tl-date">${dayStr}</span>
+    const isEven = i % 2 === 0;
+    return `<div class="feed-item ${isEven ? 'feed-even' : 'feed-odd'}">
+      <div class="feed-left">
+        <div class="feed-date-badge">${monthNames[d.getMonth()].slice(0,3)} ${d.getDate()}</div>
+        <div class="feed-year">${d.getFullYear()}</div>
+      </div>
+      <div class="feed-right">
+        <div class="feed-top">
+          <span class="feed-artist">${esc(artist)}</span>
+          ${isNew ? '<span class="feed-badge">NEW</span>' : ''}
         </div>
-        <div class="tl-bar-wrap">
-          <div class="tl-bar" style="width:${barPct}%"></div>
+        <div class="feed-bar-wrap">
+          <div class="feed-bar" style="width:${barPct}%"></div>
         </div>
-        <div class="tl-plays">${plays} play${plays !== 1 ? 's' : ''}</div>
+        <div class="feed-meta">
+          <span class="feed-plays">${plays} play${plays !== 1 ? 's' : ''}</span>
+          <span class="feed-ago">${daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : daysAgo + ' days ago'}</span>
+        </div>
       </div>
     </div>`;
   }).join('');
-  document.getElementById('ins-discovery').innerHTML = timelineHtml || '<div class="empty">No data yet</div>';
+  document.getElementById('ins-discovery').innerHTML = feedHtml || '<div class="empty">No data yet</div>';
 
   // Stats
   const uniqueDays = new Set(plays.map(p => p.played_at.slice(0,10))).size;
@@ -2143,6 +2211,110 @@ async function renderInsights() {
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }).length;
   document.getElementById('ins-total-month').textContent = thisMonth.toLocaleString();
+}
+
+
+/* ═══════════════════════════════════════════════
+   DISCOVERY COMPARISON TEST
+═══════════════════════════════════════════════ */
+async function renderDiscoveryTest() {
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const sampleArtists = [
+    ['Radiohead','2024-03-15'],['Tame Impala','2024-03-10'],['Kendrick Lamar','2024-02-28'],
+    ['BTS','2024-02-14'],['Daft Punk','2024-01-20'],['Arctic Monkeys','2024-01-05'],
+    ['Lana Del Rey','2023-12-18'],['The Weeknd','2023-11-30'],['Billie Eilish','2023-11-15'],
+    ['Tyler, The Creator','2023-10-22'],['Björk','2023-09-10'],['FKA twigs','2023-08-05'],
+    ['James Blake','2023-07-20'],['Bon Iver','2023-06-15'],['SZA','2023-05-01'],
+  ];
+  const sampleCounts = [45,38,72,29,56,33,41,67,52,31,22,18,27,35,48];
+  const maxPlays = Math.max(...sampleCounts);
+  const nowMs = Date.now();
+
+  // Option A: Card Grid
+  const cardsHtml = sampleArtists.map(([artist, date], i) => {
+    const d = new Date(date);
+    const dateStr = `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+    const plays = sampleCounts[i];
+    const barPct = Math.round((plays / maxPlays) * 100);
+    const daysAgo = Math.floor((nowMs - d.getTime()) / 86400000);
+    const isNew = daysAgo <= 30;
+    const opacity = Math.max(0.4, 1 - (i * 0.04));
+    return `<div class="disc-card-compare" style="opacity:${opacity}">
+      <div class="disc-top">
+        <span class="disc-artist">${artist}</span>
+        ${isNew ? '<span class="disc-badge">NEW</span>' : ''}
+      </div>
+      <div class="disc-date">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="12" height="12"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Discovered ${dateStr}
+      </div>
+      <div class="disc-bar-wrap">
+        <div class="disc-bar" style="width:${barPct}%"></div>
+      </div>
+      <div class="disc-plays">${plays} plays</div>
+    </div>`;
+  }).join('');
+  document.getElementById('test-option-a').innerHTML = cardsHtml;
+
+  // Option B: Timeline
+  let lastMonth = '';
+  const timelineHtml = sampleArtists.map(([artist, date], i) => {
+    const d = new Date(date);
+    const monthKey = `${d.getFullYear()}-${d.getMonth()}`;
+    const monthLabel = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+    const dayStr = `${monthNames[d.getMonth()]} ${d.getDate()}`;
+    const plays = sampleCounts[i];
+    const barPct = Math.round((plays / maxPlays) * 100);
+    const daysAgo = Math.floor((nowMs - d.getTime()) / 86400000);
+    const isNew = daysAgo <= 30;
+    const showHeader = monthKey !== lastMonth;
+    lastMonth = monthKey;
+    return `${showHeader ? `<div class="tl-month-header">${monthLabel}</div>` : ''}
+    <div class="tl-item">
+      <div class="tl-dot">${isNew ? '<span class="tl-dot-new"></span>' : ''}</div>
+      <div class="tl-content">
+        <div class="tl-top">
+          <span class="tl-artist">${artist}</span>
+          <span class="tl-date">${dayStr}</span>
+        </div>
+        <div class="tl-bar-wrap">
+          <div class="tl-bar" style="width:${barPct}%"></div>
+        </div>
+        <div class="tl-plays">${plays} plays</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('test-option-b').innerHTML = timelineHtml;
+
+  // Option C: Feed
+  const feedHtml = sampleArtists.map(([artist, date], i) => {
+    const d = new Date(date);
+    const plays = sampleCounts[i];
+    const barPct = Math.round((plays / maxPlays) * 100);
+    const daysAgo = Math.floor((nowMs - d.getTime()) / 86400000);
+    const isNew = daysAgo <= 30;
+    const isEven = i % 2 === 0;
+    return `<div class="feed-item ${isEven ? 'feed-even' : 'feed-odd'}">
+      <div class="feed-left">
+        <div class="feed-date-badge">${monthNames[d.getMonth()].slice(0,3)} ${d.getDate()}</div>
+        <div class="feed-year">${d.getFullYear()}</div>
+      </div>
+      <div class="feed-right">
+        <div class="feed-top">
+          <span class="feed-artist">${artist}</span>
+          ${isNew ? '<span class="feed-badge">NEW</span>' : ''}
+        </div>
+        <div class="feed-bar-wrap">
+          <div class="feed-bar" style="width:${barPct}%"></div>
+        </div>
+        <div class="feed-meta">
+          <span class="feed-plays">${plays} plays</span>
+          <span class="feed-ago">${daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : daysAgo + ' days ago'}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('test-option-c').innerHTML = feedHtml;
 }
 
 /* ═══════════════════════════════════════════════
@@ -2682,6 +2854,7 @@ async function renderCompare() {
       if (p === 'timeline') await renderTimeline();
       if (p === 'sessions') await renderSessions();
       if (p === 'compare') { await renderCompare(); }
+      if (p === 'discovery-test') { await renderDiscoveryTest(); }
     });
   });
 
