@@ -141,9 +141,7 @@ async function fetchAndStore() {
         newCount += 1;
       }
     }
-    console.log(`Stored ${newCount} new tracks`);
   } catch (err) {
-    console.error(err);
     if (err.message.includes('Not authenticated')) {
       updateAuthUI(false);
       toggleUI(false);

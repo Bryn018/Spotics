@@ -18,7 +18,6 @@ async function handleAuthCallback() {
 
   // Build the signature string (as per Last.fm documentation)
   const sigString = `api_key${CONFIG.apiKey}methodauth.getSessiontoken${token}${CONFIG.apiSecret}`;
-  console.log('Signature string:', sigString);
 
   // Use the reliable blueimp-md5 function
   const apiSig = md5(sigString);
