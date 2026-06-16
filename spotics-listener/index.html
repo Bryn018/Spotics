@@ -250,6 +250,18 @@ body{
 }
 .dash-grid .col-right{display:flex;flex-direction:column;gap:1.25rem}
 
+/* ── PAGE GRID (equal columns for new analytics pages) ── */
+.page-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.25rem;
+}
+.page-grid .col-left,
+.page-grid .col-right{display:flex;flex-direction:column;gap:1.25rem}
+@media(max-width:900px){
+  .page-grid{grid-template-columns:1fr}
+}
+
 /* ── CARD ─────────────────────────────────────── */
 .card{
   background:var(--surface);border:1px solid var(--border);
@@ -1046,8 +1058,8 @@ canvas.main-chart{width:100%!important;display:block}
       <div class="stat-label">This month</div>
     </div>
   </div>
-  <div class="dash-grid">
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+  <div class="page-grid">
+    <div class="col-left">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Hourly Distribution</div></div>
         <div id="ins-hourly-chart" style="padding:1rem 1.4rem 1.2rem"></div>
@@ -1057,7 +1069,7 @@ canvas.main-chart{width:100%!important;display:block}
         <div id="ins-dow-chart" style="padding:1rem 1.4rem 1.2rem"></div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+    <div class="col-right">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Monthly Timeline</div></div>
         <div id="ins-monthly-chart" style="padding:1rem 1.4rem 1.2rem"></div>
@@ -1102,8 +1114,8 @@ canvas.main-chart{width:100%!important;display:block}
       <div class="stat-label">Obscurity score</div>
     </div>
   </div>
-  <div class="dash-grid">
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+  <div class="page-grid">
+    <div class="col-left">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Loyalty vs Exploration</div></div>
         <div id="taste-loyalty-chart" style="padding:1rem 1.4rem 1.2rem"></div>
@@ -1113,7 +1125,7 @@ canvas.main-chart{width:100%!important;display:block}
         <div id="taste-distribution" style="padding:0 1.4rem 1.2rem"></div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+    <div class="col-right">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Your Sound Radar</div></div>
         <div id="taste-radar" style="padding:1rem 1.4rem 1.2rem;display:flex;justify-content:center"></div>
@@ -1158,8 +1170,8 @@ canvas.main-chart{width:100%!important;display:block}
       <div class="stat-label">Longest streak</div>
     </div>
   </div>
-  <div class="dash-grid">
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+  <div class="page-grid">
+    <div class="col-left">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Month by Month</div></div>
         <div id="tl-monthly-breakdown" style="padding:0 1.4rem 1.2rem"></div>
@@ -1169,7 +1181,7 @@ canvas.main-chart{width:100%!important;display:block}
         <div id="tl-milestones" style="padding:0 1.4rem 1.2rem"></div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+    <div class="col-right">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>On This Day</div></div>
         <div id="tl-on-this-day" style="padding:0 1.4rem 1.2rem"></div>
@@ -1214,8 +1226,8 @@ canvas.main-chart{width:100%!important;display:block}
       <div class="stat-label">Longest session</div>
     </div>
   </div>
-  <div class="dash-grid">
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+  <div class="page-grid">
+    <div class="col-left">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Session Distribution</div></div>
         <div id="sess-dist-chart" style="padding:1rem 1.4rem 1.2rem"></div>
@@ -1225,7 +1237,7 @@ canvas.main-chart{width:100%!important;display:block}
         <div id="sess-deep-dives" style="padding:0 1.4rem 1.2rem"></div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:1.25rem">
+    <div class="col-right">
       <div class="card">
         <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Recent Sessions</div></div>
         <div id="sess-recent" style="padding:0 1.4rem 1.2rem;max-height:500px;overflow-y:auto"></div>
@@ -1277,14 +1289,18 @@ canvas.main-chart{width:100%!important;display:block}
       <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Overview Comparison</div></div>
       <div id="cmp-overview" style="padding:0 1.4rem 1.2rem"></div>
     </div>
-    <div class="dash-grid">
-      <div class="card">
-        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Top Artists — Period A</div></div>
-        <div id="cmp-artists-a" style="padding:0 1.4rem 1.2rem"></div>
+    <div class="page-grid">
+      <div class="col-left">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Top Artists — Period A</div></div>
+          <div id="cmp-artists-a" style="padding:0 1.4rem 1.2rem"></div>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Top Artists — Period B</div></div>
-        <div id="cmp-artists-b" style="padding:0 1.4rem 1.2rem"></div>
+      <div class="col-right">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Top Artists — Period B</div></div>
+          <div id="cmp-artists-b" style="padding:0 1.4rem 1.2rem"></div>
+        </div>
       </div>
     </div>
     <div class="card">
