@@ -2383,6 +2383,7 @@ async function renderTimeline() {
    SESSIONS PAGE RENDERING
 ═══════════════════════════════════════════════ */
 async function renderSessions() {
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const plays = await getAllPlays();
   if (!plays.length) {
     ['sess-total','sess-avg-tracks','sess-avg-dur','sess-longest'].forEach(id => {
@@ -2475,7 +2476,6 @@ async function renderSessions() {
   document.getElementById('sess-deep-dives').innerHTML = deepDivesHtml;
 
   // Recent sessions (last 15)
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const recentSessions = sessions.slice(-15).reverse();
   const recentHtml = recentSessions.map(sess => {
     const start = new Date(sess[0].played_at);
@@ -2705,7 +2705,6 @@ async function renderCompare() {
       document.getElementById('user-avatar').textContent = CONFIG.username.slice(0,2).toUpperCase();
     }
   });
-}
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
