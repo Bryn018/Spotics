@@ -2117,24 +2117,93 @@ async function renderInsights() {
     return;
   }
 
-  // Hourly distribution
+  // Hourly distribution — Option D: Area Chart
   const hours = new Array(24).fill(0);
   plays.forEach(p => { hours[new Date(p.played_at).getHours()]++; });
   const maxHour = Math.max(...hours);
   const hourLabels = ['12a','1a','2a','3a','4a','5a','6a','7a','8a','9a','10a','11a','12p','1p','2p','3p','4p','5p','6p','7p','8p','9p','10p','11p'];
   const peakHour = hours.indexOf(maxHour);
   document.getElementById('ins-peak-hour').textContent = hourLabels[peakHour];
-  const hourlyHtml = hours.map((count, h) => {
-    const pct = maxHour ? Math.round((count / maxHour) * 100) : 0;
-    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3);width:30px;text-align:right">${hourLabels[h]}</span>
-      <div style="flex:1;height:18px;background:var(--surface3);border-radius:3px;overflow:hidden;position:relative">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 0.6s var(--ease)"></div>
-      </div>
-      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text2);width:36px;text-align:right">${count}</span>
-    </div>`;
-  }).join('');
-  document.getElementById('ins-hourly-chart').innerHTML = hourlyHtml;
+
+  // Build smooth SVG area chart
+  const areaW = 520, areaH = 180;
+  const padL = 35, padR = 15, padT = 15, padB = 30;
+  const chartW = areaW - padL - padR;
+  const chartH = areaH - padT - padB;
+
+  // Smooth curve points
+  const points = hours.map((count, h) => {
+    const x = padL + (h / 23) * chartW;
+    const y = padT + chartH - (maxHour ? (count / maxHour) * chartH : 0);
+    return {x, y, count};
+  });
+
+  // Cubic bezier smoothing
+  let pathD = `M${points[0].x},${points[0].y}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[Math.max(0, i-1)];
+    const p1 = points[i];
+    const p2 = points[i+1];
+    const p3 = points[Math.min(points.length-1, i+2)];
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    pathD += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+  }
+
+  // Area fill (close path to bottom)
+  const areaD = pathD + ` L${points[23].x},${padT+chartH} L${points[0].x},${padT+chartH} Z`;
+
+  // Grid lines (4 horizontal)
+  let gridLines = '';
+  for (let i = 0; i <= 4; i++) {
+    const gy = padT + (chartH / 4) * i;
+    gridLines += `<line x1="${padL}" y1="${gy}" x2="${areaW-padR}" y2="${gy}" stroke="var(--border)" stroke-width="0.5"/>`;
+  }
+
+  // X-axis labels (every 3 hours)
+  let xLabels = '';
+  hourLabels.forEach((label, h) => {
+    if (h % 3 === 0) {
+      const x = padL + (h / 23) * chartW;
+      xLabels += `<text x="${x}" y="${areaH-6}" text-anchor="middle" font-size="7" font-family="'JetBrains Mono',monospace" fill="var(--text3)">${label}</text>`;
+    }
+  });
+
+  // Y-axis labels (min, 25%, 50%, 75%, max)
+  let yLabels = '';
+  for (let i = 0; i <= 4; i++) {
+    const gy = padT + (chartH / 4) * i;
+    const val = Math.round(maxHour * (1 - i / 4));
+    yLabels += `<text x="${padL-6}" y="${gy+3}" text-anchor="end" font-size="7" font-family="'JetBrains Mono',monospace" fill="var(--text3)">${val}</text>`;
+  }
+
+  // Peak point marker
+  const peakPt = points[peakHour];
+  const peakDot = `<circle cx="${peakPt.x}" cy="${peakPt.y}" r="5" fill="var(--accent2)" stroke="var(--bg)" stroke-width="2"/>
+<text x="${peakPt.x}" y="${peakPt.y-12}" text-anchor="middle" font-size="9" font-weight="700" font-family="'JetBrains Mono',monospace" fill="var(--accent2)">${maxHour}</text>`;
+
+  const areaSvg = `<svg width="100%" height="${areaH}" viewBox="0 0 ${areaW} ${areaH}" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="insAreaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+  ${gridLines}
+  <!-- Y-axis baseline -->
+  <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+chartH}" stroke="var(--border)" stroke-width="1"/>
+  <!-- X-axis baseline -->
+  <line x1="${padL}" y1="${padT+chartH}" x2="${areaW-padR}" y2="${padT+chartH}" stroke="var(--border)" stroke-width="1"/>
+  ${yLabels}
+  <path d="${areaD}" fill="url(#insAreaGrad)"/>
+  <path d="${pathD}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  ${xLabels}
+  ${peakDot}
+</svg>`;
+
+  document.getElementById('ins-hourly-chart').innerHTML = areaSvg;
 
   // Day of week
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
