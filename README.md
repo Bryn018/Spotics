@@ -1,22 +1,21 @@
-# SpoTics Listener
+# SpoTics — Your Listening Universe
 
-Client-side Last.fm listening analytics dashboard. Connect your Last.fm account to track your Spotify listening history with zero server infrastructure.
+Client-side Last.fm listening analytics dashboard. Connect your Last.fm account to track your listening history with zero server infrastructure.
 
 **Live:** https://spotics.insights.autos
 
 ---
 
-## Features
+## Pages
 
-- **Last.fm Integration** — Connect via OAuth, no Spotify Developer account needed
-- **Real-time Now Playing** — See what's currently playing via Last.fm's now-playing flag
-- **Full History** — Paginated access to your entire scrobble history
-- **Top Artists / Albums / Tracks** — Time-range filtered (Week / Month / All time)
-- **Obsession Tracking** — Most repeated tracks with horizontal bar visualization
-- **Activity Heatmap** — 12-week streak and playback pattern visualization
-- **Configurable Polling** — 10s to 30m intervals (default 5 minutes), persisted in localStorage
-- **Dark/Light Mode** — Theme toggle with system preference detection
-- **100% Client-Side** — Runs entirely in browser, IndexedDB for local storage
+- **Dashboard** — Top artists, albums, obsession tracks, now playing, recently played, weekly stats
+- **History** — Full scrobble history with search and sort
+- **Insights** — Peak hours/days, hourly distribution (area chart), day-of-week (polar rose chart), artist discovery
+- **Taste Profile** — Diversity score, loyalty vs exploration, sound radar, artist distribution, taste summary
+- **Timeline** — Monthly breakdown, milestones (scrobble counts, artist discoveries, year-first plays), on-this-day, activity heatmap
+- **Sessions** — Session detection, distribution, deep dives, recent sessions
+- **Compare** — Side-by-side period comparison (top artists, shared vs unique, overview stats)
+- **Settings** — Last.fm config, poll interval, disconnect, clear data, theme toggle
 
 ---
 
@@ -24,28 +23,29 @@ Client-side Last.fm listening analytics dashboard. Connect your Last.fm account 
 
 ```
 Spotify (any device)
-       │
-       ▼ (native scrobbling)
+       |
+       v (native scrobbling)
 Last.fm
-       │
-       ▼ (API: user.getRecentTracks, user.getTopArtists, etc.)
-Browser → IndexedDB → Dashboard
+       |
+       v (API: user.getRecentTracks, user.getTopArtists, etc.)
+Browser -> IndexedDB -> Dashboard
 ```
 
-1. User connects Spotify → Last.fm in Last.fm settings (free, one-time setup)
-2. User clicks "Connect Last.fm" on Spotics → OAuth flow → session key stored in IndexedDB
-3. Background polling fetches recent tracks, top artists/albums from Last.fm API
-4. Data rendered in dashboard with charts, stats, and Now Playing widget
+1. User connects Spotify to Last.fm in Last.fm settings (free, one-time setup)
+2. User clicks "Connect Last.fm" on Spotics -> OAuth flow -> session key stored in IndexedDB
+3. Background polling fetches recent tracks from Last.fm API
+4. Data rendered across 8 pages with charts, stats, and analytics
 
 ---
 
 ## Tech Stack
 
-- **Vanilla JavaScript** (ES modules) — no build step, no framework
+- **Vanilla JavaScript** — no build step, no framework, single HTML file with inline CSS/JS
 - **Last.fm API** — user.getRecentTracks, user.getTopArtists, user.getTopAlbums, auth.getSession
-- **IndexedDB** — local storage for tokens, session key, and listening history
-- **Chart.js** — via inline implementation for top artists/albums visualization
+- **IndexedDB** — local storage for session key and listening history
+- **SVG Charts** — area charts, polar rose charts, radar charts (all hand-built, no charting library)
 - **GitHub Pages** — static hosting via `spotics-listener/` folder
+- **Custom domain** — `spotics.insights.autos`
 
 ---
 
@@ -53,40 +53,27 @@ Browser → IndexedDB → Dashboard
 
 The `spotics-listener/` folder is deployed to GitHub Pages via `.github/workflows/deploy.yml` on every push to `feature/fullstack-ready`.
 
-```yaml
-# .github/workflows/deploy.yml
-jobs:
-  build:
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./spotics-listener
-```
-
-Custom domain: `spotics.insights.autos` (configured in repo Pages settings)
-
 ---
 
 ## Project Structure
 
 ```
 spotics-listener/
-├── index.html          # Main dashboard (HTML + inline CSS + JS entry)
-├── CNAME               # Custom domain for GitHub Pages
-├── css/
-│   └── style.css       # Additional styles
-├── js/
-│   ├── app.js          # Entry point: init, polling, event handlers
-│   ├── config.js       # Last.fm API credentials + poll intervals
-│   ├── db.js           # IndexedDB wrapper (tokens, history, settings)
-│   ├── lastfm.js       # Last.fm API client (auth, fetch, MD5 signing)
-│   ├── ui.js           # Dashboard rendering (stats, charts, lists)
-│   └── charts.js       # Chart rendering helpers
-└── assets/
-    ├── favicon.ico
-    ├── favicon.png
-    └── apple-touch-icon.png
+  index.html          # All pages, inline CSS + inline JS (~2966 lines)
+  CNAME               # Custom domain for GitHub Pages
+  css/
+    style.css         # Additional styles
+  js/
+    app.js            # Entry point: init, polling, event handlers
+    config.js         # Last.fm API credentials + poll interval
+    db.js             # IndexedDB wrapper (session, history)
+    lastfm.js         # Last.fm API client (auth, fetch, MD5 signing)
+    ui.js             # Page rendering (dashboard, insights, taste, timeline, sessions, compare)
+    charts.js         # Chart rendering helpers
+  assets/
+    favicon.ico
+    favicon.png
+    apple-touch-icon.png
 ```
 
 ---
@@ -99,9 +86,8 @@ Edit `spotics-listener/js/config.js` with your Last.fm credentials:
 const CONFIG = {
   apiKey: 'YOUR_LASTFM_API_KEY',
   apiSecret: 'YOUR_LASTFM_SHARED_SECRET',
-  redirectUri: 'https://YOUR_DOMAIN/',  // Must match Last.fm app settings
-  pollIntervals: [10000, 30000, 60000, 300000, 600000, 1800000], // ms
-  defaultPollInterval: 300000 // 5 minutes
+  username: 'YOUR_LASTFM_USERNAME',
+  pollIntervalMs: 5 * 60 * 1000,
 };
 ```
 
