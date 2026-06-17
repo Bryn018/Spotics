@@ -2493,6 +2493,7 @@ async function renderTaste() {
   document.getElementById('taste-distribution').innerHTML = distHtml;
 
   // Sound radar (simple SVG radar chart)
+  const uniqueDays = new Set(plays.map(p => p.played_at.slice(0,10))).size;
   const metrics = [
     { label: 'Diversity', value: Math.min(diversity / 50, 1) },
     { label: 'Loyalty', value: loyaltyPct / 100 },
@@ -2500,8 +2501,6 @@ async function renderTaste() {
     { label: 'Consistency', value: Math.min(uniqueDays / 365, 1) },
     { label: 'Discovery', value: Math.min(uniqueArtists / 500, 1) },
   ];
-  const uniqueDays2 = new Set(plays.map(p => p.played_at.slice(0,10))).size;
-  metrics[3].value = Math.min(uniqueDays2 / 365, 1);
   const cx = 100, cy = 100, r = 70;
   const n = metrics.length;
   const radarPoints = metrics.map((m, i) => {
