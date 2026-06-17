@@ -2279,24 +2279,58 @@ async function renderInsights() {
 
   document.getElementById('ins-hourly-chart').innerHTML = areaSvg;
 
-  // Day of week
+  // Day of week — Option D: Polar Rose Chart
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const dowCounts = new Array(7).fill(0);
   plays.forEach(p => { dowCounts[new Date(p.played_at).getDay()]++; });
   const maxDow = Math.max(...dowCounts);
-  const peakDay = dowCounts.indexOf(maxDow);
-  document.getElementById('ins-peak-day').textContent = days[peakDay];
-  const dowHtml = dowCounts.map((count, d) => {
-    const pct = maxDow ? Math.round((count / maxDow) * 100) : 0;
-    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3);width:30px">${days[d]}</span>
-      <div style="flex:1;height:18px;background:var(--surface3);border-radius:3px;overflow:hidden">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 0.6s var(--ease)"></div>
-      </div>
-      <span style="font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text2);width:36px;text-align:right">${count}</span>
-    </div>`;
-  }).join('');
-  document.getElementById('ins-dow-chart').innerHTML = dowHtml;
+  const peakDayIdx = dowCounts.indexOf(maxDow);
+  const peakDay = days[peakDayIdx];
+  document.getElementById('ins-peak-day').textContent = peakDay;
+
+  // Build Polar Rose Chart (7 wedges)
+  const pSize = 260;
+  const pCx = pSize/2, pCy = pSize/2;
+  const pMaxR = 100;
+  const pSegAngle = (2 * Math.PI) / 7;
+  const pGap = 0.015;
+  let polarPaths = '';
+  dowCounts.forEach((count, d) => {
+    const intensity = maxDow ? count / maxDow : 0;
+    const r = 18 + (pMaxR - 18) * intensity;
+    const startAngle = d * pSegAngle - Math.PI/2 + pGap;
+    const endAngle = (d+1) * pSegAngle - Math.PI/2 - pGap;
+    const x1 = pCx + 18 * Math.cos(startAngle);
+    const y1 = pCy + 18 * Math.sin(startAngle);
+    const x2 = pCx + r * Math.cos(startAngle);
+    const y2 = pCy + r * Math.sin(startAngle);
+    const x3 = pCx + r * Math.cos(endAngle);
+    const y3 = pCy + r * Math.sin(endAngle);
+    const x4 = pCx + 18 * Math.cos(endAngle);
+    const y4 = pCy + 18 * Math.sin(endAngle);
+    const isPeak = d === peakDayIdx;
+    const color = isPeak ? 'var(--accent2)' : `rgba(139,92,246,${0.35 + 0.65 * intensity})`;
+    polarPaths += `<path d="M${x1},${y1} L${x2},${y2} A${r},${r} 0 0,1 ${x3},${y3} L${x4},${y4} A18,18 0 0,0 ${x1},${y1}" fill="${color}" stroke="none"/>`;
+  });
+  // Day labels
+  let polarLabels = '';
+  days.forEach((label, d) => {
+    const angle = d * pSegAngle - Math.PI/2;
+    const lr = pMaxR + 16;
+    const lx = pCx + lr * Math.cos(angle);
+    const ly = pCy + lr * Math.sin(angle);
+    polarLabels += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central" font-size="8" font-family="'JetBrains Mono',monospace" fill="${d === peakDayIdx ? 'var(--accent2)' : 'var(--text3)'}">${label}</text>`;
+  });
+  // Center: peak value + label
+  const polarCenter = `<circle cx="${pCx}" cy="${pCy}" r="18" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+<text x="${pCx}" y="${pCy-4}" text-anchor="middle" font-size="22" font-weight="800" font-family="'JetBrains Mono',monospace" fill="var(--text)">${maxDow}</text>
+<text x="${pCx}" y="${pCy+10}" text-anchor="middle" font-size="7" fill="var(--text3)" text-transform="uppercase" letter-spacing="0.06em">${peakDay}</text>`;
+
+  const polarSvg = `<svg width="100%" height="${pSize}" viewBox="0 0 ${pSize} ${pSize}" preserveAspectRatio="xMidYMid meet">
+  ${polarPaths}${polarLabels}${polarCenter}
+</svg>`;
+
+  document.getElementById('ins-dow-chart').innerHTML = polarSvg;
 
   // Monthly timeline
   const months = {};
