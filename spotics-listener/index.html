@@ -2613,14 +2613,14 @@ async function renderTimeline() {
   }).join('');
   document.getElementById('tl-monthly-breakdown').innerHTML = monthlyHtml || '<div class="empty">No data</div>';
 
-  // Milestones
+  // Milestones — enhanced with more milestone types
   const milestones = [];
   const totalMilestones = [100, 500, 1000, 5000, 10000, 25000, 50000, 100000];
   for (const target of totalMilestones) {
     if (sorted.length >= target) {
       const play = sorted[target - 1];
       const d = new Date(play.played_at);
-      milestones.push({ label: `${target.toLocaleString()} scrobbles`, date: `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`, track: `${play.track_name} — ${play.artist_name}` });
+      milestones.push({ label: `${target.toLocaleString()} scrobbles`, date: `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`, track: `${play.track_name} — ${play.artist_name}`, type: 'scrobbles' });
     }
   }
   // Unique artist milestones
@@ -2630,20 +2630,61 @@ async function renderTimeline() {
     seenArtists.add(p.artist_name);
     if ([100, 250, 500, 1000, 2500, 5000].includes(seenArtists.size)) {
       const d = new Date(p.played_at);
-      artistMilestones.push({ label: `${seenArtists.size} unique artists`, date: `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`, track: `${p.track_name} — ${p.artist_name}` });
+      artistMilestones.push({ label: `${seenArtists.size} unique artists`, date: `${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`, track: `${p.track_name} — ${p.artist_name}`, type: 'artists' });
     }
   }
-  const allMilestones = [...milestones, ...artistMilestones].sort((a,b) => b.label.localeCompare(a.label)).slice(0, 8);
-  const milestonesHtml = allMilestones.length ? allMilestones.map(m => `
+  // First play of each year
+  const yearFirsts = {};
+  for (const p of sorted) {
+    const yr = new Date(p.played_at).getFullYear();
+    if (!yearFirsts[yr]) yearFirsts[yr] = { year: yr, play: p };
+  }
+  const yearMilestones = Object.values(yearFirsts).map(({year, play}) => {
+    const d = new Date(play.played_at);
+    return { label: `First play of ${year}`, date: `${monthNames[d.getMonth()]} ${d.getDate()}, ${year}`, track: `${play.track_name} — ${play.artist_name}`, type: 'year-first' };
+  });
+  // Top artist discovery (when you first played your eventual #1 artist)
+  const topArtist = Object.keys(artistCounts).reduce((a,b) => artistCounts[a] > artistCounts[b] ? a : b);
+  const firstTopArtistPlay = sorted.reverse().find(p => p.artist_name === topArtist);
+  const topArtistMilestone = firstTopArtistPlay ? [{
+    label: `Discovered ${topArtist}`,
+    date: `${monthNames[new Date(firstTopArtistPlay.played_at).getMonth()]} ${new Date(firstTopArtistPlay.played_at).getDate()}, ${new Date(firstTopArtistPlay.played_at).getFullYear()}`,
+    track: `${firstTopArtistPlay.track_name} — ${topArtist}`,
+    type: 'discovery'
+  }] : [];
+
+  // Combine all, sort by date (newest first), take top 10
+  const allMilestones = [...milestones, ...artistMilestones, ...yearMilestones, ...topArtistMilestone]
+    .sort((a,b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 10);
+  const milestonesHtml = allMilestones.length ? allMilestones.map(m => {
+    const typeColors = {
+      scrobbles: 'var(--accent2)',
+      artists: 'var(--success)',
+      'year-first': 'var(--amber)',
+      discovery: 'var(--danger)'
+    };
+    const typeIcons = {
+      scrobbles: '▲',
+      artists: '●',
+      'year-first': '◆',
+      discovery: '★'
+    };
+    const color = typeColors[m.type] || 'var(--accent2)';
+    const icon = typeIcons[m.type] || '▲';
+    return `
     <div style="display:flex;gap:12px;margin-bottom:0.75rem;align-items:flex-start">
       <div style="background:var(--accent3);border-radius:6px;padding:0.4rem 0.6rem;flex-shrink:0">
-        <div style="font-size:0.7rem;font-weight:700;color:var(--accent2)">${m.label}</div>
-        <div style="font-size:0.6rem;color:var(--text3)">${m.date}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:0.7rem;font-weight:700;color:${color}">${icon} ${m.label}</span>
+        </div>
+        <div style="font-size:0.6rem;color:var(--text3);margin-top:2px">${m.date}</div>
       </div>
       <div style="padding-top:0.3rem">
         <div style="font-size:0.75rem;color:var(--text2)">${esc(m.track)}</div>
       </div>
-    </div>`).join('') : '<div class="empty">Keep listening to unlock milestones!</div>';
+    </div>`;
+  }).join('') : '<div class="empty">Keep listening to unlock milestones!</div>';
   document.getElementById('tl-milestones').innerHTML = milestonesHtml;
 
   // On this day
@@ -2665,7 +2706,7 @@ async function renderTimeline() {
   }).join('') : '<div class="empty">No plays on this day in previous years</div>';
   document.getElementById('tl-on-this-day').innerHTML = onThisDayHtml;
 
-  // Activity heatmap (last 52 weeks)
+  // Activity heatmap (last 52 weeks) — Professional Calendar Heatmap
   const heatmapEl = document.getElementById('tl-heatmap');
   const dayMap = {};
   plays.forEach(p => { dayMap[p.played_at.slice(0,10)] = (dayMap[p.played_at.slice(0,10)] || 0) + 1; });
@@ -2684,27 +2725,63 @@ async function renderTimeline() {
     }
     weeks.push(week);
   }
-  const cellSize = 10, cellGap = 3;
-  const heatmapHtml = `<div style="display:flex;gap:${cellGap}px">
-    ${weeks.map(week => `<div style="display:flex;flex-direction:column;gap:${cellGap}px">
-      ${week.map(day => {
-        const intensity = day.count === 0 ? 0 : day.count <= 2 ? 1 : day.count <= 5 ? 2 : day.count <= 10 ? 3 : 4;
-        const colors = ['var(--surface3)','rgba(139,92,246,0.2)','rgba(139,92,246,0.4)','rgba(139,92,246,0.7)','var(--accent)'];
-        return `<div title="${day.date}: ${day.count} plays" style="width:${cellSize}px;height:${cellSize}px;border-radius:2px;background:${colors[intensity]}"></div>`;
-      }).join('')}
-    </div>`).join('')}
-  </div>
-  <div style="display:flex;gap:4px;margin-top:8px;align-items:center">
-    <span style="font-size:0.6rem;color:var(--text3)">Less</span>
-    ${[0,1,2,3,4].map(i => `<div style="width:8px;height:8px;border-radius:2px;background:${['var(--surface3)','rgba(139,92,246,0.2)','rgba(139,92,246,0.4)','rgba(139,92,246,0.7)','var(--accent)'][i]}"></div>`).join('')}
-    <span style="font-size:0.6rem;color:var(--text3)">More</span>
-  </div>`;
+
+  // Month labels for the top
+  const monthLabels = [];
+  let lastMonth = -1;
+  weeks.forEach((week, w) => {
+    const midDate = new Date(week[3].date);
+    const m = midDate.getMonth();
+    if (m !== lastMonth) {
+      monthLabels.push({ week: w, label: monthNames[m].slice(0,3) });
+      lastMonth = m;
+    }
+  });
+
+  const cellSize = 11, cellGap = 3;
+  const monthBarHeight = 18;
+
+  // Build smooth color gradient based on intensity
+  const getColor = (count) => {
+    if (count === 0) return 'var(--surface3)';
+    const intensity = Math.min(count / Math.max(1, maxDayCount / 5), 1);
+    // Interpolate between surface3 and accent
+    const r = Math.round(26 + intensity * (139 - 26));  // #1A1A24 -> #8B5CF6
+    const g = Math.round(26 + intensity * (92 - 26));
+    const b = Math.round(36 + intensity * (246 - 36));
+    return `rgb(${r},${g},${b})`;
+  };
+
+  // Build week columns with month labels
+  const weekColumns = weeks.map((week, w) => {
+    const monthLabel = monthLabels.find(ml => ml.week === w);
+    const cells = week.map(day => `<div title="${day.date}: ${day.count} play${day.count !== 1 ? 's' : ''}" style="width:${cellSize}px;height:${cellSize}px;border-radius:2px;background:${getColor(day.count)}"></div>`).join('');
+    return `<div style="display:flex;flex-direction:column;gap:${cellGap}px">${monthLabel ? `<div style="height:${monthBarHeight}px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:600;color:var(--text3);text-transform:uppercase">${monthLabel.label}</div>` : `<div style="height:${monthBarHeight}px"></div>`}${cells}</div>`;
+  }).join('');
+
+  const heatmapHtml = `
+    <div style="display:flex;gap:${cellGap}px;overflow-x:auto;padding-bottom:4px">${weekColumns}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-left:2px">
+      <span style="font-size:0.6rem;color:var(--text3)">Less</span>
+      <div style="display:flex;gap:2px">${[0,1,2,3,4].map(i => {
+        const count = i === 0 ? 0 : Math.round(maxDayCount * (i / 4));
+        return `<div title="${count}+ plays" style="width:10px;height:10px;border-radius:2px;background:${getColor(count)}"></div>`;
+      }).join('')}</div>
+      <span style="font-size:0.6rem;color:var(--text3)">More</span>
+      <span style="margin-left:auto;font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--text3)">Peak: ${maxDayCount}</span>
+    </div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;gap:1.5rem;font-size:0.7rem;color:var(--text3)">
+      <div>Total days: ${Object.keys(dayMap).length}</div>
+      <div>Active days: ${Object.values(dayMap).filter(c => c > 0).length}</div>
+      <div>Avg/day: ${Math.round(Object.values(dayMap).reduce((a,b) => a+b, 0) / Object.keys(dayMap).length)}</div>
+    </div>`;
+
   heatmapEl.innerHTML = heatmapHtml;
 }
 
 /* ═══════════════════════════════════════════════
    SESSIONS PAGE RENDERING
-═══════════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 async function renderSessions() {
   const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const plays = await getAllPlays();
