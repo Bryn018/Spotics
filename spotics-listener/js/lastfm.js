@@ -64,7 +64,7 @@
     }
 
     sessionKey = data.session.key;
-    await saveSessionKey(sessionKey);
+    await db.saveSessionKey(sessionKey);
 
     // Clean URL
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -77,7 +77,7 @@
    */
   async function fetchRecentTracks() {
     if (!sessionKey) {
-      const stored = await getSessionKey();
+      const stored = await db.getSessionKey();
       if (!stored) throw new Error('Not authenticated');
       sessionKey = stored;
     }

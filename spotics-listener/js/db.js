@@ -105,9 +105,8 @@
 
   // ── Exports ──
 
-  global.db = { openDB, dbPut, dbGet, dbGetAll, dbClear, dbCount };
-  global.saveSessionKey = saveSessionKey;
-  global.getSessionKey = getSessionKey;
-  global.savePlay = savePlay;
-  global.getAllPlays = getAllPlays;
+  global.db = {
+    openDB, dbPut, dbGet, dbGetAll, dbClear, dbCount,
+    saveSessionKey, getSessionKey, savePlay, getAllPlays
+  };
 })(window);
