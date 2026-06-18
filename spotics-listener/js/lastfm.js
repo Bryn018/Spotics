@@ -14,7 +14,10 @@
    */
   function initiateLogin() {
     if (!CONFIG.apiKey) {
-      if (typeof showConfigModal === 'function') showConfigModal();
+      // Defer to ui.showConfigModal which is available at runtime
+      if (typeof ui !== 'undefined' && typeof ui.showConfigModal === 'function') {
+        ui.showConfigModal();
+      }
       return;
     }
     const redirectUri = window.location.origin + window.location.pathname;
@@ -35,7 +38,9 @@
     if (!token) return false;
 
     if (!CONFIG.apiKey || !CONFIG.apiSecret) {
-      if (typeof showToast === 'function') showToast('Set up your API keys first', 'error');
+      if (typeof ui !== 'undefined' && typeof ui.showToast === 'function') {
+        ui.showToast('Set up your API keys first', 'error');
+      }
       return false;
     }
 

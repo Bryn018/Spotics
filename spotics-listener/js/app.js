@@ -975,6 +975,8 @@
       ui.hideConfigModal();
       ui.showToast('Configuration saved', 'success');
       ui.setConnectedUI(false, username);
+      // Auto-trigger login after saving config
+      lastfm.initiateLogin();
     });
 
     // Compare button
@@ -988,16 +990,23 @@
     // Apply saved theme
     ui.applyTheme();
 
-    // Handle auth callback
+    // Handle auth callback (Last.fm redirects back with ?token=xxx)
     try {
       var justAuthed = await lastfm.handleAuthCallback();
-      if (justAuthed) ui.showToast('Connected to Last.fm!', 'success');
+      if (justAuthed) {
+        ui.showToast('Connected to Last.fm!', 'success');
+        ui.setConnectedUI(true, CONFIG.username);
+        await fetchAndStore();
+        await refreshDashboard();
+        startPolling();
+        bindEvents();
+        return;
+      }
     } catch (e) { ui.showToast(e.message, 'error'); }
 
-    // Restore session
+    // Restore previous session from IndexedDB
     var key = await db.getSessionKey();
     if (key && CONFIG.apiKey) {
-      sessionKey = key;
       ui.setConnectedUI(true, CONFIG.username);
       await fetchAndStore();
       await refreshDashboard();
